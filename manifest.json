@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "TabGroups Plus",
+  "version": "0.0.1",
+  "icons": {
+    "16": "src/assets/icon/icon-16.png",
+    "32": "src/assets/icon/icon-32.png",
+    "48": "src/assets/icon/icon-48.png",
+    "128": "src/assets/icon/icon-128.png"
+  },
+  "action": {
+    "default_title": "TabGroups Plus",
+    "default_popup": "index.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "windows": "Ctrl+Shift+P",
+        "mac": "Command+Shift+P",
+        "chromeos": "Ctrl+Shift+P",
+        "linux": "Ctrl+Shift+P"
+      },
+      "description": "Open TabGroups Plus"
+    }
+  },
+  "background": {
+    "service_worker": "src/background/index.ts"
+  },
+  "permissions": [
+    "alarms",
+    "commands",
+    "storage",
+    "tabGroups",
+    "tabs",
+    "activeTab"
+  ]
+}

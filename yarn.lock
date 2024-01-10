@@ -428,6 +428,11 @@ cheerio@^1.0.0-rc.10:
     parse5 "^7.0.0"
     parse5-htmlparser2-tree-adapter "^7.0.0"
 
+chrome-types@^0.1.248:
+  version "0.1.248"
+  resolved "https://registry.yarnpkg.com/chrome-types/-/chrome-types-0.1.248.tgz#8baeb01a94ce2443b16d034a5e6bf664fbf8c5f9"
+  integrity sha512-1yIRIBf+cgmbA+mf2RRnvRY9VR1KfA0XXBLnn7+PiewE2QQylpXD/7+Nte4cFtoOGeDJnxkQ1FbvN8CUSmEIHg==
+
 computeds@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/computeds/-/computeds-0.0.1.tgz#215b08a4ba3e08a11ff6eee5d6d8d7166a97ce2e"
