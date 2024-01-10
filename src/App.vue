@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import TabGroupList from './components/tab/GroupList.vue';
 import TabGroupListItem from './components/tab/GroupListItem.vue';
 // chromeの型定義ファイルを読み込む
-type TabGroup = chrome.tabGroups.TabGroup
+type TabGroup = chrome.tabGroups.TabGroup;
+
+const { tm } = useI18n({ useScope: 'global' });
+
 /**
  * タブグループの一覧
  */
@@ -24,21 +28,26 @@ const query = ref<string>('');
  */
 onMounted(async () => {
   console.log('onMounted!');
-  // すべてのタブグループの一覧を取得
-  tabGroups.value = await chrome.tabGroups.query({});
-  // キーが押された時のイベントを登録
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown') {
-      onDownKeyPressed();
-    } else if (e.key === 'ArrowUp') {
-      onUpKeyPressed();
-    } else if (e.key === 'Enter') {
-      onEnterKeyPressed();
-    }
-  });
-  // 初期表示時に検索文字列の入力欄にフォーカスを当てる
-  const input = document.getElementById('query');
-  input?.focus();
+  try {
+    // すべてのタブグループの一覧を取得
+    tabGroups.value = await chrome.tabGroups.query({});
+    // キーが押された時のイベントを登録
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        onDownKeyPressed();
+      } else if (e.key === 'ArrowUp') {
+        onUpKeyPressed();
+      } else if (e.key === 'Enter') {
+        onEnterKeyPressed();
+      }
+    });
+    // 初期表示時に検索文字列の入力欄にフォーカスを当てる
+    const input = document.getElementById('query');
+    input?.focus();
+    // queryPlaceholder.value = tm('tabGroups.input_query');
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 /**
@@ -70,35 +79,61 @@ const onDownKeyPressed = () => {
  */
 const onEnterKeyPressed = async () => {
   console.log('onEnterKeyPressed!');
-  // 選択中のタブグループを取得
-  const selectedTabGroup = tabGroups.value[selectedTabGroupIndex.value];
-  if (!selectedTabGroup) {
-    return;
+  // 選択されたグループのタブをハイライトする
+  await highlightSelectedTabGroup();
+};
+
+/**
+ * 選択されたグループのタブをハイライトする
+ */
+const highlightSelectedTabGroup = async () => {
+  console.log('highlightSelectedTabGroup!');
+  try {
+    // 選択中のタブグループを取得
+    const selectedTabGroup = tabGroups.value[selectedTabGroupIndex.value];
+    if (!selectedTabGroup) {
+      return;
+    }
+    // タブグループに属するタブを取得
+    const tabs = await chrome.tabs.query({ groupId: selectedTabGroup.id });
+    if (!tabs.length) {
+      return;
+    }
+    const targetTab = tabs[0];
+    // カレントウィンドウを取得
+    const currentWindow = await chrome.windows.getCurrent();
+    if (currentWindow.id !== targetTab.windowId) {
+      // タブが属するウィンドウがカレントウィンドウでない場合は、
+      // タブが属するウィンドウをアクティブにする
+      await chrome.windows.update(targetTab.windowId, { focused: true });
+    }
+    // タブをハイライトする
+    await chrome.tabs.highlight({
+      tabs: targetTab.index,
+      windowId: targetTab.windowId,
+    });
+    // ポップアップを閉じる
+    window.close();
+  } catch (error) {
+    console.error(`Error at highlightSelectedTabGroup: ${error}`);
   }
-  // タブグループに属するタブを取得
-  const tabs = await chrome.tabs.query({ groupId: selectedTabGroup.id });
-  if (!tabs.length) {
-    return;
-  }
-  const targetTab = tabs[0];
-  // window をアクティブにする
-  await chrome.windows.update(targetTab.windowId!, { focused: true });
-  // 先頭のタブをアクティブにする
-  await chrome.tabs.update(targetTab.id!, { highlighted: true });
-  // ポップアップを閉じる
-  window.close();
 };
 </script>
 
 <template>
   <div class="min-w-md">
-    <input
-      type="text"
-      id="query"
-      v-model="query"
-      placeholder="Input tab group name"
-      class="input input-bordered w-full"
-    />
+    <label class="form-control">
+      <div class="label">
+        <span class="label-text">{{ tm('tabGroups.search') }}</span>
+      </div>
+      <input
+        type="text"
+        id="query"
+        v-model="query"
+        :placeholder="tm('tabGroups.input_query')"
+        class="input input-bordered w-full"
+      />
+    </label>
     <TabGroupList>
       <TabGroupListItem
         v-for="(tabGroup, index) in tabGroups"
@@ -106,7 +141,7 @@ const onEnterKeyPressed = async () => {
         :tabGroup="tabGroup"
         :index="index"
         :active="selectedTabGroupIndex === index"
-        />
+      />
     </TabGroupList>
   </div>
 </template>

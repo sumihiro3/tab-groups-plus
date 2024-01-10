@@ -1,0 +1,9 @@
+{
+  "Hello": "Hello",
+  "World": "World",
+  "tabGroups": {
+    "input_query": "Enter and search tab group",
+    "no_matches": "No matches found",
+    "search": "Search"
+  }
+}
