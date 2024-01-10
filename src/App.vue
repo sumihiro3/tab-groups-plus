@@ -1,30 +1,112 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import { onMounted, ref } from 'vue';
+import TabGroupList from './components/tab/GroupList.vue';
+import TabGroupListItem from './components/tab/GroupListItem.vue';
+// chromeの型定義ファイルを読み込む
+type TabGroup = chrome.tabGroups.TabGroup
+/**
+ * タブグループの一覧
+ */
+const tabGroups = ref<TabGroup[]>([]);
+
+/**
+ * 選択中のタブグループのインデックス
+ */
+const selectedTabGroupIndex = ref<number>(0);
+
+/**
+ * タブグループの検索用文字列
+ */
+const query = ref<string>('');
+
+/**
+ * onMounted
+ */
+onMounted(async () => {
+  console.log('onMounted!');
+  // すべてのタブグループの一覧を取得
+  tabGroups.value = await chrome.tabGroups.query({});
+  // キーが押された時のイベントを登録
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      onDownKeyPressed();
+    } else if (e.key === 'ArrowUp') {
+      onUpKeyPressed();
+    } else if (e.key === 'Enter') {
+      onEnterKeyPressed();
+    }
+  });
+  // 初期表示時に検索文字列の入力欄にフォーカスを当てる
+  const input = document.getElementById('query');
+  input?.focus();
+});
+
+/**
+ * 上キーが押された時の処理
+ */
+const onUpKeyPressed = () => {
+  console.log('onUpKeyPressed!');
+  if (selectedTabGroupIndex.value === 0) {
+    selectedTabGroupIndex.value = tabGroups.value.length - 1;
+    return;
+  }
+  selectedTabGroupIndex.value = selectedTabGroupIndex.value - 1;
+};
+
+/**
+ * 下キーが押された時の処理
+ */
+const onDownKeyPressed = () => {
+  console.log('onDownKeyPressed!');
+  if (selectedTabGroupIndex.value === tabGroups.value.length - 1) {
+    selectedTabGroupIndex.value = 0;
+    return;
+  }
+  selectedTabGroupIndex.value = selectedTabGroupIndex.value + 1;
+};
+
+/**
+ * Enterキーが押された時の処理
+ */
+const onEnterKeyPressed = async () => {
+  console.log('onEnterKeyPressed!');
+  // 選択中のタブグループを取得
+  const selectedTabGroup = tabGroups.value[selectedTabGroupIndex.value];
+  if (!selectedTabGroup) {
+    return;
+  }
+  // タブグループに属するタブを取得
+  const tabs = await chrome.tabs.query({ groupId: selectedTabGroup.id });
+  if (!tabs.length) {
+    return;
+  }
+  const targetTab = tabs[0];
+  // window をアクティブにする
+  await chrome.windows.update(targetTab.windowId!, { focused: true });
+  // 先頭のタブをアクティブにする
+  await chrome.tabs.update(targetTab.id!, { highlighted: true });
+  // ポップアップを閉じる
+  window.close();
+};
 </script>
 
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="min-w-md">
+    <input
+      type="text"
+      id="query"
+      v-model="query"
+      placeholder="Input tab group name"
+      class="input input-bordered w-full"
+    />
+    <TabGroupList>
+      <TabGroupListItem
+        v-for="(tabGroup, index) in tabGroups"
+        :key="index"
+        :tabGroup="tabGroup"
+        :index="index"
+        :active="selectedTabGroupIndex === index"
+        />
+    </TabGroupList>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
