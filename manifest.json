@@ -23,15 +23,9 @@
       "description": "Open TabGroups Plus"
     }
   },
-  "background": {
-    "service_worker": "src/background/index.ts"
-  },
   "permissions": [
-    "alarms",
     "commands",
-    "storage",
     "tabGroups",
-    "tabs",
-    "activeTab"
+    "tabs"
   ]
 }
