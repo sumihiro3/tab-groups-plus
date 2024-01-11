@@ -25,7 +25,6 @@
   },
   "permissions": [
     "commands",
-    "tabGroups",
-    "tabs"
+    "tabGroups"
   ]
 }
