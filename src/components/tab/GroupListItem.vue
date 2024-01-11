@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { marginText } from '../../composables/string';
+
 import { TabGroupColorEnum } from '../../types';
 type TabGroup = chrome.tabGroups.TabGroup;
 
@@ -66,19 +68,6 @@ const tabGroupAvatarColor = computed(() => {
     'bg-orange-500': color === 'orange',
   };
 });
-
-/**
- * 最大幅で表示するためのプレースホルダーの文字列を返す
- */
-const marginText = computed(() => {
-  const maxLength = 32;
-  const length = subTitle.value.length;
-  if (length >= maxLength) {
-    return '';
-  }
-  const margin = maxLength - length;
-  return '-'.repeat(margin);
-});
 </script>
 
 <template>
@@ -109,7 +98,10 @@ const marginText = computed(() => {
           </div>
           <div class="leading-snug text-xs text-gray-600 text-left">
             {{ subTitle }}
-            <span class="text-opacity-0 text-gray-600">{{ marginText }}</span>
+            <!-- 最大幅にするためのプレースホルダー -->
+            <span class="text-opacity-0 text-gray-600">{{
+              marginText(subTitle, 32)
+            }}</span>
           </div>
         </div>
       </div>

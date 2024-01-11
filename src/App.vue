@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TabGroupList from './components/tab/GroupList.vue';
 import TabGroupListItem from './components/tab/GroupListItem.vue';
@@ -23,6 +23,8 @@ const selectedTabGroupIndex = ref<number>(0);
  */
 const query = ref<string>('');
 
+const iconUrl = chrome.runtime.getURL('/src/assets/icon/icon-128.png');
+
 /**
  * onMounted
  */
@@ -33,6 +35,10 @@ onMounted(async () => {
     tabGroups.value = await chrome.tabGroups.query({});
     // キーが押された時のイベントを登録
     document.addEventListener('keydown', (e) => {
+      if (e.isComposing || e.key === 'Process' || e.keyCode === 229) {
+        // IME入力中は無視する
+        return;
+      }
       if (e.key === 'ArrowDown') {
         onDownKeyPressed();
       } else if (e.key === 'ArrowUp') {
@@ -49,6 +55,27 @@ onMounted(async () => {
 });
 
 /**
+ * タブグループ名でフィルタリングした結果を返す
+ */
+const filteredTabGroups = computed(() => {
+  console.log('filteredTabGroups!');
+  if (!query.value) {
+    return tabGroups.value;
+  }
+  const q = query.value.toLowerCase();
+  // 入力された文字列がタブグループ名に含まれているものに絞り込む
+  const filtered = tabGroups.value.filter((tabGroup) => {
+    const title = tabGroup.title!.toLowerCase();
+    return title.indexOf(q) !== -1;
+  });
+  // 現在のインデックスがフィルタリング後の配列の範囲外になっている場合は、0にする
+  if (selectedTabGroupIndex.value >= filtered.length) {
+    selectedTabGroupIndex.value = 0;
+  }
+  return filtered;
+});
+
+/**
  * 検索文字列の入力欄にフォーカスを当てる
  */
 const setFocusToQuery = () => {
@@ -62,7 +89,7 @@ const setFocusToQuery = () => {
 const onUpKeyPressed = () => {
   console.log('onUpKeyPressed!');
   if (selectedTabGroupIndex.value === 0) {
-    selectedTabGroupIndex.value = tabGroups.value.length - 1;
+    selectedTabGroupIndex.value = filteredTabGroups.value.length - 1;
   } else {
     selectedTabGroupIndex.value = selectedTabGroupIndex.value - 1;
   }
@@ -74,7 +101,7 @@ const onUpKeyPressed = () => {
  */
 const onDownKeyPressed = () => {
   console.log('onDownKeyPressed!');
-  if (selectedTabGroupIndex.value === tabGroups.value.length - 1) {
+  if (selectedTabGroupIndex.value === filteredTabGroups.value.length - 1) {
     selectedTabGroupIndex.value = 0;
   } else {
     selectedTabGroupIndex.value = selectedTabGroupIndex.value + 1;
@@ -111,7 +138,7 @@ const highlightTabGroup = async (index: number) => {
   console.log(`highlightTabGroup [index: ${index}]`);
   try {
     // 選択中のタブグループを取得
-    const selectedTabGroup = tabGroups.value[index];
+    const selectedTabGroup = filteredTabGroups.value[index];
     if (!selectedTabGroup) {
       return;
     }
@@ -144,19 +171,24 @@ const highlightTabGroup = async (index: number) => {
 <template>
   <div class="bg-gray-10">
     <div class="mt-2">
-      <label class="form-control">
+      <div class="join w-full">
         <input
           type="text"
           id="query"
           v-model="query"
           :placeholder="tm('tabGroups.input_query')"
-          class="input input-bordered w-full"
+          class="input join-item w-10/12"
         />
-      </label>
+        <div class="avatar">
+          <div class="w-10 rounded join-item">
+            <img :src="iconUrl" />
+          </div>
+        </div>
+      </div>
     </div>
-    <TabGroupList class="mt-2 h-80">
+    <TabGroupList v-if="filteredTabGroups.length > 0" class="mt-2 h-80">
       <TabGroupListItem
-        v-for="(tabGroup, index) in tabGroups"
+        v-for="(tabGroup, index) in filteredTabGroups"
         :key="index"
         :tabGroup="tabGroup"
         :index="index"
@@ -164,5 +196,15 @@ const highlightTabGroup = async (index: number) => {
         @selected="highlightTabGroup"
       />
     </TabGroupList>
+    <!-- 表示できるタブグループがない場合 -->
+    <div v-else>
+      <div class="flex items-center m-6">
+        <div class="ml-2 flex flex-col">
+          <div class="leading-snug text-base text-gray-600 font-bold text-left">
+            {{ tm('tabGroups.no_matches') }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
