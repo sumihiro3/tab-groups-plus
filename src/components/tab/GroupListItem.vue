@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, defineProps, ref, onMounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { TabGroupColorEnum } from '../../types';
-type TabGroup = chrome.tabGroups.TabGroup
+type TabGroup = chrome.tabGroups.TabGroup;
 
 /**
  * コンポーネントのプロパティ
@@ -76,8 +76,7 @@ const marginText = computed(() => {
     }"
   >
     <div class="flex items-center">
-      <div class="avatar placeholder" 
-      >
+      <div class="avatar placeholder">
         <div
           :class="tabGroupAvatarColor"
           class="text-neutral-content rounded-full w-8"
