@@ -80,21 +80,22 @@ const onDownKeyPressed = () => {
 const onEnterKeyPressed = async () => {
   console.log('onEnterKeyPressed!');
   // 選択されたグループのタブをハイライトする
-  await highlightSelectedTabGroup();
+  await highlightTabGroup(selectedTabGroupIndex.value);
 };
 
 /**
- * 選択されたグループのタブをハイライトする
+ * 指定のタブグループをハイライトする
+ * @param index タブグループのインデックス
  */
-const highlightSelectedTabGroup = async () => {
-  console.log('highlightSelectedTabGroup!');
+const highlightTabGroup = async (index: number) => {
+  console.log(`highlightTabGroup [index: ${index}]`);
   try {
     // 選択中のタブグループを取得
-    const selectedTabGroup = tabGroups.value[selectedTabGroupIndex.value];
+    const selectedTabGroup = tabGroups.value[index];
     if (!selectedTabGroup) {
       return;
     }
-    // タブグループに属するタブを取得
+    // タブグループに属する最初のタブを取得し、このタブをハイライト対象とする
     const tabs = await chrome.tabs.query({ groupId: selectedTabGroup.id });
     if (!tabs.length) {
       return;
@@ -103,11 +104,11 @@ const highlightSelectedTabGroup = async () => {
     // カレントウィンドウを取得
     const currentWindow = await chrome.windows.getCurrent();
     if (currentWindow.id !== targetTab.windowId) {
-      // タブが属するウィンドウがカレントウィンドウでない場合は、
+      // ハイライト対象タブが属するウィンドウがカレントウィンドウでない場合は、
       // タブが属するウィンドウをアクティブにする
       await chrome.windows.update(targetTab.windowId, { focused: true });
     }
-    // タブをハイライトする
+    // 対象のタブをハイライトする
     await chrome.tabs.highlight({
       tabs: targetTab.index,
       windowId: targetTab.windowId,
@@ -115,7 +116,7 @@ const highlightSelectedTabGroup = async () => {
     // ポップアップを閉じる
     window.close();
   } catch (error) {
-    console.error(`Error at highlightSelectedTabGroup: ${error}`);
+    console.error(`Error at highlightTabGroup: ${error}`);
   }
 };
 </script>
@@ -141,6 +142,7 @@ const highlightSelectedTabGroup = async () => {
         :tabGroup="tabGroup"
         :index="index"
         :active="selectedTabGroupIndex === index"
+        @selected="highlightTabGroup"
       />
     </TabGroupList>
   </div>
