@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { TabGroupColorEnum } from '../../types';
 type TabGroup = chrome.tabGroups.TabGroup;
+
+const { tm } = useI18n({ useScope: 'global' });
 
 /**
  * コンポーネントのプロパティ
@@ -35,7 +38,9 @@ onMounted(async () => {
   }
   const tabs = await chrome.tabs.query({ groupId: props.tabGroup.id });
   // タブの数を表示する
-  subTitle.value = `${tabs.length} tabs`;
+  subTitle.value = `${tm('tabs.count_prefix')} ${tabs.length} ${tm(
+    'tabs.count_suffix',
+  )}`;
 });
 
 /**
@@ -77,7 +82,11 @@ const marginText = computed(() => {
 </script>
 
 <template>
-  <main v-if="props.tabGroup">
+  <div
+    :id="`tab-group-${props.index!}`"
+    class="carousel-item h-1/4"
+    v-if="props.tabGroup"
+  >
     <div
       class="pt-4 pb-4 pl-3 pr-3 flex w-full justify-between items-center border-t cursor-pointer hover:bg-gray-200"
       :class="{
@@ -106,5 +115,5 @@ const marginText = computed(() => {
       </div>
       <kbd class="kbd" v-if="props.active">Enter</kbd>
     </div>
-  </main>
+  </div>
 </template>

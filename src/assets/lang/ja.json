@@ -1,6 +1,8 @@
 {
-  "Hello": "ハロー",
-  "World": "ワールド",
+  "tabs": {
+    "count_prefix": "タブ数:",
+    "count_suffix": ""
+  },
   "tabGroups": {
     "input_query": "入力してタブグループを検索",
     "no_matches": "一致するタブグループはありません",

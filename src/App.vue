@@ -42,13 +42,19 @@ onMounted(async () => {
       }
     });
     // 初期表示時に検索文字列の入力欄にフォーカスを当てる
-    const input = document.getElementById('query');
-    input?.focus();
-    // queryPlaceholder.value = tm('tabGroups.input_query');
+    setFocusToQuery();
   } catch (error) {
     console.error(error);
   }
 });
+
+/**
+ * 検索文字列の入力欄にフォーカスを当てる
+ */
+const setFocusToQuery = () => {
+  const input = document.getElementById('query');
+  input?.focus();
+};
 
 /**
  * 上キーが押された時の処理
@@ -57,9 +63,10 @@ const onUpKeyPressed = () => {
   console.log('onUpKeyPressed!');
   if (selectedTabGroupIndex.value === 0) {
     selectedTabGroupIndex.value = tabGroups.value.length - 1;
-    return;
+  } else {
+    selectedTabGroupIndex.value = selectedTabGroupIndex.value - 1;
   }
-  selectedTabGroupIndex.value = selectedTabGroupIndex.value - 1;
+  setFocusToSelectedTabGroupItem(selectedTabGroupIndex.value);
 };
 
 /**
@@ -69,9 +76,22 @@ const onDownKeyPressed = () => {
   console.log('onDownKeyPressed!');
   if (selectedTabGroupIndex.value === tabGroups.value.length - 1) {
     selectedTabGroupIndex.value = 0;
-    return;
+  } else {
+    selectedTabGroupIndex.value = selectedTabGroupIndex.value + 1;
   }
-  selectedTabGroupIndex.value = selectedTabGroupIndex.value + 1;
+  setFocusToSelectedTabGroupItem(selectedTabGroupIndex.value);
+};
+
+/**
+ * 選択されたタブグループのアイテムにフォーカスを当てる
+ * @param index タブグループのインデックス
+ */
+const setFocusToSelectedTabGroupItem = (index: number) => {
+  console.log(`setFocusToSelectedTabGroupItem [index: ${index}]`);
+  selectedTabGroupIndex.value = index;
+  const id = `tab-group-${index}`;
+  window.location.hash = `#${id}`;
+  setFocusToQuery();
 };
 
 /**
@@ -122,20 +142,19 @@ const highlightTabGroup = async (index: number) => {
 </script>
 
 <template>
-  <div class="min-w-md">
-    <label class="form-control">
-      <div class="label">
-        <span class="label-text">{{ tm('tabGroups.search') }}</span>
-      </div>
-      <input
-        type="text"
-        id="query"
-        v-model="query"
-        :placeholder="tm('tabGroups.input_query')"
-        class="input input-bordered w-full"
-      />
-    </label>
-    <TabGroupList>
+  <div class="bg-gray-10">
+    <div class="mt-2">
+      <label class="form-control">
+        <input
+          type="text"
+          id="query"
+          v-model="query"
+          :placeholder="tm('tabGroups.input_query')"
+          class="input input-bordered w-full"
+        />
+      </label>
+    </div>
+    <TabGroupList class="mt-2 h-80">
       <TabGroupListItem
         v-for="(tabGroup, index) in tabGroups"
         :key="index"

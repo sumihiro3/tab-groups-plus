@@ -1,6 +1,8 @@
 {
-  "Hello": "Hello",
-  "World": "World",
+  "tabs": {
+    "count_prefix": "",
+    "count_suffix": "tabs"
+  },
   "tabGroups": {
     "input_query": "Enter and search tab group",
     "no_matches": "No matches found",
