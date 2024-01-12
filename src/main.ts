@@ -1,8 +1,8 @@
 import { createApp } from 'vue';
 import './style.css';
 import App from './App.vue';
-import './assets/tailwind.css';
 import { createI18n } from 'vue-i18n';
+import vuetify from './plugins/vuetify';
 import ja from './assets/lang/ja.json';
 import en from './assets/lang/en.json';
 
@@ -33,5 +33,6 @@ const i18n = createI18n({
   },
 });
 app.use(i18n);
+app.use(vuetify);
 
 app.mount('#app');

@@ -1,6 +1,6 @@
 <template>
-  <!-- <div class="mt-4 w-full"> -->
-  <div class="carousel carousel-vertical w-full">
+  <v-list lines="two">
+    <v-list-subheader>Tab groups</v-list-subheader>
     <slot></slot>
-  </div>
+  </v-list>
 </template>

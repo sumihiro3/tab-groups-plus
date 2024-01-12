@@ -169,42 +169,44 @@ const highlightTabGroup = async (index: number) => {
 </script>
 
 <template>
-  <div class="bg-gray-10">
-    <div class="mt-2">
-      <div class="join w-full">
-        <input
-          type="text"
+  <v-app>
+    <v-app-bar density="compact">
+      <!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
+      <v-app-bar-title>
+        <v-text-field
           id="query"
           v-model="query"
           :placeholder="tm('tabGroups.input_query')"
-          class="input join-item w-10/12"
-        />
-        <div class="avatar">
-          <div class="w-10 rounded join-item">
-            <img :src="iconUrl" />
-          </div>
-        </div>
-      </div>
-    </div>
-    <TabGroupList v-if="filteredTabGroups.length > 0" class="mt-2 h-80">
-      <TabGroupListItem
-        v-for="(tabGroup, index) in filteredTabGroups"
-        :key="index"
-        :tabGroup="tabGroup"
-        :index="index"
-        :active="selectedTabGroupIndex === index"
-        @selected="highlightTabGroup"
-      />
-    </TabGroupList>
-    <!-- 表示できるタブグループがない場合 -->
-    <div v-else>
-      <div class="flex items-center m-6">
-        <div class="ml-2 flex flex-col">
-          <div class="leading-snug text-base text-gray-600 font-bold text-left">
+          hide-details
+          single-line
+        >
+          <template v-slot:prepend>
+            <v-avatar>
+              <v-img :src="iconUrl" alt="TabGroups Plus"></v-img>
+            </v-avatar>
+          </template>
+        </v-text-field>
+      </v-app-bar-title>
+    </v-app-bar>
+
+    <v-main>
+      <v-container fluid class="pa-0">
+        <TabGroupList v-if="filteredTabGroups.length > 0" max-height="400">
+          <TabGroupListItem
+            v-for="(tabGroup, index) in filteredTabGroups"
+            :key="index"
+            :tabGroup="tabGroup"
+            :index="index"
+            :active="selectedTabGroupIndex === index"
+            @selected="highlightTabGroup"
+          />
+        </TabGroupList>
+        <div v-else class="mt-4">
+          <v-chip variant="text" class="text-subtitle-1 font-weight-bold">
             {{ tm('tabGroups.no_matches') }}
-          </div>
+          </v-chip>
         </div>
-      </div>
-    </div>
-  </div>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>

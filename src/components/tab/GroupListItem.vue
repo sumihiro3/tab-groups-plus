@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { marginText } from '../../composables/string';
-
-import { TabGroupColorEnum } from '../../types';
 type TabGroup = chrome.tabGroups.TabGroup;
 
 const { tm } = useI18n({ useScope: 'global' });
@@ -44,68 +41,29 @@ onMounted(async () => {
     'tabs.count_suffix',
   )}`;
 });
-
-/**
- * グループ名のカラーを返す
- */
-const tabGroupAvatarColor = computed(() => {
-  let color = props.tabGroup ? props.tabGroup.color : 'grey';
-  if (!color || !Object.values(TabGroupColorEnum).includes(color)) {
-    // 未定義の場合はグレーにする
-    color = 'grey';
-  } else {
-    color = props.tabGroup!.color;
-  }
-  return {
-    'bg-gray-500': color === 'grey',
-    'bg-blue-500': color === 'blue',
-    'bg-red-500': color === 'red',
-    'bg-yellow-500': color === 'yellow',
-    'bg-green-500': color === 'green',
-    'bg-pink-500': color === 'pink',
-    'bg-purple-500': color === 'purple',
-    'bg-cyan-500': color === 'cyan',
-    'bg-orange-500': color === 'orange',
-  };
-});
 </script>
 
 <template>
-  <div
+  <v-list-item
     :id="`tab-group-${props.index!}`"
-    class="carousel-item h-1/4"
-    v-if="props.tabGroup"
+    :value="props.tabGroup"
+    color="primary"
+    rounded="xl"
+    :active="props.active"
   >
-    <div
-      class="pt-4 pb-4 pl-3 pr-3 flex w-full justify-between items-center border-t cursor-pointer hover:bg-gray-200"
-      :class="{
-        'bg-gray-200': props.active,
-      }"
-      @click="emit('selected', props.index!)"
-    >
-      <div class="flex items-center">
-        <div class="avatar placeholder">
-          <div
-            :class="tabGroupAvatarColor"
-            class="text-neutral-content rounded-full w-8"
-          >
-            <span class="text-xl"></span>
-          </div>
-        </div>
-        <div class="ml-2 flex flex-col">
-          <div class="leading-snug text-base text-gray-900 font-bold text-left">
-            {{ props.tabGroup.title }}
-          </div>
-          <div class="leading-snug text-xs text-gray-600 text-left">
-            {{ subTitle }}
-            <!-- 最大幅にするためのプレースホルダー -->
-            <span class="text-opacity-0 text-gray-600">{{
-              marginText(subTitle, 32)
-            }}</span>
-          </div>
-        </div>
-      </div>
-      <kbd class="kbd" v-if="props.active">Enter</kbd>
-    </div>
-  </div>
+    <template v-slot:prepend>
+      <v-icon icon="mdi-circle" :color="props.tabGroup!.color"></v-icon>
+    </template>
+    <template v-slot:append>
+      <v-chip v-show="active" color="primary" size="small" flat class="ml-2"
+        >Enter</v-chip
+      >
+    </template>
+
+    <v-list-item-title
+      class="text-left text-subtitle-1 font-weight-bold"
+      v-text="props.tabGroup!.title"
+    />
+    <v-list-item-subtitle class="text-left text-body-2" v-text="subTitle" />
+  </v-list-item>
 </template>
