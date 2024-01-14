@@ -136,6 +136,9 @@ const onEnterKeyPressed = async () => {
  */
 const highlightTabGroup = async (index: number) => {
   console.log(`highlightTabGroup [index: ${index}]`);
+  if (index < 0) {
+    return;
+  }
   try {
     // 選択中のタブグループを取得
     const selectedTabGroup = filteredTabGroups.value[index];
@@ -180,8 +183,8 @@ const highlightTabGroup = async (index: number) => {
           hide-details
           single-line
         >
-          <template v-slot:prepend>
-            <v-avatar>
+          <template v-slot:append>
+            <v-avatar class="mr-2">
               <v-img :src="iconUrl" alt="TabGroups Plus"></v-img>
             </v-avatar>
           </template>
@@ -195,18 +198,34 @@ const highlightTabGroup = async (index: number) => {
           <TabGroupListItem
             v-for="(tabGroup, index) in filteredTabGroups"
             :key="index"
+            :id="`tab-group-${index}`"
             :tabGroup="tabGroup"
             :index="index"
             :active="selectedTabGroupIndex === index"
             @selected="highlightTabGroup"
           />
         </TabGroupList>
-        <div v-else class="mt-4">
-          <v-chip variant="text" class="text-subtitle-1 font-weight-bold">
+        <v-layout v-else height="100dvh">
+          <v-chip variant="text" class="mt-4 text-subtitle-1 font-weight-bold">
             {{ tm('tabGroups.no_matches') }}
           </v-chip>
-        </div>
+        </v-layout>
       </v-container>
+      <!-- Footer -->
+      <!-- <v-container fluid class="pa-0">
+        <v-footer app class="pa-0">
+          <div class="bg-teal d-flex w-100 align-center px-4">
+            <strong>TagGroups Plus</strong>
+            <v-spacer></v-spacer>
+            <v-btn
+              class="mx-4"
+              icon="mdi-cog"
+              variant="plain"
+              size="small"
+            ></v-btn>
+          </div>
+        </v-footer>
+      </v-container> -->
     </v-main>
   </v-app>
 </template>

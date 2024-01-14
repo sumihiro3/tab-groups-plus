@@ -1,4 +1,5 @@
 {
+  "cancel": "キャンセル",
   "tabs": {
     "count_prefix": "タブ数:",
     "count_suffix": ""
@@ -6,6 +7,8 @@
   "tabGroups": {
     "input_query": "入力してタブグループを検索",
     "no_matches": "一致するタブグループはありません",
-    "search": "タブグループの検索"
+    "search": "タブグループの検索",
+    "open": "開く",
+    "save_and_close": "保存して閉じる"
   }
 }
