@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-type TabGroup = chrome.tabGroups.TabGroup;
+import { BrowserTabGroup } from '../../types';
 
 const { tm } = useI18n({ useScope: 'global' });
 
@@ -9,7 +9,7 @@ const { tm } = useI18n({ useScope: 'global' });
  * コンポーネントのプロパティ
  */
 const props = defineProps({
-  tabGroup: Object as () => TabGroup,
+  tabGroup: Object as () => BrowserTabGroup,
   index: Number,
   active: Boolean,
 });

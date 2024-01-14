@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { BrowserTabGroup } from './types';
+import { getTabGroups } from './composables/chrome';
 import TabGroupList from './components/tab/GroupList.vue';
 import TabGroupListItem from './components/tab/GroupListItem.vue';
-// chromeの型定義ファイルを読み込む
-type TabGroup = chrome.tabGroups.TabGroup;
 
 const { tm } = useI18n({ useScope: 'global' });
 
 /**
  * タブグループの一覧
  */
-const tabGroups = ref<TabGroup[]>([]);
+const tabGroups = ref<BrowserTabGroup[]>([]);
 
 /**
  * 選択中のタブグループのインデックス
@@ -32,7 +32,7 @@ onMounted(async () => {
   console.log('onMounted!');
   try {
     // すべてのタブグループの一覧を取得
-    tabGroups.value = await chrome.tabGroups.query({});
+    tabGroups.value = await getTabGroups();
     // キーが押された時のイベントを登録
     document.addEventListener('keydown', (e) => {
       if (e.isComposing || e.key === 'Process' || e.keyCode === 229) {
@@ -58,7 +58,7 @@ onMounted(async () => {
  * タブグループ名でフィルタリングした結果を返す
  */
 const filteredTabGroups = computed(() => {
-  console.log('filteredTabGroups!');
+  console.debug('filteredTabGroups called!');
   if (!query.value) {
     return tabGroups.value;
   }
@@ -79,6 +79,7 @@ const filteredTabGroups = computed(() => {
  * 検索文字列の入力欄にフォーカスを当てる
  */
 const setFocusToQuery = () => {
+  console.debug('setFocusToQuery called!');
   const input = document.getElementById('query');
   input?.focus();
 };
@@ -87,7 +88,7 @@ const setFocusToQuery = () => {
  * 上キーが押された時の処理
  */
 const onUpKeyPressed = () => {
-  console.log('onUpKeyPressed!');
+  console.debug('onUpKeyPressed called!');
   if (selectedTabGroupIndex.value === 0) {
     selectedTabGroupIndex.value = filteredTabGroups.value.length - 1;
   } else {
@@ -100,7 +101,7 @@ const onUpKeyPressed = () => {
  * 下キーが押された時の処理
  */
 const onDownKeyPressed = () => {
-  console.log('onDownKeyPressed!');
+  console.debug('onDownKeyPressed called!');
   if (selectedTabGroupIndex.value === filteredTabGroups.value.length - 1) {
     selectedTabGroupIndex.value = 0;
   } else {
@@ -114,7 +115,7 @@ const onDownKeyPressed = () => {
  * @param index タブグループのインデックス
  */
 const setFocusToSelectedTabGroupItem = (index: number) => {
-  console.log(`setFocusToSelectedTabGroupItem [index: ${index}]`);
+  console.debug(`setFocusToSelectedTabGroupItem called! [index: ${index}]`);
   selectedTabGroupIndex.value = index;
   const id = `tab-group-${index}`;
   window.location.hash = `#${id}`;
@@ -125,7 +126,7 @@ const setFocusToSelectedTabGroupItem = (index: number) => {
  * Enterキーが押された時の処理
  */
 const onEnterKeyPressed = async () => {
-  console.log('onEnterKeyPressed!');
+  console.debug('onEnterKeyPressed called!');
   // 選択されたグループのタブをハイライトする
   await highlightTabGroup(selectedTabGroupIndex.value);
 };
@@ -135,7 +136,7 @@ const onEnterKeyPressed = async () => {
  * @param index タブグループのインデックス
  */
 const highlightTabGroup = async (index: number) => {
-  console.log(`highlightTabGroup [index: ${index}]`);
+  console.debug(`highlightTabGroup called! [index: ${index}]`);
   if (index < 0) {
     return;
   }
