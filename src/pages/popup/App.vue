@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { BrowserTabGroup } from './types';
-import { getTabGroups } from './composables/chrome';
-import TabGroupList from './components/tab/GroupList.vue';
-import TabGroupListItem from './components/tab/GroupListItem.vue';
+import { BrowserTabGroup } from '../../types';
+import { getTabGroups } from '../../composables/chrome';
+import TabGroupList from '../../components/tab/GroupList.vue';
+import TabGroupListItem from '../../components/tab/GroupListItem.vue';
 
 const { tm } = useI18n({ useScope: 'global' });
 
@@ -23,6 +23,14 @@ const selectedTabGroupIndex = ref<number>(0);
  */
 const query = ref<string>('');
 
+/**
+ * オプションページのURL
+ */
+const optionsPageUrl = chrome.runtime.getURL('/src/pages/options/index.html');
+
+/**
+ * アイコンのURL
+ */
 const iconUrl = chrome.runtime.getURL('/src/assets/icon/icon-128.png');
 
 /**
@@ -170,6 +178,18 @@ const highlightTabGroup = async (index: number) => {
     console.error(`Error at highlightTabGroup: ${error}`);
   }
 };
+
+/**
+ * オプションページを開く
+ */
+const openOptionsPage = () => {
+  console.debug('openOptionsPage called!');
+  if (chrome.runtime.openOptionsPage) {
+    chrome.runtime.openOptionsPage();
+  } else {
+    window.open(optionsPageUrl);
+  }
+};
 </script>
 
 <template>
@@ -213,12 +233,13 @@ const highlightTabGroup = async (index: number) => {
         </v-layout>
       </v-container>
       <!-- Footer -->
-      <!-- <v-container fluid class="pa-0">
+      <v-container fluid class="pa-0">
         <v-footer app class="pa-0">
           <div class="bg-teal d-flex w-100 align-center px-4">
             <strong>TagGroups Plus</strong>
             <v-spacer></v-spacer>
             <v-btn
+              @click="openOptionsPage"
               class="mx-4"
               icon="mdi-cog"
               variant="plain"
@@ -226,7 +247,7 @@ const highlightTabGroup = async (index: number) => {
             ></v-btn>
           </div>
         </v-footer>
-      </v-container> -->
+      </v-container>
     </v-main>
   </v-app>
 </template>
