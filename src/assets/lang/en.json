@@ -1,5 +1,6 @@
 {
   "cancel": "Cancel",
+  "save": "Save",
   "tabs": {
     "count_prefix": "",
     "count_suffix": "tabs"
@@ -10,5 +11,9 @@
     "search": "Search",
     "open": "Open",
     "save_and_close": "Save and close"
+  },
+  "options": {
+    "title": "Extension options",
+    "reloadOnHighlight": "Reload tab when the tab group highlighting"
   }
 }

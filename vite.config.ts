@@ -14,6 +14,14 @@ export default ({ mode }) => {
       // build.minify
       // https://ja.vitejs.dev/config/build-options.html#build-minify
       minify: isProduction,
+      rollupOptions: {
+        input: {
+          // ポップアップ
+          popup: 'src/pages/popup/index.html',
+          // 設定画面
+          options: 'src/pages/options/index.html',
+        },
+      },
     },
     esbuild: {
       // https://esbuild.github.io/api/#drop

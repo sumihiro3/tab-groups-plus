@@ -1,5 +1,6 @@
 {
   "cancel": "キャンセル",
+  "save": "保存",
   "tabs": {
     "count_prefix": "タブ数:",
     "count_suffix": ""
@@ -10,5 +11,9 @@
     "search": "タブグループの検索",
     "open": "開く",
     "save_and_close": "保存して閉じる"
+  },
+  "options": {
+    "title": "拡張機能設定",
+    "reloadOnHighlight": "タブグループのハイライト時にタブを再読み込み"
   }
 }

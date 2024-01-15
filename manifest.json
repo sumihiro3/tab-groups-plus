@@ -10,8 +10,9 @@
   },
   "action": {
     "default_title": "TabGroups Plus",
-    "default_popup": "index.html"
+    "default_popup": "src/pages/popup/index.html"
   },
+  "options_page": "src/pages/options/index.html",
   "commands": {
     "_execute_action": {
       "suggested_key": {
@@ -25,6 +26,7 @@
   },
   "permissions": [
     "commands",
+    "storage",
     "tabGroups"
   ]
 }
