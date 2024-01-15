@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { highlightTabGroup, getTabGroups } from '../../composables/chrome';
 import { BrowserTabGroup } from '../../types';
-import { getTabGroups } from '../../composables/chrome';
 import TabGroupList from '../../components/tab/GroupList.vue';
 import TabGroupListItem from '../../components/tab/GroupListItem.vue';
 
@@ -136,14 +136,14 @@ const setFocusToSelectedTabGroupItem = (index: number) => {
 const onEnterKeyPressed = async () => {
   console.debug('onEnterKeyPressed called!');
   // 選択されたグループのタブをハイライトする
-  await highlightTabGroup(selectedTabGroupIndex.value);
+  await highlightSelectedTabGroup(selectedTabGroupIndex.value);
 };
 
 /**
  * 指定のタブグループをハイライトする
  * @param index タブグループのインデックス
  */
-const highlightTabGroup = async (index: number) => {
+const highlightSelectedTabGroup = async (index: number) => {
   console.debug(`highlightTabGroup called! [index: ${index}]`);
   if (index < 0) {
     return;
@@ -154,24 +154,8 @@ const highlightTabGroup = async (index: number) => {
     if (!selectedTabGroup) {
       return;
     }
-    // タブグループに属する最初のタブを取得し、このタブをハイライト対象とする
-    const tabs = await chrome.tabs.query({ groupId: selectedTabGroup.id });
-    if (!tabs.length) {
-      return;
-    }
-    const targetTab = tabs[0];
-    // カレントウィンドウを取得
-    const currentWindow = await chrome.windows.getCurrent();
-    if (currentWindow.id !== targetTab.windowId) {
-      // ハイライト対象タブが属するウィンドウがカレントウィンドウでない場合は、
-      // タブが属するウィンドウをアクティブにする
-      await chrome.windows.update(targetTab.windowId, { focused: true });
-    }
-    // 対象のタブをハイライトする
-    await chrome.tabs.highlight({
-      tabs: targetTab.index,
-      windowId: targetTab.windowId,
-    });
+    // 指定タブグループのタブをハイライト状態にする
+    await highlightTabGroup(selectedTabGroup);
     // ポップアップを閉じる
     window.close();
   } catch (error) {
@@ -212,7 +196,7 @@ const openOptionsPage = () => {
         </v-text-field>
       </v-app-bar-title>
     </v-app-bar>
-
+    <!-- TabGroup List -->
     <v-main>
       <v-container fluid class="pa-0">
         <TabGroupList v-if="filteredTabGroups.length > 0" max-height="400">
@@ -223,7 +207,7 @@ const openOptionsPage = () => {
             :tabGroup="tabGroup"
             :index="index"
             :active="selectedTabGroupIndex === index"
-            @selected="highlightTabGroup"
+            @selected="highlightSelectedTabGroup"
           />
         </TabGroupList>
         <v-layout v-else height="100dvh">
