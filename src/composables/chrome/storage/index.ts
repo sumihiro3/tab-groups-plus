@@ -8,7 +8,12 @@ export const getBooleanValueFromSyncStorage = async (
 ): Promise<boolean> => {
   console.debug(`getBooleanValueFromSyncStorage called! [key: ${key}]`);
   const result = await chrome.storage.sync.get(key);
-  return result[key];
+  let value = result[key];
+  if (value === undefined) {
+    // 指定されたキーが存在しない場合は false を返す
+    value = false;
+  }
+  return value;
 };
 
 /**
