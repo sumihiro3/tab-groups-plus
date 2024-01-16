@@ -12,7 +12,8 @@
     "open": "開く",
     "save_and_close": "保存して閉じる",
     "restore": "復元する",
-    "delete": "削除する"
+    "delete": "削除する",
+    "stored": "保存された状態"
   },
   "options": {
     "title": "拡張機能設定",

@@ -45,15 +45,18 @@ onMounted(async () => {
   if (!props.tabGroup) {
     return;
   }
-  // タブの数を表示する
+  // リストのサブタイトルを設定する
   if (props.tabGroup instanceof StoredBrowserTabGroup) {
     // 保存されているタブグループの場合
-    subTitle.value = `${tm('tabs.count_prefix')} ${
+    // - 保存状態であることを表示する
+    // - タブの数を表示する
+    subTitle.value = `${tm('tabGroups.stored')}: ${tm('tabs.count_prefix')} ${
       props.tabGroup.tabs!.length
     } ${tm('tabs.count_suffix')}`;
   } else {
     // ブラウザーで開かれているタブグループの場合、API でタブを取得する
     const tabs = await chrome.tabs.query({ groupId: props.tabGroup.id });
+    // - タブの数を表示する
     subTitle.value = `${tm('tabs.count_prefix')} ${tabs.length} ${tm(
       'tabs.count_suffix',
     )}`;

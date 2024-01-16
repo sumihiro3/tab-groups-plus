@@ -12,7 +12,8 @@
     "open": "Open",
     "save_and_close": "Save and close",
     "restore": "Restore",
-    "delete": "Delete"
+    "delete": "Delete",
+    "stored": "Stored"
   },
   "options": {
     "title": "Extension options",
