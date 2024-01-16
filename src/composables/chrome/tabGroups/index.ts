@@ -1,4 +1,10 @@
+import {
+  getTabGroupMetadataFromSyncStorage,
+  setTabGroupMetadataToSyncStorage,
+  setTabGroupValueToSyncStorage,
+} from '..';
 import { BrowserTab, BrowserTabGroup } from '../../../types';
+import { TabGroupsSaveError } from '../../../types/errors';
 import { getExtensionOptions } from '../../options';
 
 /**
@@ -20,6 +26,7 @@ export const getTabsInTabGroup = async (
 ): Promise<BrowserTab[]> => {
   console.debug('getTabsInTabGroup called!');
   const tabs = await chrome.tabs.query({ groupId: tabGroup.id });
+  console.debug(`got tabs: ${JSON.stringify(tabs)}`);
   const result = tabs.map((tab) => new BrowserTab(tab));
   return result;
 };
@@ -55,4 +62,37 @@ export const highlightTabGroup = async (
     // オプションで設定されている場合は、対象のタブをリロードする
     await chrome.tabs.reload(targetTab.id);
   }
+};
+
+/**
+ * 指定のタブグループをストレージに保存する
+ * すでに同じタイトルのタブグループが存在する場合は、タブ内容をマージする
+ * @param tabGroup タブグループ
+ */
+export const saveTabGroup = async (
+  tabGroup: BrowserTabGroup,
+): Promise<void> => {
+  console.debug(`saveTabGroup called! [tabGroup: ${JSON.stringify(tabGroup)}]`);
+  if (!tabGroup.title) {
+    // タイトルが存在しない場合は保存しない
+    const errorMessage = `タイトルが存在しないため、タブグループを保存できません。`;
+    console.error(errorMessage);
+    throw new TabGroupsSaveError(errorMessage);
+  }
+  // 保存されているタブグループのメタデータを取得する
+  const tabGroupMetadata = await getTabGroupMetadataFromSyncStorage();
+  // 保存対象のタブグループのタイトルが既に存在するかどうかを確認する
+  const index = tabGroupMetadata.titleList.indexOf(tabGroup.title);
+  if (index === -1) {
+    // 保存対象のタイトルが存在しない場合は、タイトルを追加する
+    tabGroupMetadata.titleList.push(tabGroup.title);
+  }
+  // タブグループに属するタブを取得する
+  const tabs = await getTabsInTabGroup(tabGroup);
+  // タブグループに属するタブを設定する
+  tabGroup.setTabs(tabs);
+  // タブグループを保存する
+  await setTabGroupValueToSyncStorage(tabGroup.title, tabGroup);
+  // タブグループのメタデータを保存する
+  await setTabGroupMetadataToSyncStorage(tabGroupMetadata);
 };

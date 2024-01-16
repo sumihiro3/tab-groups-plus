@@ -1,5 +1,17 @@
+import { BrowserTab } from '.';
+
 type ColorEnum = chrome.tabGroups.ColorEnum;
 type TabGroup = chrome.tabGroups.TabGroup;
+
+/**
+ * 保存されているタブグループを表すメタデータオブジェクト
+ */
+export interface BrowserTabGroupMetadata {
+  /**
+   * 保存されているタブグループのタイトルの配列
+   */
+  titleList: string[];
+}
 
 /**
  * タブグループを表すクラス
@@ -32,6 +44,11 @@ export class BrowserTabGroup {
   windowId: number;
 
   /**
+   * グループに含まれるタブの配列
+   */
+  tabs?: BrowserTab[];
+
+  /**
    * コンストラクター
    * @param tabGroup タブグループ
    */
@@ -41,5 +58,13 @@ export class BrowserTabGroup {
     this.color = tabGroup.color;
     this.collapsed = tabGroup.collapsed;
     this.windowId = tabGroup.windowId;
+  }
+
+  /**
+   * タブグループに属するタブを設定する
+   * @param tabs タブグループに属するタブ
+   */
+  setTabs(tabs: BrowserTab[]) {
+    this.tabs = tabs;
   }
 }
