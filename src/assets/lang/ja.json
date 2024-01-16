@@ -10,7 +10,9 @@
     "no_matches": "一致するタブグループはありません",
     "search": "タブグループの検索",
     "open": "開く",
-    "save_and_close": "保存して閉じる"
+    "save_and_close": "保存して閉じる",
+    "restore": "復元する",
+    "delete": "削除する"
   },
   "options": {
     "title": "拡張機能設定",

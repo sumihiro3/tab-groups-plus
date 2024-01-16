@@ -10,7 +10,9 @@
     "no_matches": "No matches found",
     "search": "Search",
     "open": "Open",
-    "save_and_close": "Save and close"
+    "save_and_close": "Save and close",
+    "restore": "Restore",
+    "delete": "Delete"
   },
   "options": {
     "title": "Extension options",

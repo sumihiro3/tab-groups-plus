@@ -1,17 +1,27 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { highlightTabGroup, getTabGroups } from '../../composables/chrome';
-import { BrowserTabGroup } from '../../types';
+import {
+  highlightTabGroup,
+  getTabGroups,
+  getStoredTabGroups,
+  restoreTabGroup,
+} from '../../composables/chrome';
+import { BrowserTabGroup, StoredBrowserTabGroup } from '../../types';
 import TabGroupList from '../../components/tab/GroupList.vue';
 import TabGroupListItem from '../../components/tab/GroupListItem.vue';
 
 const { tm } = useI18n({ useScope: 'global' });
 
 /**
- * タブグループの一覧
+ * ブラウザーで開かれているタブグループの一覧
  */
-const tabGroups = ref<BrowserTabGroup[]>([]);
+const openedTabGroups = ref<BrowserTabGroup[]>([]);
+
+/**
+ * ストレージに保存されているタブグループの一覧
+ */
+const storedTabGroups = ref<StoredBrowserTabGroup[]>([]);
 
 /**
  * 選択中のタブグループのインデックス
@@ -39,8 +49,8 @@ const iconUrl = chrome.runtime.getURL('/src/assets/icon/icon-128.png');
 onMounted(async () => {
   console.log('onMounted!');
   try {
-    // すべてのタブグループの一覧を取得
-    tabGroups.value = await getTabGroups();
+    // タブグループの一覧を更新する
+    await refreshAllTabGroups();
     // キーが押された時のイベントを登録
     document.addEventListener('keydown', (e) => {
       if (e.isComposing || e.key === 'Process' || e.keyCode === 229) {
@@ -63,21 +73,41 @@ onMounted(async () => {
 });
 
 /**
+ * タブグループの一覧を更新する
+ */
+const refreshAllTabGroups = async () => {
+  console.debug('refreshAllTabGroups called!');
+  try {
+    // ブラウザーで開かれているタブグループの一覧を取得
+    openedTabGroups.value = await getTabGroups();
+    // ストレージに保存されているタブグループの一覧を取得
+    storedTabGroups.value = await getStoredTabGroups();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+/**
  * タブグループ名でフィルタリングした結果を返す
  */
 const filteredTabGroups = computed(() => {
   console.debug('filteredTabGroups called!');
   if (!query.value) {
-    return tabGroups.value;
+    return openedTabGroups.value.concat(storedTabGroups.value);
   }
   const q = query.value.toLowerCase();
   // 入力された文字列がタブグループ名に含まれているものに絞り込む
-  const filtered = tabGroups.value.filter((tabGroup) => {
+  const filteredInOpened = openedTabGroups.value.filter((tabGroup) => {
     const title = tabGroup.title!.toLowerCase();
     return title.indexOf(q) !== -1;
   });
+  const filteredInStored = storedTabGroups.value.filter((tabGroup) => {
+    const title = tabGroup.title!.toLowerCase();
+    return title.indexOf(q) !== -1;
+  });
+  const filtered = filteredInOpened.concat(filteredInStored);
   // 現在のインデックスがフィルタリング後の配列の範囲外になっている場合は、0にする
-  if (selectedTabGroupIndex.value >= filtered.length) {
+  if (selectedTabGroupIndex.value >= filteredInOpened.length) {
     selectedTabGroupIndex.value = 0;
   }
   return filtered;
@@ -136,7 +166,48 @@ const setFocusToSelectedTabGroupItem = (index: number) => {
 const onEnterKeyPressed = async () => {
   console.debug('onEnterKeyPressed called!');
   // 選択されたグループのタブをハイライトする
-  await highlightSelectedTabGroup(selectedTabGroupIndex.value);
+  await onTabGroupSelected(selectedTabGroupIndex.value);
+};
+
+/**
+ * タブグループが選択された時のイベントハンドラー
+ * @param index タブグループのインデックス
+ */
+const onTabGroupSelected = async (index: number) => {
+  console.debug(`tabGroupSelected called! [index: ${index}]`);
+  if (index < 0) {
+    return;
+  }
+  // 選択中のタブグループを取得
+  const selectedTabGroup = filteredTabGroups.value[index];
+  if (selectedTabGroup instanceof StoredBrowserTabGroup) {
+    // ストレージに保存されているタブグループの場合
+    // 保存状態からブラウザーにタブグループを復元する
+    console.debug(
+      `StoredBrowserTabGroup selected! [title: ${selectedTabGroup.title}]`,
+    );
+    const restored = await restoreTabGroup(selectedTabGroup);
+    if (restored) {
+      await highlightTabGroup(restored);
+    }
+    // ポップアップを閉じる
+    window.close();
+  } else {
+    // 選択されたグループのタブをハイライトする
+    await highlightSelectedTabGroup(index);
+  }
+};
+
+/**
+ * タブグループが閉じられた際のイベントハンドラー
+ */
+const onTabGroupClosed = () => {
+  console.debug('tabGroupClosed called!');
+  // 検索文字列をクリアする
+  query.value = '';
+  // タブグループの一覧を更新する
+  refreshAllTabGroups();
+  setFocusToQuery();
 };
 
 /**
@@ -207,7 +278,8 @@ const openOptionsPage = () => {
             :tabGroup="tabGroup"
             :index="index"
             :active="selectedTabGroupIndex === index"
-            @selected="highlightSelectedTabGroup"
+            @selected="onTabGroupSelected"
+            @closed="onTabGroupClosed"
           />
         </TabGroupList>
         <v-layout v-else height="100dvh">
