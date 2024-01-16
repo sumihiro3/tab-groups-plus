@@ -3,8 +3,13 @@ import {
   getTabGroupValueFromSyncStorage,
   setTabGroupMetadataToSyncStorage,
   setTabGroupValueToSyncStorage,
+  removeTabGroup,
 } from '..';
-import { BrowserTab, BrowserTabGroup } from '../../../types';
+import {
+  BrowserTab,
+  BrowserTabGroup,
+  StoredBrowserTabGroup,
+} from '../../../types';
 import { TabGroupsSaveError } from '../../../types/errors';
 import { getExtensionOptions } from '../../options';
 
@@ -139,4 +144,81 @@ export const mergeTabs = (
   // タブ一覧2のタブをマージする
   const result = filteredTabList1.concat(tabList2);
   return result;
+};
+
+/**
+ * 指定のタブグループを閉じる
+ */
+export const closeTabGroup = async (
+  tabGroup: BrowserTabGroup,
+): Promise<void> => {
+  console.debug(
+    `closeTabGroup called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+  );
+  const tabs = await getTabsInTabGroup(tabGroup);
+  // 各タブを閉じる
+  for (const tab of tabs) {
+    await chrome.tabs.remove(tab.id!);
+  }
+};
+
+/**
+ * 保存されたタブグループをすべて取得する
+ */
+export const getStoredTabGroups = async (): Promise<BrowserTabGroup[]> => {
+  console.debug('getStoredTabGroups called!');
+  // 保存されているタブグループのメタデータを取得する
+  const tabGroupMetadata = await getTabGroupMetadataFromSyncStorage();
+  // 保存されているタブグループを取得する
+  const tabGroups: BrowserTabGroup[] = [];
+  for (const title of tabGroupMetadata.titleList) {
+    const tabGroup = await getTabGroupValueFromSyncStorage(title);
+    if (tabGroup) {
+      tabGroups.push(tabGroup);
+    }
+  }
+  return tabGroups;
+};
+
+/**
+ * 指定の保存されていたタブグループをブラウザーに復元する
+ * @param tabGroup タブグループ
+ */
+export const restoreTabGroup = async (
+  tabGroup: StoredBrowserTabGroup,
+): Promise<BrowserTabGroup | null> => {
+  console.debug(
+    `restoreTabGroup called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+  );
+  try {
+    // タブグループに属するタブを取得する
+    const tabs = tabGroup.tabs;
+    if (!tabs) {
+      return null;
+    }
+    const createdTabs = [];
+    // タブグループに属するタブを復元する
+    for (const tab of tabs) {
+      const createdTab = await chrome.tabs.create({
+        url: tab.url,
+        active: false,
+      });
+      createdTabs.push(createdTab);
+    }
+    // タブグループを作成する
+    const groupId = await chrome.tabs.group({
+      tabIds: createdTabs.map((tab) => tab.id!),
+    });
+    // タブグループ名などを設定する
+    const group = await chrome.tabGroups.update(groupId, {
+      title: tabGroup.title,
+      color: tabGroup.color,
+    });
+    // タブグループをストレージから削除する
+    await removeTabGroup(tabGroup);
+    return new BrowserTabGroup(group);
+  } catch (error) {
+    console.error(error);
+    throw new TabGroupsSaveError(`タブグループの復元に失敗しました。`);
+  }
 };
