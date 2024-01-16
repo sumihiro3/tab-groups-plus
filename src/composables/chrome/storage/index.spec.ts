@@ -83,6 +83,10 @@ const createChromeStorageSyncGetMock = () => {
   >;
 };
 
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
 describe('getBooleanValueFromSyncStorage', () => {
   test('正常系：true が設定されている', async () => {
     const res: object = { reloadOnHighlight: true };

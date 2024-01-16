@@ -14,6 +14,7 @@
   },
   "options": {
     "title": "拡張機能設定",
-    "reloadOnHighlight": "タブグループのハイライト時にタブを再読み込み"
+    "reloadOnHighlight": "タブグループのハイライト時にタブを再読み込む",
+    "overwriteTabGroup": "同名のタブグループが保存されていた場合に上書きする"
   }
 }

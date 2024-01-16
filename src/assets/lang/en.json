@@ -14,6 +14,7 @@
   },
   "options": {
     "title": "Extension options",
-    "reloadOnHighlight": "Reload tab when the tab group highlighting"
+    "reloadOnHighlight": "Reload tab when the tab group highlighting",
+    "overwriteTabGroup": "Overwrites a tab group with the same name if it has been saved"
   }
 }

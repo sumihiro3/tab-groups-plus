@@ -1,19 +1,12 @@
-import { ExtensionOptions } from '../types';
+import { ExtensionOptions } from '../../types';
 import {
   ExtensionOptionsGetError,
   ExtensionOptionsSaveError,
-} from '../types/errors';
+} from '../../types/errors';
 import {
   getBooleanValueFromSyncStorage,
   setBooleanValueToSyncStorage,
-} from './chrome/storage';
-
-/**
- * デフォルトのオプション
- */
-export const DEFAULT_EXTENSION_OPTIONS: ExtensionOptions = {
-  reloadOnHighlight: false,
-};
+} from '../chrome/storage';
 
 /**
  * 拡張機能のオプションを取得する
@@ -24,6 +17,8 @@ export const getExtensionOptions = async (): Promise<ExtensionOptions> => {
     const options: ExtensionOptions = {
       reloadOnHighlight:
         await getBooleanValueFromSyncStorage('reloadOnHighlight'),
+      overwriteTabGroup:
+        await getBooleanValueFromSyncStorage('overwriteTabGroup'),
     };
     return options;
   } catch (error) {
@@ -49,6 +44,11 @@ export const setExtensionOptions = async (
     await setBooleanValueToSyncStorage(
       'reloadOnHighlight',
       options.reloadOnHighlight,
+    );
+    // overwriteTabGroup
+    await setBooleanValueToSyncStorage(
+      'overwriteTabGroup',
+      options.overwriteTabGroup,
     );
   } catch (error) {
     console.error(error);
