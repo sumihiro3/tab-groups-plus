@@ -1,5 +1,6 @@
 import {
   getTabGroupMetadataFromSyncStorage,
+  getTabGroupValueFromSyncStorage,
   setTabGroupMetadataToSyncStorage,
   setTabGroupValueToSyncStorage,
 } from '..';
@@ -81,18 +82,61 @@ export const saveTabGroup = async (
   }
   // 保存されているタブグループのメタデータを取得する
   const tabGroupMetadata = await getTabGroupMetadataFromSyncStorage();
+  // タブグループに属するタブを取得する
+  let tabs = await getTabsInTabGroup(tabGroup);
   // 保存対象のタブグループのタイトルが既に存在するかどうかを確認する
   const index = tabGroupMetadata.titleList.indexOf(tabGroup.title);
   if (index === -1) {
-    // 保存対象のタイトルが存在しない場合は、タイトルを追加する
+    // 保存対象のタイトルがメタデータに存在しない場合は、タイトルを追加する
     tabGroupMetadata.titleList.push(tabGroup.title);
+    // タブグループのメタデータを保存する
+    await setTabGroupMetadataToSyncStorage(tabGroupMetadata);
+  } else {
+    const options = await getExtensionOptions();
+    if (!options.overwriteTabGroup) {
+      // オプションで上書きしない設定になっている場合は、マージする
+      // 保存されているタブグループの内容を取得する
+      const savedGroup = await getTabGroupValueFromSyncStorage(tabGroup.title);
+      if (savedGroup && savedGroup.tabs) {
+        // マージする
+        tabs = mergeTabs(tabs, savedGroup.tabs!);
+      }
+    }
   }
-  // タブグループに属するタブを取得する
-  const tabs = await getTabsInTabGroup(tabGroup);
   // タブグループに属するタブを設定する
   tabGroup.setTabs(tabs);
   // タブグループを保存する
   await setTabGroupValueToSyncStorage(tabGroup.title, tabGroup);
-  // タブグループのメタデータを保存する
-  await setTabGroupMetadataToSyncStorage(tabGroupMetadata);
+};
+
+/**
+ * 2つのタブ一覧をマージする
+ * 両方に一致するURLを持つタブは、後者のタブ一覧にあるタブの内容で上書きされる
+ * @param tabList1 タブ一覧1
+ * @param tabList2 タブ一覧2
+ */
+export const mergeTabs = (
+  tabList1: BrowserTab[],
+  tabList2: BrowserTab[],
+): BrowserTab[] => {
+  console.debug(
+    `mergeTabs called! [tabs1: ${JSON.stringify(
+      tabList1,
+    )}, tabs2: ${JSON.stringify(tabList2)}]`,
+  );
+  // タブ一覧2のタブをタブ一覧1にマージする
+  // タブ一覧2 に含まれないものはそのまま残す
+  // 両方に同じURLがある場合は、タブ一覧2の内容を優先して残す
+  const filteredTabList1 = tabList1.filter((tab1) => {
+    const index = tabList2.findIndex((tab2) => tab2.url === tab1.url);
+    if (index === -1) {
+      // タブ一覧2に含まれない場合はそのまま残す
+      return true;
+    } else {
+      return false;
+    }
+  });
+  // タブ一覧2のタブをマージする
+  const result = filteredTabList1.concat(tabList2);
+  return result;
 };
