@@ -1,6 +1,18 @@
-import { BrowserTabGroup, BrowserTabGroupMetadata } from '../../../types';
+import {
+  BrowserTabGroup,
+  BrowserTabGroupDto,
+  BrowserTabGroupMetadata,
+} from '../../../types';
 
+/**
+ * タブグループのメタデータを Storage に保存する際のキー
+ */
 const TAG_GROUP_METADATA_KEY = 'TAG_GROUP_METADATA';
+
+/**
+ * タブグループを Storage に保存する際のキーのプレフィックス
+ */
+const TAG_GROUP_KEY_PREFIX = 'TAG_GROUP_';
 
 /**
  * キーを指定してストレージから Boolean 値を取得する
@@ -71,14 +83,35 @@ export const setTabGroupMetadataToSyncStorage = async (
 /**
  * キーを指定してストレージからタブグループに保存する
  * @param key キー（タブグループ名）
- * @param value タブグループ
+ * @param tabGroup タブグループ
  */
 export const setTabGroupValueToSyncStorage = async (
   key: string,
-  value: BrowserTabGroup,
+  tabGroup: BrowserTabGroup,
 ): Promise<void> => {
   console.debug(
-    `setTabGroupValueToSyncStorage called! [key: ${key}, value: ${value}]`,
+    `setTabGroupValueToSyncStorage called! [key: ${key}, group: ${tabGroup}]`,
   );
-  await chrome.storage.sync.set({ [key]: value });
+  const dto = new BrowserTabGroupDto(tabGroup);
+  key = TAG_GROUP_KEY_PREFIX + key;
+  await chrome.storage.sync.set({ [key]: dto });
+};
+
+/**
+ * キーを指定してストレージからタブグループを取得する
+ * @param key キー（タブグループ名）
+ * @returns タブグループ
+ */
+export const getTabGroupValueFromSyncStorage = async (
+  key: string,
+): Promise<BrowserTabGroup | null> => {
+  console.debug(`getTabGroupValueFromSyncStorage called! [key: ${key}]`);
+  key = TAG_GROUP_KEY_PREFIX + key;
+  const result = await chrome.storage.sync.get(key);
+  const dto = result[key] as BrowserTabGroupDto;
+  if (!dto) {
+    // キーが存在しない場合は空のオブジェクトを返す
+    return null;
+  }
+  return BrowserTabGroup.fromDto(dto);
 };

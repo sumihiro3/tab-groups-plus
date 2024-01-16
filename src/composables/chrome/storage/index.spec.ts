@@ -1,4 +1,12 @@
-import { getBooleanValueFromSyncStorage } from './index';
+import {
+  BrowserTab,
+  BrowserTabGroup,
+  BrowserTabGroupDto,
+} from '../../../types';
+import {
+  getBooleanValueFromSyncStorage,
+  getTabGroupValueFromSyncStorage,
+} from './index';
 
 // jest.spyOn(chrome.tabs, 'query').mockResolvedValue([
 //   {
@@ -15,6 +23,53 @@ import { getBooleanValueFromSyncStorage } from './index';
 //     groupId: -1,
 //   },
 // ]);
+
+/**
+ * テスト用のタブグループを作成する
+ */
+const createTabGroup = (): BrowserTabGroup => {
+  const group = new BrowserTabGroup({
+    id: 1,
+    collapsed: false,
+    color: 'red',
+    title: 'TabGroup1',
+    windowId: 1,
+  });
+  const tabs: BrowserTab[] = [
+    new BrowserTab({
+      id: 1,
+      index: 0,
+      windowId: 1,
+      groupId: 1,
+      title: 'タブ1',
+      url: 'https://example.com/1',
+      active: true,
+      highlighted: true,
+      pinned: false,
+      discarded: false,
+      incognito: false,
+      selected: true,
+      autoDiscardable: false,
+    }),
+    new BrowserTab({
+      id: 2,
+      index: 1,
+      windowId: 1,
+      groupId: 1,
+      title: 'タブ2',
+      url: 'https://example.com/2',
+      active: true,
+      highlighted: true,
+      pinned: false,
+      discarded: false,
+      incognito: false,
+      selected: true,
+      autoDiscardable: false,
+    }),
+  ];
+  group.setTabs(tabs);
+  return group;
+};
 
 /**
  * chrome.storage.sync.get のモックを作成する
@@ -51,5 +106,50 @@ describe('getBooleanValueFromSyncStorage', () => {
     mock.mockResolvedValue(res);
     const result = await getBooleanValueFromSyncStorage('notDefined');
     expect(result).toBe(false);
+  });
+});
+
+describe('getTabGroupValueFromSyncStorage', () => {
+  test('正常系：指定のキーに保存されている場合', async () => {
+    // setup mock
+    const tabGroup = createTabGroup();
+    const tabGroupName = tabGroup.title!;
+    const tabDto = new BrowserTabGroupDto(tabGroup);
+    const mock = createChromeStorageSyncGetMock();
+    mock.mockResolvedValue({ TAG_GROUP_TabGroup1: tabDto });
+
+    // execute
+    const result = await getTabGroupValueFromSyncStorage(tabGroupName);
+
+    // assert
+    const key = `TAG_GROUP_${tabGroupName}`;
+    expect(mock).toHaveBeenCalledWith(key);
+    expect(result).not.toBeNull();
+    expect(result).not.toBeUndefined();
+    expect(result).toBeInstanceOf(BrowserTabGroup);
+    expect(result!.title).toBe(tabGroupName);
+    expect(result!.color).toBe(tabGroup.color);
+    expect(result!.tabs?.length).toBe(tabGroup.tabs?.length);
+    expect(result!.tabs?.[0]).toBeInstanceOf(BrowserTab);
+    expect(result!.tabs?.[0].title).toBe(tabGroup.tabs?.[0].title);
+    expect(result!.tabs?.[0].url).toBe(tabGroup.tabs?.[0].url);
+    expect(result!.tabs?.[1]).toBeInstanceOf(BrowserTab);
+    expect(result!.tabs?.[1].title).toBe(tabGroup.tabs?.[1].title);
+    expect(result!.tabs?.[1].url).toBe(tabGroup.tabs?.[1].url);
+  });
+
+  test('正常系：指定のキーに保存されていない場合', async () => {
+    // setup mock
+    const tabGroupName = `notStored`;
+    const mock = createChromeStorageSyncGetMock();
+    mock.mockResolvedValue([]);
+
+    // execute
+    const result = await getTabGroupValueFromSyncStorage(tabGroupName);
+
+    // assert
+    const key = `TAG_GROUP_${tabGroupName}`;
+    expect(mock).toHaveBeenCalledWith(key);
+    expect(result).toBeNull(); // null が返るはず
   });
 });

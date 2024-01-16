@@ -1,6 +1,7 @@
 import * as tabGroups from './index';
 import * as storage from '../storage';
 import { BrowserTab, BrowserTabGroup } from '../../../types';
+import { TabGroupsSaveError } from '../../../types/errors';
 
 /**
  * テスト用のタブグループを作成する
@@ -127,5 +128,26 @@ describe('saveTabGroup', () => {
     expect(mockSetTabGroupMetadataToSyncStorage).toHaveBeenCalledWith(
       updatedTabGroupMetadata,
     ); // タブグループのメタデータを更新して保存しているはず
+  });
+
+  test('異常系：対象タブグループのタイトルが未設定の場合', async () => {
+    // execute
+    const targetTabGroup = new BrowserTabGroup({
+      id: 999,
+      collapsed: false,
+      color: 'green',
+      title: undefined,
+      windowId: 1,
+    });
+    try {
+      await tabGroups.saveTabGroup(targetTabGroup);
+      fail('例外が発生しなかったためテスト失敗');
+    } catch (error) {
+      if (error instanceof TabGroupsSaveError) {
+        // 正しい例外が発生した場合はテスト成功
+      } else {
+        fail('発生例外が想定外であったためテスト失敗');
+      }
+    }
   });
 });
