@@ -1,3 +1,20 @@
+import {
+  BrowserTabGroup,
+  BrowserTabGroupDto,
+  BrowserTabGroupMetadata,
+  StoredBrowserTabGroup,
+} from '../../../types';
+
+/**
+ * タブグループのメタデータを Storage に保存する際のキー
+ */
+const TAG_GROUP_METADATA_KEY = 'TAG_GROUP_METADATA';
+
+/**
+ * タブグループを Storage に保存する際のキーのプレフィックス
+ */
+const TAG_GROUP_KEY_PREFIX = 'TAG_GROUP_';
+
 /**
  * キーを指定してストレージから Boolean 値を取得する
  * @param key キー
@@ -8,7 +25,12 @@ export const getBooleanValueFromSyncStorage = async (
 ): Promise<boolean> => {
   console.debug(`getBooleanValueFromSyncStorage called! [key: ${key}]`);
   const result = await chrome.storage.sync.get(key);
-  return result[key];
+  let value = result[key];
+  if (value === undefined) {
+    // 指定されたキーが存在しない場合は false を返す
+    value = false;
+  }
+  return value;
 };
 
 /**
@@ -24,4 +46,97 @@ export const setBooleanValueToSyncStorage = async (
     `setBooleanValueToSyncStorage called! [key: ${key}, value: ${value}]`,
   );
   await chrome.storage.sync.set({ [key]: value });
+};
+
+/**
+ * どのようなタブグループが保存されているかを表すメタデータオブジェクトを取得する
+ */
+export const getTabGroupMetadataFromSyncStorage =
+  async (): Promise<BrowserTabGroupMetadata> => {
+    console.debug('getTabGroupMetadataFromSyncStorage called!');
+    const result = await chrome.storage.sync.get(TAG_GROUP_METADATA_KEY);
+    let tabGroupMetadata = result[TAG_GROUP_METADATA_KEY];
+    if (!tabGroupMetadata) {
+      // キーが存在しない場合は空のオブジェクトを返す
+      tabGroupMetadata = {
+        titleList: [],
+      };
+    }
+    return tabGroupMetadata;
+  };
+
+/**
+ * どのようなタブグループが保存されているかを表すメタデータオブジェクトをストレージに保存する
+ */
+export const setTabGroupMetadataToSyncStorage = async (
+  tabGroupMetadata: BrowserTabGroupMetadata,
+): Promise<void> => {
+  console.debug(
+    `setTabGroupMetadataToSyncStorage called! [tabGroupMetadata: ${JSON.stringify(
+      tabGroupMetadata,
+    )}]`,
+  );
+  await chrome.storage.sync.set({
+    [TAG_GROUP_METADATA_KEY]: tabGroupMetadata,
+  });
+};
+
+/**
+ * キーを指定してストレージからタブグループに保存する
+ * @param key キー（タブグループ名）
+ * @param tabGroup タブグループ
+ */
+export const setTabGroupValueToSyncStorage = async (
+  key: string,
+  tabGroup: BrowserTabGroup,
+): Promise<void> => {
+  console.debug(
+    `setTabGroupValueToSyncStorage called! [key: ${key}, group: ${tabGroup}]`,
+  );
+  const dto = new BrowserTabGroupDto(tabGroup);
+  key = TAG_GROUP_KEY_PREFIX + key;
+  await chrome.storage.sync.set({ [key]: dto });
+};
+
+/**
+ * キーを指定してストレージからタブグループを取得する
+ * @param key キー（タブグループ名）
+ * @returns タブグループ
+ */
+export const getTabGroupValueFromSyncStorage = async (
+  key: string,
+): Promise<StoredBrowserTabGroup | null> => {
+  console.debug(`getTabGroupValueFromSyncStorage called! [key: ${key}]`);
+  key = TAG_GROUP_KEY_PREFIX + key;
+  const result = await chrome.storage.sync.get(key);
+  const dto = result[key] as BrowserTabGroupDto;
+  if (!dto) {
+    // キーが存在しない場合は空のオブジェクトを返す
+    return null;
+  }
+  const group = StoredBrowserTabGroup.fromDto(dto);
+  return group;
+};
+
+/**
+ * 指定の保存されたタブグループを削除する
+ * @param tabGroup タブグループ
+ */
+export const removeTabGroup = async (
+  tabGroup: BrowserTabGroup,
+): Promise<void> => {
+  console.debug(
+    `removeTabGroup called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+  );
+  // タブグループのメタデータを取得する
+  const tabGroupMetadata = await getTabGroupMetadataFromSyncStorage();
+  // タブグループを削除する
+  const key = TAG_GROUP_KEY_PREFIX + tabGroup.title;
+  await chrome.storage.sync.remove(key);
+  // タブグループのメタデータからタブグループ名を削除する
+  const filteredTitleList = tabGroupMetadata.titleList.filter(
+    (title) => title !== tabGroup.title,
+  );
+  tabGroupMetadata.titleList = filteredTitleList;
+  await setTabGroupMetadataToSyncStorage(tabGroupMetadata);
 };

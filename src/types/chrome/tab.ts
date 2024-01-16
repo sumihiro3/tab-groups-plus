@@ -56,6 +56,7 @@ export class BrowserTab {
    * このプロパティは、拡張機能のマニフェストに "tabs" 権限が含まれている場合のみ存在します。タブがまだ commit されていない場合は空の文字列になります。Tab.pendingUrl もご覧ください。
    */
   url?: string;
+
   /**
    * タブのファビコンの URL です。
    * このプロパティは、拡張機能のマニフェストに "tabs" 権限が含まれている場合にのみ存在します。
@@ -103,5 +104,64 @@ export class BrowserTab {
     this.incognito = tab.incognito;
     this.openerTabId = tab.openerTabId;
     this.groupId = tab.groupId;
+  }
+
+  /**
+   * DTO からインスタンスを生成する
+   */
+  static fromDto(tabDto: BrowserTabDto): BrowserTab {
+    const tab = new BrowserTab({
+      title: tabDto.title,
+      url: tabDto.url,
+      favIconUrl: tabDto.favIconUrl,
+      id: 0,
+      index: 0,
+      windowId: 0,
+      highlighted: false,
+      active: false,
+      pinned: false,
+      discarded: false,
+      incognito: false,
+      groupId: 0,
+      selected: false,
+      autoDiscardable: false,
+    });
+    return tab;
+  }
+}
+
+/**
+ * 保存用のタブを表すクラス
+ */
+export class BrowserTabDto {
+  /**
+   * タブのタイトル
+   */
+  title: string;
+
+  /**
+   * タブで開いている URL
+   */
+  url: string;
+
+  /**
+   * タブのファビコンの URL
+   */
+  favIconUrl?: string;
+
+  /**
+   * コンストラクター
+   * @param tab タブ
+   */
+  constructor(tab: BrowserTab) {
+    if (!tab.title) {
+      throw new Error('タブのタイトルがありません');
+    }
+    if (!tab.url) {
+      throw new Error('タブの URL がありません');
+    }
+    this.title = tab.title;
+    this.url = tab.url;
+    this.favIconUrl = tab.favIconUrl;
   }
 }

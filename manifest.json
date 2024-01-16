@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TabGroups Plus",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "icons": {
     "16": "src/assets/icon/icon-16.png",
     "32": "src/assets/icon/icon-32.png",
@@ -27,6 +27,7 @@
   "permissions": [
     "commands",
     "storage",
-    "tabGroups"
+    "tabGroups",
+    "tabs"
   ]
 }

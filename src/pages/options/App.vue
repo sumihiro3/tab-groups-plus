@@ -5,7 +5,7 @@ import {
   getExtensionOptions,
   setExtensionOptions,
 } from '../../composables/options';
-import { ExtensionOptions } from '../../types';
+import { ExtensionOptions, DEFAULT_EXTENSION_OPTIONS } from '../../types';
 
 const { tm } = useI18n({ useScope: 'global' });
 
@@ -17,7 +17,7 @@ const iconUrl = chrome.runtime.getURL('/src/assets/icon/icon-128.png');
 /**
  * 拡張機能のオプション
  */
-const options = ref<ExtensionOptions>({ reloadOnHighlight: false });
+const options = ref<ExtensionOptions>(DEFAULT_EXTENSION_OPTIONS);
 
 /**
  * 拡張機能のオプションの変更があったかどうか
@@ -91,6 +91,14 @@ const saveOptions = async () => {
                       inset
                       color="teal"
                       :label="`${tm('options.reloadOnHighlight')}`"
+                    ></v-switch>
+                    <!-- reloadOnHighlight -->
+                    <v-switch
+                      v-model="options.overwriteTabGroup"
+                      hide-details
+                      inset
+                      color="teal"
+                      :label="`${tm('options.overwriteTabGroup')}`"
                     ></v-switch>
                   </v-card-text>
                   <v-card-actions>
