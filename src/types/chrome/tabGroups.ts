@@ -85,6 +85,34 @@ export class BrowserTabGroup {
 }
 
 /**
+ * ストレージに保存されているタブグループを表すクラス
+ */
+export class StoredBrowserTabGroup extends BrowserTabGroup {
+  /**
+   * コンストラクター
+   * @param tabGroup タブグループ
+   */
+  constructor(tabGroup: TabGroup) {
+    super(tabGroup);
+  }
+
+  /**
+   * DTO からインスタンスを生成する
+   */
+  static fromDto(tabGroupDto: BrowserTabGroupDto): StoredBrowserTabGroup {
+    const tabGroup = new StoredBrowserTabGroup({
+      id: 0,
+      collapsed: false,
+      color: tabGroupDto.color,
+      title: tabGroupDto.title,
+      windowId: 0,
+    });
+    tabGroup.setTabs(tabGroupDto.tabs.map((tab) => BrowserTab.fromDto(tab)));
+    return tabGroup;
+  }
+}
+
+/**
  * 保存用のタブグループを表すクラス
  */
 export class BrowserTabGroupDto {
