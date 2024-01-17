@@ -1,7 +1,11 @@
 import * as tabGroups from './index';
 import * as storage from '../storage';
 import * as options from '../../options';
-import { BrowserTab, BrowserTabGroup } from '../../../types';
+import {
+  BrowserTab,
+  BrowserTabGroup,
+  BrowserTabGroupMetadata,
+} from '../../../types';
 import { TabGroupsSaveError } from '../../../types/errors';
 
 /**
@@ -125,9 +129,9 @@ describe('saveTabGroup', () => {
       storage,
       'getTabGroupMetadataFromSyncStorage',
     );
-    const savedTabGroupMetadata = {
-      titleList: ['タブグループ1', 'タブグループ2'],
-    };
+    const savedTabGroupMetadata = new BrowserTabGroupMetadata();
+    savedTabGroupMetadata.upsertRecord('タブグループ1', 2);
+    savedTabGroupMetadata.upsertRecord('タブグループ2', 1);
     mockGetTabGroupMetadataFromSyncStorage.mockResolvedValue(
       savedTabGroupMetadata,
     );
@@ -138,9 +142,10 @@ describe('saveTabGroup', () => {
     // タブグループ保存
     const mockSetTabGroupValueToSyncStorage = jest.spyOn(
       storage,
-      'setTabGroupValueToSyncStorage',
+      'saveTabGroupValueToSyncStorage',
     );
-    mockSetTabGroupValueToSyncStorage.mockResolvedValue();
+    const savedItemCount = 3;
+    mockSetTabGroupValueToSyncStorage.mockResolvedValue(savedItemCount);
     // メタデータ保存
     const mockSetTabGroupMetadataToSyncStorage = jest.spyOn(
       storage,
@@ -163,18 +168,21 @@ describe('saveTabGroup', () => {
     expect(mockGetTabGroupMetadataFromSyncStorage).toHaveBeenCalled();
     targetTabGroup.setTabs(testTabs);
     // メタデータにタイトルが追加されているはず
-    const updatedTabGroupMetadata = {
-      titleList: ['タブグループ1', 'タブグループ2', 'タブグループ999'],
-    };
-    // タブグループのメタデータを更新して保存しているはず
-    expect(mockSetTabGroupMetadataToSyncStorage).toHaveBeenCalledWith(
-      updatedTabGroupMetadata,
-    );
+    // const updatedTabGroupMetadata = {
+    //   titleList: ['タブグループ1', 'タブグループ2', 'タブグループ999'],
+    // };
     // タイトルをキーにしてストレージに保存しているはず
     expect(mockSetTabGroupValueToSyncStorage).toHaveBeenCalledWith(
-      targetTabGroup.title,
       targetTabGroup,
     );
+    // タブグループのメタデータを更新して保存しているはず
+    expect(mockSetTabGroupMetadataToSyncStorage).toHaveBeenCalledTimes(1);
+    // メタデータにストレージの項目数が保存されているはず
+    const metadataRecord = savedTabGroupMetadata.getRecord(
+      targetTabGroup.title!,
+    );
+    expect(metadataRecord).not.toBeNull();
+    expect(metadataRecord!.count).toEqual(savedItemCount);
   });
 
   test('正常系：対象タブグループのタイトルがすでに保存されている場合（上書き保存）', async () => {
@@ -185,9 +193,10 @@ describe('saveTabGroup', () => {
       storage,
       'getTabGroupMetadataFromSyncStorage',
     );
-    const savedTabGroupMetadata = {
-      titleList: ['タブグループ1', 'タブグループ2', targetTabGroupName],
-    };
+    const savedTabGroupMetadata = new BrowserTabGroupMetadata();
+    savedTabGroupMetadata.upsertRecord('タブグループ1', 2);
+    savedTabGroupMetadata.upsertRecord('タブグループ2', 1);
+    savedTabGroupMetadata.upsertRecord('タブグループ999', 1);
     mockGetTabGroupMetadataFromSyncStorage.mockResolvedValue(
       savedTabGroupMetadata,
     );
@@ -207,15 +216,16 @@ describe('saveTabGroup', () => {
     // タブグループ保存
     const mockSetTabGroupValueToSyncStorage = jest.spyOn(
       storage,
-      'setTabGroupValueToSyncStorage',
+      'saveTabGroupValueToSyncStorage',
     );
-    mockSetTabGroupValueToSyncStorage.mockResolvedValue();
+    const savedItemCount = 1;
+    mockSetTabGroupValueToSyncStorage.mockResolvedValue(savedItemCount);
     // メタデータ保存
     const mockSetTabGroupMetadataToSyncStorage = jest.spyOn(
       storage,
       'setTabGroupMetadataToSyncStorage',
     );
-    // mockSetTabGroupMetadataToSyncStorage.mockResolvedValue();
+    mockSetTabGroupMetadataToSyncStorage.mockResolvedValue();
 
     // execute
     const targetTabGroup = new BrowserTabGroup({
@@ -238,11 +248,16 @@ describe('saveTabGroup', () => {
     targetTabGroup.setTabs(testTabs);
     // タイトルをキーにしてストレージに保存しているはず
     expect(mockSetTabGroupValueToSyncStorage).toHaveBeenCalledWith(
-      targetTabGroup.title,
       targetTabGroup,
     );
-    // タブグループのメタデータには変化がないので保存されてないはず
-    expect(mockSetTabGroupMetadataToSyncStorage).toHaveBeenCalledTimes(0);
+    // タブグループのメタデータを更新して保存しているはず
+    expect(mockSetTabGroupMetadataToSyncStorage).toHaveBeenCalledTimes(1);
+    // メタデータにストレージの項目数が保存されているはず
+    const metadataRecord = savedTabGroupMetadata.getRecord(
+      targetTabGroup.title!,
+    );
+    expect(metadataRecord).not.toBeNull();
+    expect(metadataRecord!.count).toEqual(savedItemCount);
   });
 
   test('正常系：対象タブグループのタイトルがすでに保存されている場合（マージ）', async () => {
@@ -253,9 +268,10 @@ describe('saveTabGroup', () => {
       storage,
       'getTabGroupMetadataFromSyncStorage',
     );
-    const savedTabGroupMetadata = {
-      titleList: ['タブグループ1', 'タブグループ2', targetTabGroupName],
-    };
+    const savedTabGroupMetadata = new BrowserTabGroupMetadata();
+    savedTabGroupMetadata.upsertRecord('タブグループ1', 2);
+    savedTabGroupMetadata.upsertRecord('タブグループ2', 1);
+    savedTabGroupMetadata.upsertRecord(targetTabGroupName, 1);
     mockGetTabGroupMetadataFromSyncStorage.mockResolvedValue(
       savedTabGroupMetadata,
     );
@@ -293,14 +309,16 @@ describe('saveTabGroup', () => {
     // タブグループ保存
     const mockSetTabGroupValueToSyncStorage = jest.spyOn(
       storage,
-      'setTabGroupValueToSyncStorage',
+      'saveTabGroupValueToSyncStorage',
     );
-    mockSetTabGroupValueToSyncStorage.mockResolvedValue();
+    const savedItemCount = 3;
+    mockSetTabGroupValueToSyncStorage.mockResolvedValue(savedItemCount);
     // メタデータ保存
     const mockSetTabGroupMetadataToSyncStorage = jest.spyOn(
       storage,
       'setTabGroupMetadataToSyncStorage',
     );
+    mockSetTabGroupMetadataToSyncStorage.mockResolvedValue();
 
     // execute
     const targetTabGroup = new BrowserTabGroup({
@@ -320,11 +338,16 @@ describe('saveTabGroup', () => {
     targetTabGroup.setTabs(mergedTabs); // タブマージ後のタブグループ
     // タイトルをキーにしてストレージに保存しているはず
     expect(mockSetTabGroupValueToSyncStorage).toHaveBeenCalledWith(
-      targetTabGroup.title,
       targetTabGroup,
     );
-    // タブグループのメタデータには変化がないので保存されてないはず
-    expect(mockSetTabGroupMetadataToSyncStorage).toHaveBeenCalledTimes(0);
+    // タブグループのメタデータを更新して保存しているはず
+    expect(mockSetTabGroupMetadataToSyncStorage).toHaveBeenCalledTimes(1);
+    // メタデータにストレージの項目数が保存されているはず
+    const metadataRecord = savedTabGroupMetadata.getRecord(
+      targetTabGroup.title!,
+    );
+    expect(metadataRecord).not.toBeNull();
+    expect(metadataRecord!.count).toEqual(savedItemCount);
   });
 
   test('異常系：対象タブグループのタイトルが未設定の場合', async () => {

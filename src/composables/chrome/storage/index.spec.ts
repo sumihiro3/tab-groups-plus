@@ -7,22 +7,7 @@ import {
   getBooleanValueFromSyncStorage,
   getTabGroupValueFromSyncStorage,
 } from './index';
-
-// jest.spyOn(chrome.tabs, 'query').mockResolvedValue([
-//   {
-//     id: 3,
-//     active: true,
-//     windowId: 1,
-//     index: 5,
-//     pinned: false,
-//     highlighted: true,
-//     incognito: false,
-//     discarded: false,
-//     autoDiscardable: false,
-//     selected: true,
-//     groupId: -1,
-//   },
-// ]);
+import * as storage from './index';
 
 /**
  * テスト用のタブグループを作成する
@@ -120,14 +105,19 @@ describe('getTabGroupValueFromSyncStorage', () => {
     const tabGroupName = tabGroup.title!;
     const tabDto = new BrowserTabGroupDto(tabGroup);
     const mock = createChromeStorageSyncGetMock();
-    mock.mockResolvedValue({ TAG_GROUP_TabGroup1: tabDto });
+    mock.mockResolvedValue({
+      TAG_GROUP_TabGroup1_0: 'some-compressed-string-1',
+      TAG_GROUP_TabGroup1_1: 'some-compressed-string-2',
+    });
+    // 圧縮文字列からの復元をモックする
+    const mockDecompress = jest.spyOn(storage, 'decompress');
+    mockDecompress.mockResolvedValue(tabDto);
 
     // execute
-    const result = await getTabGroupValueFromSyncStorage(tabGroupName);
+    const result = await getTabGroupValueFromSyncStorage(tabGroupName, 2);
 
     // assert
-    const key = `TAG_GROUP_${tabGroupName}`;
-    expect(mock).toHaveBeenCalledWith(key);
+    expect(mock).toHaveBeenCalledTimes(2);
     expect(result).not.toBeNull();
     expect(result).not.toBeUndefined();
     expect(result).toBeInstanceOf(BrowserTabGroup);
@@ -142,7 +132,7 @@ describe('getTabGroupValueFromSyncStorage', () => {
     expect(result!.tabs?.[1].url).toBe(tabGroup.tabs?.[1].url);
   });
 
-  test('正常系：指定のキーに保存されていない場合', async () => {
+  test('正常系：指定のキーに保存されていない場合（保存項目数を省略）', async () => {
     // setup mock
     const tabGroupName = `notStored`;
     const mock = createChromeStorageSyncGetMock();
@@ -152,7 +142,22 @@ describe('getTabGroupValueFromSyncStorage', () => {
     const result = await getTabGroupValueFromSyncStorage(tabGroupName);
 
     // assert
-    const key = `TAG_GROUP_${tabGroupName}`;
+    const key = `TAG_GROUP_${tabGroupName}_0`;
+    expect(mock).toHaveBeenCalledWith(key);
+    expect(result).toBeNull(); // null が返るはず
+  });
+
+  test('正常系：指定のキーに保存されていない場合（保存項目数を指定）', async () => {
+    // setup mock
+    const tabGroupName = `notStored`;
+    const mock = createChromeStorageSyncGetMock();
+    mock.mockResolvedValue([]);
+
+    // execute
+    const result = await getTabGroupValueFromSyncStorage(tabGroupName, 2);
+
+    // assert
+    const key = `TAG_GROUP_${tabGroupName}_0`;
     expect(mock).toHaveBeenCalledWith(key);
     expect(result).toBeNull(); // null が返るはず
   });
