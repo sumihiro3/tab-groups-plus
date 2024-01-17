@@ -65,7 +65,10 @@ onMounted(async () => {
         // IME入力中は無視する
         return;
       }
-      if (e.key === 'ArrowDown') {
+      if (e.shiftKey && e.key === 'Enter') {
+        // タブグループが選択されていた場合、Shift + Enter でタブグループを保存する
+        onTabGroupSelectToSave(selectedTabGroupIndex.value);
+      } else if (e.key === 'ArrowDown') {
         onDownKeyPressed();
       } else if (e.key === 'ArrowUp') {
         onUpKeyPressed();
