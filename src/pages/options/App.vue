@@ -5,10 +5,19 @@ import {
   getExtensionOptions,
   setExtensionOptions,
 } from '../../composables/options';
-import { ExtensionOptions, DEFAULT_EXTENSION_OPTIONS } from '../../types';
+import {
+  ExtensionOptions,
+  DEFAULT_EXTENSION_OPTIONS,
+  Snackbar,
+} from '../../types';
+import SnackbarView from '../../components/Snackbar.vue';
 
 const { tm } = useI18n({ useScope: 'global' });
 
+/**
+ * スナックバー表示用オブジェクト
+ */
+const showSnackbar = ref<Snackbar | undefined>();
 /**
  * アイコンのURL
  */
@@ -55,9 +64,27 @@ watch(
  */
 const saveOptions = async () => {
   console.debug('saveOptions called!');
-  await setExtensionOptions(options.value);
-  console.log('saved options!');
-  isOptionsChanged.value = false;
+  try {
+    await setExtensionOptions(options.value);
+    console.log('saved options!');
+    isOptionsChanged.value = false;
+    // 完了のスナックバーを表示する
+    showSnackbar.value = {
+      show: true,
+      timeout: 3000,
+      color: 'success',
+      message: tm('options.saved'),
+    };
+  } catch (error) {
+    console.error(error);
+    // エラーのスナックバーを表示する
+    showSnackbar.value = {
+      show: true,
+      timeout: 3000,
+      color: 'error',
+      message: tm('options.save_failed'),
+    };
+  }
 };
 </script>
 
@@ -71,6 +98,8 @@ const saveOptions = async () => {
         <h2>TabGroups Plus</h2>
       </v-app-bar-title>
     </v-app-bar>
+    <!-- Snackbar -->
+    <SnackbarView :snackbar="showSnackbar" />
     <!-- Form -->
     <v-main>
       <v-container fluid class="pa-0">

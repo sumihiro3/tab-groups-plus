@@ -1,6 +1,7 @@
 {
   "cancel": "キャンセル",
   "save": "保存",
+  "close": "閉じる",
   "tabs": {
     "count_prefix": "タブ数:",
     "count_suffix": ""
@@ -12,11 +13,17 @@
     "open": "開く",
     "save_and_close": "保存して閉じる",
     "restore": "復元する",
-    "delete": "削除する"
+    "delete": "削除する",
+    "stored": "保存された状態",
+    "saved": "タブグループを保存しました",
+    "save_failed": "タブグループの保存に失敗しました",
+    "deleted": "タブグループを削除しました"
   },
   "options": {
     "title": "拡張機能設定",
     "reloadOnHighlight": "タブグループのハイライト時にタブを再読み込む",
-    "overwriteTabGroup": "同名のタブグループが保存されていた場合に上書きする"
+    "overwriteTabGroup": "同名のタブグループが保存されていた場合に上書きする",
+    "saved": "設定を保存しました",
+    "save_failed": "設定の保存に失敗しました"
   }
 }
