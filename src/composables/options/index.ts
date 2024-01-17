@@ -19,6 +19,7 @@ export const getExtensionOptions = async (): Promise<ExtensionOptions> => {
         await getBooleanValueFromSyncStorage('reloadOnHighlight'),
       overwriteTabGroup:
         await getBooleanValueFromSyncStorage('overwriteTabGroup'),
+      openInNewWindow: await getBooleanValueFromSyncStorage('openInNewWindow'),
     };
     return options;
   } catch (error) {
@@ -49,6 +50,11 @@ export const setExtensionOptions = async (
     await setBooleanValueToSyncStorage(
       'overwriteTabGroup',
       options.overwriteTabGroup,
+    );
+    // openInNewWindow
+    await setBooleanValueToSyncStorage(
+      'openInNewWindow',
+      options.openInNewWindow,
     );
   } catch (error) {
     console.error(error);

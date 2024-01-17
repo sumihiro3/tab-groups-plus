@@ -129,6 +129,14 @@ const saveOptions = async () => {
                       color="teal"
                       :label="`${tm('options.overwriteTabGroup')}`"
                     ></v-switch>
+                    <!-- openInNewWindow -->
+                    <v-switch
+                      v-model="options.openInNewWindow"
+                      hide-details
+                      inset
+                      color="teal"
+                      :label="`${tm('options.openInNewWindow')}`"
+                    ></v-switch>
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer />
