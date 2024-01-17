@@ -220,8 +220,8 @@ export const restoreTabGroup = async (
     if (!tabs) {
       return null;
     }
-    const createdTabs = [];
     // タブグループに属するタブを復元する
+    const createdTabs = [];
     for (const tab of tabs) {
       const createdTab = await chrome.tabs.create({
         url: tab.url,
@@ -238,6 +238,19 @@ export const restoreTabGroup = async (
       title: tabGroup.title,
       color: tabGroup.color,
     });
+    // 拡張機能設定を取得する
+    const options = await getExtensionOptions();
+    if (options.openInNewWindow) {
+      // 新しいウィンドウを開く
+      const newWindow = await chrome.windows.create({
+        focused: true,
+      });
+      // 新しいウィンドウへタブグループを移動する
+      await chrome.tabGroups.move(groupId, {
+        index: 0,
+        windowId: newWindow.id!,
+      });
+    }
     // タブグループをストレージから削除する
     await removeTabGroup(tabGroup);
     return new BrowserTabGroup(group);

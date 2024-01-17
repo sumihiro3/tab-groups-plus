@@ -209,6 +209,7 @@ describe('saveTabGroup', () => {
     const extensionOptions = {
       reloadOnHighlight: false,
       overwriteTabGroup: true, // 上書き保存
+      openInNewWindow: false,
     };
     mockGetExtensionOptions.mockResolvedValue(extensionOptions);
     // タブのマージ
@@ -284,6 +285,7 @@ describe('saveTabGroup', () => {
     const extensionOptions = {
       reloadOnHighlight: false,
       overwriteTabGroup: false, // マージして保存
+      openInNewWindow: false,
     };
     mockGetExtensionOptions.mockResolvedValue(extensionOptions);
     // 保存されているタブグループの内容を取得する

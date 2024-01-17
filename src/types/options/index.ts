@@ -4,6 +4,7 @@
 export const DEFAULT_EXTENSION_OPTIONS: ExtensionOptions = {
   reloadOnHighlight: false,
   overwriteTabGroup: false,
+  openInNewWindow: false,
 };
 
 /**
@@ -19,4 +20,9 @@ export interface ExtensionOptions {
    * - false: 上書きせずにマージする
    */
   overwriteTabGroup: boolean;
+
+  /**
+   * タブグループを復元する際に、新しいウィンドウで開くかどうか
+   */
+  openInNewWindow: boolean;
 }
