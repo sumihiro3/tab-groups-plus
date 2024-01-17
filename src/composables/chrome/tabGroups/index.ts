@@ -157,7 +157,16 @@ export const closeTabGroup = async (
   console.debug(
     `closeTabGroup called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
   );
-  const tabs = await getTabsInTabGroup(tabGroup);
+  let tabs = await getTabsInTabGroup(tabGroup);
+  // 閉じる対象のタブグループがカレントウィンドウに存在するかどうかを確認する
+  const currentWindow = await chrome.windows.getCurrent();
+  const inCurrentWindows = tabs.filter(
+    (tab) => tab.windowId === currentWindow.id,
+  );
+  if (inCurrentWindows.length > 0) {
+    // カレントウィンドウに存在する場合は、先にグループを解除する
+    await chrome.tabs.ungroup(inCurrentWindows.map((tab) => tab.id!));
+  }
   // 各タブを閉じる
   for (const tab of tabs) {
     await chrome.tabs.remove(tab.id!);
