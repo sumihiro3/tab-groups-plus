@@ -231,7 +231,7 @@ const onTabGroupSelectToSave = async (index: number) => {
     await saveTabGroup(selectedTabGroup);
     // タブグループを閉じる
     await closeTabGroup(selectedTabGroup);
-    // // タブグループの一覧を更新する
+    // タブグループの一覧を更新する
     refreshAllTabGroups();
     setFocusToQuery();
     // 完了のスナックバーを表示する
