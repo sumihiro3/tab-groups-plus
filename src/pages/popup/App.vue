@@ -8,13 +8,18 @@ import {
   restoreTabGroup,
   saveTabGroup,
   closeTabGroup,
-  isTabGroupInCurrentWindow,
 } from '../../composables/chrome';
-import { BrowserTabGroup, StoredBrowserTabGroup } from '../../types';
+import { BrowserTabGroup, StoredBrowserTabGroup, Snackbar } from '../../types';
+import SnackbarView from '../../components/Snackbar.vue';
 import TabGroupList from '../../components/tab/GroupList.vue';
 import TabGroupListItem from '../../components/tab/GroupListItem.vue';
 
 const { tm } = useI18n({ useScope: 'global' });
+
+/**
+ * スナックバー表示用オブジェクト
+ */
+const showSnackbar = ref<Snackbar | undefined>();
 
 /**
  * ブラウザーで開かれているタブグループの一覧
@@ -81,6 +86,8 @@ onMounted(async () => {
 const refreshAllTabGroups = async () => {
   console.debug('refreshAllTabGroups called!');
   try {
+    // 検索文字列をクリアする
+    query.value = '';
     // ブラウザーで開かれているタブグループの一覧を取得
     openedTabGroups.value = await getTabGroups();
     // ストレージに保存されているタブグループの一覧を取得
@@ -217,27 +224,29 @@ const onTabGroupSelectToSave = async (index: number) => {
     return;
   }
   try {
-    // 対象のタブグループが現在のウィンドウに含まれているかどうかを確認する
-    const isInCurrentWindow = await isTabGroupInCurrentWindow(selectedTabGroup);
     // タブグループを保存する
     await saveTabGroup(selectedTabGroup);
-    if (isInCurrentWindow) {
-      // 現在のウィンドウに含まれている場合は、別のタブグループをハイライトする
-      const nextTabGroupId = index === 0 ? 1 : 0;
-      console.debug(
-        `対象のタブグループはカレントウィンドウにあるため、別のタブグループをハイライトします。 [nextTabGroupId: ${nextTabGroupId}]`,
-      );
-      await highlightSelectedTabGroup(nextTabGroupId);
-    }
     // タブグループを閉じる
     await closeTabGroup(selectedTabGroup);
     // // タブグループの一覧を更新する
     refreshAllTabGroups();
     setFocusToQuery();
-    // TODO 完了のスナックバーを表示する
+    // 完了のスナックバーを表示する
+    showSnackbar.value = {
+      show: true,
+      timeout: 3000,
+      color: 'success',
+      message: tm('tabGroups.saved'),
+    };
   } catch (error) {
     console.error(error);
-    // TODO エラーのスナックバーを表示する
+    // エラーのスナックバーを表示する
+    showSnackbar.value = {
+      show: true,
+      timeout: 3000,
+      color: 'error',
+      message: tm('tabGroups.save_failed'),
+    };
   }
 };
 
@@ -251,6 +260,13 @@ const onTabGroupDeleted = () => {
   // タブグループの一覧を更新する
   refreshAllTabGroups();
   setFocusToQuery();
+  // 完了のスナックバーを表示する
+  showSnackbar.value = {
+    show: true,
+    timeout: 3000,
+    color: 'success',
+    message: tm('tabGroups.deleted'),
+  };
 };
 
 /**
@@ -308,6 +324,8 @@ const openOptionsPage = () => {
         </v-text-field>
       </v-app-bar-title>
     </v-app-bar>
+    <!-- Snackbar -->
+    <SnackbarView :snackbar="showSnackbar" />
     <!-- TabGroup List -->
     <v-main>
       <v-container fluid class="pa-0">

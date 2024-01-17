@@ -109,11 +109,9 @@ const deleteTabGroup = async (tabGroup: StoredBrowserTabGroup) => {
     // タブグループを削除する
     await removeTabGroup(tabGroup);
     console.log(`TabGroup deleted! [group: ${JSON.stringify(tabGroup)}]`);
-    // TODO 完了のスナックバーを表示する
     emit('deleted');
   } catch (error) {
     console.error(error);
-    // TODO エラーのスナックバーを表示する
   }
 };
 </script>
