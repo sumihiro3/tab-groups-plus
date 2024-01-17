@@ -2,7 +2,7 @@ import {
   getTabGroupMetadataFromSyncStorage,
   getTabGroupValueFromSyncStorage,
   setTabGroupMetadataToSyncStorage,
-  setTabGroupValueToSyncStorage,
+  saveTabGroupValueToSyncStorage,
   removeTabGroup,
 } from '..';
 import {
@@ -44,7 +44,9 @@ export const getTabsInTabGroup = async (
 export const highlightTabGroup = async (
   tabGroup: BrowserTabGroup,
 ): Promise<void> => {
-  console.debug('highlightTabGroup called!');
+  console.debug(
+    `highlightTabGroup called! [target tabGroup: ${tabGroup.title}]`,
+  );
   const options = await getExtensionOptions();
   // タブグループに属する最初のタブを取得し、このタブをハイライト対象とする
   const tabs = await chrome.tabs.query({ groupId: tabGroup.id });
@@ -90,13 +92,9 @@ export const saveTabGroup = async (
   // タブグループに属するタブを取得する
   let tabs = await getTabsInTabGroup(tabGroup);
   // 保存対象のタブグループのタイトルが既に存在するかどうかを確認する
-  const index = tabGroupMetadata.titleList.indexOf(tabGroup.title);
-  if (index === -1) {
-    // 保存対象のタイトルがメタデータに存在しない場合は、タイトルを追加する
-    tabGroupMetadata.titleList.push(tabGroup.title);
-    // タブグループのメタデータを保存する
-    await setTabGroupMetadataToSyncStorage(tabGroupMetadata);
-  } else {
+  let metadataRecord = tabGroupMetadata.getRecord(tabGroup.title);
+  if (metadataRecord) {
+    // 既に同じタイトルのタブグループが存在する場合
     const options = await getExtensionOptions();
     if (!options.overwriteTabGroup) {
       // オプションで上書きしない設定になっている場合は、マージする
@@ -111,7 +109,11 @@ export const saveTabGroup = async (
   // タブグループに属するタブを設定する
   tabGroup.setTabs(tabs);
   // タブグループを保存する
-  await setTabGroupValueToSyncStorage(tabGroup.title, tabGroup);
+  const storageItemCount = await saveTabGroupValueToSyncStorage(tabGroup);
+  // 保存したタブグループのメタデータを更新する
+  tabGroupMetadata.upsertRecord(tabGroup.title, storageItemCount);
+  // タブグループのメタデータを保存する
+  await setTabGroupMetadataToSyncStorage(tabGroupMetadata);
 };
 
 /**
@@ -163,6 +165,25 @@ export const closeTabGroup = async (
 };
 
 /**
+ * 指定のタブグループが現在のウィンドウに存在するかどうかを判定する
+ * @param tabGroup タブグループ
+ * @returns 現在のウィンドウに存在する場合は true
+ */
+export const isTabGroupInCurrentWindow = async (
+  tabGroup: BrowserTabGroup,
+): Promise<boolean> => {
+  console.debug(
+    `isTabGroupInCurrentWindow called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+  );
+  const currentWindow = await chrome.windows.getCurrent();
+  const tabs = await chrome.tabs.query({
+    groupId: tabGroup.id,
+    windowId: currentWindow.id,
+  });
+  return tabs.length > 0;
+};
+
+/**
  * 保存されたタブグループをすべて取得する
  */
 export const getStoredTabGroups = async (): Promise<BrowserTabGroup[]> => {
@@ -171,8 +192,11 @@ export const getStoredTabGroups = async (): Promise<BrowserTabGroup[]> => {
   const tabGroupMetadata = await getTabGroupMetadataFromSyncStorage();
   // 保存されているタブグループを取得する
   const tabGroups: BrowserTabGroup[] = [];
-  for (const title of tabGroupMetadata.titleList) {
-    const tabGroup = await getTabGroupValueFromSyncStorage(title);
+  for (const metadataRecord of tabGroupMetadata.getRecords()) {
+    const tabGroup = await getTabGroupValueFromSyncStorage(
+      metadataRecord.title,
+      metadataRecord.count,
+    );
     if (tabGroup) {
       tabGroups.push(tabGroup);
     }

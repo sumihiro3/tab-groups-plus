@@ -2,11 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { BrowserTabGroup, StoredBrowserTabGroup } from '../../types';
-import {
-  saveTabGroup,
-  closeTabGroup,
-  removeTabGroup,
-} from '../../composables/chrome';
+import { removeTabGroup } from '../../composables/chrome';
 
 const { tm } = useI18n({ useScope: 'global' });
 
@@ -22,15 +18,20 @@ const props = defineProps({
 /** 親コンポーネントへの Emit */
 const emit = defineEmits<{
   /**
-   * タブグループが選択された時のイベント
+   * 開くためにタブグループ選択された時のイベント
    * @param index タブグループのインデックス
    */
-  (event: 'selected', index: number): void;
+  (event: 'selectToOpen', index: number): void;
 
   /**
-   * タブグループが閉じられた時のイベント
+   * 保存するためにタブグループ選択された時のイベント
    */
-  (event: 'closed'): void;
+  (event: 'selectToSave', index: number): void;
+
+  /**
+   * 保存されたタブグループが削除された時のイベント
+   */
+  (event: 'deleted'): void;
 }>();
 
 /**
@@ -88,18 +89,7 @@ const saveAndCloseTabGroup = async (tabGroup: BrowserTabGroup) => {
     console.error(`タブグループが不正です: ${tabGroup}`);
     return;
   }
-  try {
-    // タブグループを保存する
-    await saveTabGroup(tabGroup);
-    console.log(`TabGroup saved! [group: ${JSON.stringify(tabGroup)}]`);
-    // タブグループを閉じる
-    await closeTabGroup(tabGroup);
-    // TODO 完了のスナックバーを表示する
-    emit('closed');
-  } catch (error) {
-    console.error(error);
-    // TODO エラーのスナックバーを表示する
-  }
+  emit('selectToSave', props.index!);
 };
 
 /**
@@ -117,7 +107,7 @@ const deleteTabGroup = async (tabGroup: StoredBrowserTabGroup) => {
     await removeTabGroup(tabGroup);
     console.log(`TabGroup deleted! [group: ${JSON.stringify(tabGroup)}]`);
     // TODO 完了のスナックバーを表示する
-    emit('closed');
+    emit('deleted');
   } catch (error) {
     console.error(error);
     // TODO エラーのスナックバーを表示する
@@ -137,7 +127,7 @@ const deleteTabGroup = async (tabGroup: StoredBrowserTabGroup) => {
         :icon="tabGroupIcon"
         :color="props.tabGroup!.color"
         size="large"
-        @click="emit('selected', props.index!)"
+        @click="emit('selectToOpen', props.index!)"
       />
     </template>
     <template v-slot:append>
@@ -159,7 +149,7 @@ const deleteTabGroup = async (tabGroup: StoredBrowserTabGroup) => {
           </v-btn>
         </template>
         <v-list>
-          <v-list-item @click="emit('selected', props.index!)">
+          <v-list-item @click="emit('selectToOpen', props.index!)">
             <template v-slot:prepend>
               <v-icon icon="mdi-restore" />
             </template>
@@ -193,7 +183,7 @@ const deleteTabGroup = async (tabGroup: StoredBrowserTabGroup) => {
           </v-btn>
         </template>
         <v-list>
-          <v-list-item @click="emit('selected', props.index!)">
+          <v-list-item @click="emit('selectToOpen', props.index!)">
             <template v-slot:prepend>
               <v-icon icon="mdi-open-in-app" />
             </template>
@@ -220,10 +210,10 @@ const deleteTabGroup = async (tabGroup: StoredBrowserTabGroup) => {
     <v-list-item-title
       class="text-left text-subtitle-1 font-weight-bold"
       v-text="props.tabGroup!.title"
-      @click="emit('selected', props.index!)"
+      @click="emit('selectToOpen', props.index!)"
     />
     <v-list-item-subtitle
-      @click="emit('selected', props.index!)"
+      @click="emit('selectToOpen', props.index!)"
       v-text="subTitle"
       class="text-left text-body-2"
     />

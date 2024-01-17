@@ -1,16 +1,91 @@
 import { BrowserTab, BrowserTabDto } from '.';
+import { compress, decompress } from '../../composables/compress';
 
 type ColorEnum = chrome.tabGroups.ColorEnum;
 type TabGroup = chrome.tabGroups.TabGroup;
 
 /**
+ * メタデータ内でタブグループを表すオブジェクト
+ */
+export interface BrowserTabGroupMetadataRecord {
+  /**
+   * タブグループのタイトル
+   */
+  title: string;
+
+  /**
+   * タブグループの保存に利用されているストレージ項目数
+   */
+  count: number;
+}
+
+/**
  * 保存されているタブグループを表すメタデータオブジェクト
  */
-export interface BrowserTabGroupMetadata {
+export class BrowserTabGroupMetadata {
+  constructor() {
+    this.groups = new Map<string, BrowserTabGroupMetadataRecord>();
+  }
+
   /**
-   * 保存されているタブグループのタイトルの配列
+   * タブグループのメタデータレコードのMap
    */
-  titleList: string[];
+  groups: Map<string, BrowserTabGroupMetadataRecord>;
+
+  /**
+   * メタデータに含まれるすべてのタブグループレコードを取得する
+   */
+  getRecords(): BrowserTabGroupMetadataRecord[] {
+    return Array.from(this.groups.values());
+  }
+
+  /**
+   * 指定のタブグループ名の BrowserTabGroupMetadataRecord を取得する
+   * @param tabGroupName タブグループ名
+   * @returns タブグループのメタデータレコード
+   */
+  getRecord(tabGroupName: string): BrowserTabGroupMetadataRecord | null {
+    return this.groups.get(tabGroupName) ?? null;
+  }
+
+  /**
+   * 指定のタブグループ名の BrowserTabGroupMetadataRecord を追加または更新する
+   */
+  upsertRecord(tabGroupName: string, count: number) {
+    const record = this.getRecord(tabGroupName);
+    if (!record) {
+      // レコードが存在しない場合は追加する
+      this.groups.set(tabGroupName, {
+        title: tabGroupName,
+        count: count,
+      });
+    } else {
+      // レコードが存在する場合は更新する
+      record.count = count;
+    }
+  }
+
+  /**
+   * 指定のタブグループ名の BrowserTabGroupMetadataRecord を削除する
+   */
+  removeRecord(tabGroupName: string) {
+    this.groups.delete(tabGroupName);
+  }
+
+  /**
+   * メタデータオブジェクトからインスタンスを生成する
+   * @param records タブグループのメタデータレコードの配列
+   * @returns タブグループのメタデータオブジェクト
+   */
+  static fromRecords(
+    records: BrowserTabGroupMetadataRecord[],
+  ): BrowserTabGroupMetadata {
+    const metadata = new BrowserTabGroupMetadata();
+    for (const record of records) {
+      metadata.groups.set(record.title, record);
+    }
+    return metadata;
+  }
 }
 
 /**
@@ -142,5 +217,32 @@ export class BrowserTabGroupDto {
     this.color = tabGroup.color;
     // タブの一覧を生成する
     this.tabs = tabGroup.tabs?.map((tab) => new BrowserTabDto(tab)) ?? [];
+  }
+
+  /**
+   * 圧縮文字列へ変換する
+   * @returns 圧縮文字列
+   */
+  async compress(): Promise<string> {
+    console.debug(`compress called!`);
+    const original = JSON.stringify(this);
+    const compressed = await compress(original);
+    console.log(`圧縮文字列: ${compressed}`);
+    return compressed;
+  }
+
+  /**
+   * 圧縮文字列からオブジェクトを復元する
+   * @param compressed 圧縮文字列
+   * @returns 復元したオブジェクト
+   */
+  static async decompress(compressed: string): Promise<BrowserTabGroupDto> {
+    console.debug(`decompress called!`);
+    const decompressed = await decompress(compressed);
+    console.log(`解凍文字列: ${decompressed}`);
+    const obj = JSON.parse(decompressed);
+    console.debug(`解凍オブジェクト: ${JSON.stringify(obj)}`);
+    const dto = obj as BrowserTabGroupDto;
+    return dto;
   }
 }

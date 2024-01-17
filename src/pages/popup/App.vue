@@ -6,6 +6,9 @@ import {
   getTabGroups,
   getStoredTabGroups,
   restoreTabGroup,
+  saveTabGroup,
+  closeTabGroup,
+  isTabGroupInCurrentWindow,
 } from '../../composables/chrome';
 import { BrowserTabGroup, StoredBrowserTabGroup } from '../../types';
 import TabGroupList from '../../components/tab/GroupList.vue';
@@ -166,15 +169,15 @@ const setFocusToSelectedTabGroupItem = (index: number) => {
 const onEnterKeyPressed = async () => {
   console.debug('onEnterKeyPressed called!');
   // 選択されたグループのタブをハイライトする
-  await onTabGroupSelected(selectedTabGroupIndex.value);
+  await onTabGroupSelectToOpen(selectedTabGroupIndex.value);
 };
 
 /**
- * タブグループが選択された時のイベントハンドラー
+ * タブグループを開くために選択された時のイベントハンドラー
  * @param index タブグループのインデックス
  */
-const onTabGroupSelected = async (index: number) => {
-  console.debug(`tabGroupSelected called! [index: ${index}]`);
+const onTabGroupSelectToOpen = async (index: number) => {
+  console.debug(`onTabGroupSelectToOpen called! [index: ${index}]`);
   if (index < 0) {
     return;
   }
@@ -190,19 +193,59 @@ const onTabGroupSelected = async (index: number) => {
     if (restored) {
       await highlightTabGroup(restored);
     }
-    // ポップアップを閉じる
-    window.close();
   } else {
     // 選択されたグループのタブをハイライトする
     await highlightSelectedTabGroup(index);
   }
+  // ポップアップを閉じる
+  window.close();
 };
 
 /**
- * タブグループが閉じられた際のイベントハンドラー
+ * タブグループを保存するために選択された時のイベントハンドラー
+ * @param index タブグループのインデックス
  */
-const onTabGroupClosed = () => {
-  console.debug('tabGroupClosed called!');
+const onTabGroupSelectToSave = async (index: number) => {
+  console.debug(`onTabGroupSelectToSave called! [index: ${index}]`);
+  if (index < 0) {
+    return;
+  }
+  // 選択中のタブグループを取得
+  const selectedTabGroup = filteredTabGroups.value[index];
+  if (selectedTabGroup instanceof StoredBrowserTabGroup) {
+    // ストレージに保存されているタブグループの場合は何もしない
+    return;
+  }
+  try {
+    // 対象のタブグループが現在のウィンドウに含まれているかどうかを確認する
+    const isInCurrentWindow = await isTabGroupInCurrentWindow(selectedTabGroup);
+    // タブグループを保存する
+    await saveTabGroup(selectedTabGroup);
+    if (isInCurrentWindow) {
+      // 現在のウィンドウに含まれている場合は、別のタブグループをハイライトする
+      const nextTabGroupId = index === 0 ? 1 : 0;
+      console.debug(
+        `対象のタブグループはカレントウィンドウにあるため、別のタブグループをハイライトします。 [nextTabGroupId: ${nextTabGroupId}]`,
+      );
+      await highlightSelectedTabGroup(nextTabGroupId);
+    }
+    // タブグループを閉じる
+    await closeTabGroup(selectedTabGroup);
+    // // タブグループの一覧を更新する
+    refreshAllTabGroups();
+    setFocusToQuery();
+    // TODO 完了のスナックバーを表示する
+  } catch (error) {
+    console.error(error);
+    // TODO エラーのスナックバーを表示する
+  }
+};
+
+/**
+ * 保存されたタブグループが削除された際のイベントハンドラー
+ */
+const onTabGroupDeleted = () => {
+  console.debug('onTabGroupDeleted called!');
   // 検索文字列をクリアする
   query.value = '';
   // タブグループの一覧を更新する
@@ -227,8 +270,6 @@ const highlightSelectedTabGroup = async (index: number) => {
     }
     // 指定タブグループのタブをハイライト状態にする
     await highlightTabGroup(selectedTabGroup);
-    // ポップアップを閉じる
-    window.close();
   } catch (error) {
     console.error(`Error at highlightTabGroup: ${error}`);
   }
@@ -278,8 +319,9 @@ const openOptionsPage = () => {
             :tabGroup="tabGroup"
             :index="index"
             :active="selectedTabGroupIndex === index"
-            @selected="onTabGroupSelected"
-            @closed="onTabGroupClosed"
+            @selectToOpen="onTabGroupSelectToOpen"
+            @selectToSave="onTabGroupSelectToSave"
+            @deleted="onTabGroupDeleted"
           />
         </TabGroupList>
         <v-layout v-else height="100dvh">
