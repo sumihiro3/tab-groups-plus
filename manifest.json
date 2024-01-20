@@ -1,7 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "TabGroups Plus",
+  "name": "__MSG_extension_name__",
+  "description": "__MSG_extension_description__",
   "version": "0.0.3",
+  "default_locale": "en",
   "icons": {
     "16": "src/assets/icon/icon-16.png",
     "32": "src/assets/icon/icon-32.png",
@@ -9,7 +11,7 @@
     "128": "src/assets/icon/icon-128.png"
   },
   "action": {
-    "default_title": "TabGroups Plus",
+    "default_title": "__MSG_popup_page_title__",
     "default_popup": "src/pages/popup/index.html"
   },
   "options_page": "src/pages/options/index.html",
@@ -21,7 +23,7 @@
         "chromeos": "Ctrl+Shift+P",
         "linux": "Ctrl+Shift+P"
       },
-      "description": "Open TabGroups Plus"
+      "description": "__MSG_shortcut_key_description__"
     }
   },
   "permissions": [
