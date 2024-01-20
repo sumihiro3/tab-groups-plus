@@ -1,0 +1,14 @@
+{
+  "extension_name": {
+    "message": "TabGroups Plus"
+  },
+  "extension_description": {
+    "message": "TabGroups Plus  is an extension that allows you to quickly open the desired tab group or save the tabs open in a tab group."
+  },
+  "popup_page_title": {
+    "message": "Tab group list | TabGroups Plus"
+  },
+  "shortcut_key_description": {
+    "message": "Shortcut key to open tab group list"
+  }
+}

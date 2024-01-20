@@ -1,0 +1,18 @@
+{
+  "extension_name": {
+    "message": "TabGroups Plus",
+    "description": "拡張機能名"
+  },
+  "extension_description": {
+    "message": "TabGroups Plus は、目的のタブグループを素早く開いたり、タブグループで開いているタブを保存しておける拡張機能です。",
+    "description": "拡張機能の説明"
+  },
+  "popup_page_title": {
+    "message": "タブグループ一覧 | TabGroups Plus",
+    "description": "ポップアップページのタイトル"
+  },
+  "shortcut_key_description": {
+    "message": "タブグループ一覧を開くショートカットキー",
+    "description": "ショートカットキーの説明"
+  }
+}
