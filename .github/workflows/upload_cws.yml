@@ -21,11 +21,8 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Yarn
-        run: npm install -g yarn@2
-
       - name: Install dependencies
-        run: yarn --immutable --immutable-cache
+        run: yarn install --pure-lockfile
 
       - name: Build
         run: yarn build
