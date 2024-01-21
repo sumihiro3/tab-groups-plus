@@ -21,14 +21,17 @@ jobs:
         with:
           node-version: 18
 
+      - name: Install Yarn
+        run: npm install -g yarn@2
+
       - name: Install dependencies
         run: yarn install
 
       - name: Build
         run: yarn build
 
-      # - name: Test
-      #   run: yarn test
+      - name: Test
+        run: yarn test
 
       - name: Set version
         id: version
