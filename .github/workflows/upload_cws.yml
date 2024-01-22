@@ -24,38 +24,14 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install Yarn
-        run: npm install -g yarn@2
-
-      # - name: Install dependencies
-      #   run: yarn install
-      - name: Cache CDK Dependencies
-        uses: actions/cache@v3
-        id: cache_cdk_dependency_id
-        env:
-          cache-name: cache-cdk-dependency
-        with:
-          path: .yarn/cache # node_modulesに代えて.yarn/cacheをキャッシュする
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: ${{ runner.os }}-build-${{ env.cache-name }}-
-
-      - name: Install Dependencies
-        if: ${{ steps.cache_cdk_dependency_id.outputs.cache-hit != 'true' }}
-        run: yarn --immutable --immutable-cache
+      - name: Install dependencies
+        run: yarn install
 
       - name: Build
         run: yarn build
 
-      - name: Test
-        run: yarn test
-
-      # - name: Set version
-      #   id: version
-      #   run: |
-      #     REPOSITORY=$(echo ${{ github.repository }} | sed -e "s#.*/##")
-      #     VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
-      #     echo ::set-output name=version::$VERSION
-      #     echo ::set-output name=filename::$REPOSITORY-$VERSION
+      # - name: Test
+      #   run: yarn test
 
       - name: Archive
         uses: montudor/action-zip@v1
