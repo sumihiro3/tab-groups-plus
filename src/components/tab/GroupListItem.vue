@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onUpdated, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { BrowserTabGroup, StoredBrowserTabGroup } from '../../types';
 import { removeTabGroup } from '../../composables/chrome';
@@ -35,14 +35,42 @@ const emit = defineEmits<{
 }>();
 
 /**
- * List のサブタイトル
+ * タブグループのサブタイトル
  */
-const subTitle = ref('');
+const subTitle = ref<string>('');
+
+onMounted(async () => {
+  console.debug(`onMounted [group: ${props.tabGroup}]`);
+  await generateSubTitle();
+});
+
+onUpdated(async () => {
+  console.debug(`onUpdated [group: ${props.tabGroup}]`);
+  await generateSubTitle();
+});
+/**
+ * ストレージに保存されているタブグループかどうか
+ */
+const isStoredTabGroup = computed(() => {
+  return props.tabGroup instanceof StoredBrowserTabGroup;
+});
 
 /**
- * onMounted
+ * タブグループの種類に応じたアイコン名を返す
  */
-onMounted(async () => {
+const tabGroupIcon = computed(() => {
+  if (isStoredTabGroup.value) {
+    return 'mdi-content-save';
+  } else {
+    return 'mdi-circle';
+  }
+});
+
+/**
+ * タブグループのサブタイトルを生成する
+ */
+const generateSubTitle = async () => {
+  console.debug(`generateSubTitle [group: ${props.tabGroup}]`);
   if (!props.tabGroup) {
     return;
   }
@@ -62,25 +90,7 @@ onMounted(async () => {
       'tabs.count_suffix',
     )}`;
   }
-});
-
-/**
- * ストレージに保存されているタブグループかどうか
- */
-const isStoredTabGroup = computed(() => {
-  return props.tabGroup instanceof StoredBrowserTabGroup;
-});
-
-/**
- * タブグループの種類に応じたアイコン名を返す
- */
-const tabGroupIcon = computed(() => {
-  if (isStoredTabGroup.value) {
-    return 'mdi-content-save';
-  } else {
-    return 'mdi-circle';
-  }
-});
+};
 
 /**
  * タブグループを保存して閉じる

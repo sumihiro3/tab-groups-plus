@@ -14,7 +14,7 @@
     "save_and_close": "保存して閉じる",
     "restore": "復元する",
     "delete": "削除する",
-    "stored": "保存された状態",
+    "stored": "保存済み",
     "saved": "タブグループを保存しました",
     "save_failed": "タブグループの保存に失敗しました",
     "deleted": "タブグループを削除しました"
