@@ -9,8 +9,11 @@ on:
 
 jobs:
   build:
-    name: Build
-    runs-on: ubuntu-latest
+    name: Upload new package
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      deployments: write
     steps:
       #
       - name: Checkout
@@ -22,26 +25,18 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: yarn install --pure-lockfile
+        run: yarn install
 
       - name: Build
         run: yarn build
 
-      - name: Test
-        run: yarn test
-
-      - name: Set version
-        id: version
-        run: |
-          REPOSITORY=$(echo ${{ github.repository }} | sed -e "s#.*/##")
-          VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
-          echo ::set-output name=version::$VERSION
-          echo ::set-output name=filename::$REPOSITORY-$VERSION
+      # - name: Test
+      #   run: yarn test
 
       - name: Archive
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r ${{ steps.version.outputs.filename }}.zip dist
+          args: zip -qq -r release.zip dist
 
       - name: Upload to Chrome Web Store
         uses: mobilefirstllc/cws-publish@latest
@@ -51,4 +46,4 @@ jobs:
           client_secret: ${{ secrets.CWS_API_CLIENT_SECRET }}
           refresh_token: ${{ secrets.CWS_API_REFRESH_TOKEN }}
           extension_id: 'mmknldkcmcahihdpdeljnjgjclkbcldm'
-          zip_file: ${{ steps.version.outputs.filename }}.zip
+          zip_file: release.zip
