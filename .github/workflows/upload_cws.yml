@@ -9,8 +9,8 @@ on:
 
 jobs:
   build:
-    name: Build
-    runs-on: ubuntu-latest
+    name: Build and upload new package
+    runs-on: ubuntu-20.04
     steps:
       #
       - name: Checkout
@@ -33,18 +33,18 @@ jobs:
       - name: Test
         run: yarn test
 
-      - name: Set version
-        id: version
-        run: |
-          REPOSITORY=$(echo ${{ github.repository }} | sed -e "s#.*/##")
-          VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
-          echo ::set-output name=version::$VERSION
-          echo ::set-output name=filename::$REPOSITORY-$VERSION
+      # - name: Set version
+      #   id: version
+      #   run: |
+      #     REPOSITORY=$(echo ${{ github.repository }} | sed -e "s#.*/##")
+      #     VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
+      #     echo ::set-output name=version::$VERSION
+      #     echo ::set-output name=filename::$REPOSITORY-$VERSION
 
       - name: Archive
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r ${{ steps.version.outputs.filename }}.zip dist
+          args: zip -qq -r release.zip dist
 
       - name: Upload to Chrome Web Store
         uses: mobilefirstllc/cws-publish@latest
@@ -54,4 +54,4 @@ jobs:
           client_secret: ${{ secrets.CWS_API_CLIENT_SECRET }}
           refresh_token: ${{ secrets.CWS_API_REFRESH_TOKEN }}
           extension_id: 'mmknldkcmcahihdpdeljnjgjclkbcldm'
-          zip_file: ${{ steps.version.outputs.filename }}.zip
+          zip_file: release.zip
