@@ -9,8 +9,11 @@ on:
 
 jobs:
   build:
-    name: Build and upload new package
+    name: Upload new package
     runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      deployments: write
     steps:
       #
       - name: Checkout
@@ -24,8 +27,21 @@ jobs:
       - name: Install Yarn
         run: npm install -g yarn@2
 
-      - name: Install dependencies
-        run: yarn install
+      # - name: Install dependencies
+      #   run: yarn install
+      - name: Cache CDK Dependencies
+        uses: actions/cache@v3
+        id: cache_cdk_dependency_id
+        env:
+          cache-name: cache-cdk-dependency
+        with:
+          path: .yarn/cache # node_modulesに代えて.yarn/cacheをキャッシュする
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-build-${{ env.cache-name }}-
+
+      - name: Install Dependencies
+        if: ${{ steps.cache_cdk_dependency_id.outputs.cache-hit != 'true' }}
+        run: yarn --immutable --immutable-cache
 
       - name: Build
         run: yarn build
