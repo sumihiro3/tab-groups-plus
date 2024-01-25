@@ -207,6 +207,7 @@ describe('saveTabGroup', () => {
     // 拡張機能オプション取得
     const mockGetExtensionOptions = jest.spyOn(options, 'getExtensionOptions');
     const extensionOptions = {
+      removeSavedTabGroupWhenRestore: false,
       reloadOnHighlight: false,
       overwriteTabGroup: true, // 上書き保存
       openInNewWindow: false,
@@ -283,6 +284,7 @@ describe('saveTabGroup', () => {
     // 拡張機能オプション取得
     const mockGetExtensionOptions = jest.spyOn(options, 'getExtensionOptions');
     const extensionOptions = {
+      removeSavedTabGroupWhenRestore: false,
       reloadOnHighlight: false,
       overwriteTabGroup: false, // マージして保存
       openInNewWindow: false,

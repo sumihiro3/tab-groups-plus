@@ -15,6 +15,9 @@ export const getExtensionOptions = async (): Promise<ExtensionOptions> => {
   console.debug('getExtensionOptions called!');
   try {
     const options: ExtensionOptions = {
+      removeSavedTabGroupWhenRestore: await getBooleanValueFromSyncStorage(
+        'removeSavedTabGroupWhenRestore',
+      ),
       reloadOnHighlight:
         await getBooleanValueFromSyncStorage('reloadOnHighlight'),
       overwriteTabGroup:
@@ -41,6 +44,11 @@ export const setExtensionOptions = async (
     `setExtensionOptions called! [options: ${JSON.stringify(options)}]`,
   );
   try {
+    // removeSavedTabGroupWhenRestore
+    await setBooleanValueToSyncStorage(
+      'removeSavedTabGroupWhenRestore',
+      options.removeSavedTabGroupWhenRestore,
+    );
     // reloadOnHighlight
     await setBooleanValueToSyncStorage(
       'reloadOnHighlight',

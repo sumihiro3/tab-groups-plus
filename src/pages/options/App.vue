@@ -113,6 +113,14 @@ const saveOptions = async () => {
                     <v-card-title>{{ tm('options.title') }}</v-card-title>
                   </v-card-item>
                   <v-card-text>
+                    <!-- removeSavedTabGroupWhenRestore -->
+                    <v-switch
+                      v-model="options.removeSavedTabGroupWhenRestore"
+                      hide-details
+                      inset
+                      color="teal"
+                      :label="`${tm('options.removeSavedTabGroupWhenRestore')}`"
+                    ></v-switch>
                     <!-- reloadOnHighlight -->
                     <v-switch
                       v-model="options.reloadOnHighlight"

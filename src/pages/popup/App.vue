@@ -94,7 +94,19 @@ const refreshAllTabGroups = async () => {
     // ブラウザーで開かれているタブグループの一覧を取得
     openedTabGroups.value = await getTabGroups();
     // ストレージに保存されているタブグループの一覧を取得
-    storedTabGroups.value = await getStoredTabGroups();
+    const storedGroup = await getStoredTabGroups();
+    /**
+     * ストレージに保存されているタブグループの一覧に、
+     * ブラウザーで開かれているグループと同名のタブグループがあった場合は
+     * ブラウザーで開かれているタブグループを優先する
+     * そのため、ストレージに保存されているタブグループの一覧から、
+     * ブラウザーで開かれているタブグループと同名のタブグループを削除する
+     */
+    storedTabGroups.value = storedGroup.filter((stored) => {
+      return !openedTabGroups.value.some((opened) => {
+        return stored.title === opened.title;
+      });
+    });
   } catch (error) {
     console.error(error);
   }
