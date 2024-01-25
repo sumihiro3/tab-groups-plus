@@ -21,6 +21,7 @@
   },
   "options": {
     "title": "拡張機能設定",
+    "removeSavedTabGroupWhenRestore": "復元時に保存済みのタブグループを削除する",
     "reloadOnHighlight": "タブグループのハイライト時にタブを再読み込む",
     "overwriteTabGroup": "同名のタブグループが保存されていた場合に上書きする",
     "openInNewWindow": "タブグループを復元する時は新しいウィンドウに開く",

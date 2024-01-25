@@ -260,8 +260,10 @@ export const restoreTabGroup = async (
         windowId: newWindow.id!,
       });
     }
-    // タブグループをストレージから削除する
-    await removeTabGroup(tabGroup);
+    if (options.removeSavedTabGroupWhenRestore) {
+      // タブグループをストレージから削除する
+      await removeTabGroup(tabGroup);
+    }
     return new BrowserTabGroup(group);
   } catch (error) {
     console.error(error);

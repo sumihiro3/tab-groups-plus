@@ -21,6 +21,7 @@
   },
   "options": {
     "title": "Extension options",
+    "removeSavedTabGroupWhenRestore": "Delete saved tab groups on restore",
     "reloadOnHighlight": "Reload tab when a tab group highlighting",
     "overwriteTabGroup": "Overwrites a tab group with the same name if it has been saved",
     "openInNewWindow": "Open in a new window when restoring a saved tab group",
