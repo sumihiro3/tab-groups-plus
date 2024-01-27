@@ -1,18 +1,47 @@
-# Vue 3 + TypeScript + Vite
+# TabGroups Plus
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+![TabGroups Plus](./docs/images/store/en/ScreenShot01.png)
 
-## Recommended IDE Setup
+TabGroups Plus は、目的のタブグループを素早く開いたり、タブグループで開いているタブを保存しておけるブラウザー拡張機能です。
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## 機能説明
 
-## Type Support For `.vue` Imports in TS
+ショートカットキーで開けるタブグループ一覧ではタイトルで絞り込み検索ができるので、タブグループを個々に開いて確認する必要もありません。
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+“TabGroups Plus” では、タブグループの内容を保存して閉じておき、必要となった時に復元して開きなおすことが直感的な操作で行なえます。保存しているタブグループは、同じ Google アカウントを利用しているデバイス間で共有されます。
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+※ショートカットキー
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+- `Ctrl + Shift + P`（macOS の場合は `Command + Shift + P`）キー
+
+### 拡張機能の配布場所
+
+[chrome ウェブストア](https://chromewebstore.google.com/detail/tabgroups-plus/mmknldkcmcahihdpdeljnjgjclkbcldm?hl=ja) にて配布しています。
+
+## 開発環境準備
+
+### ライブラリのインストール
+
+```sh
+yarn install
+```
+
+### ビルド
+
+```sh
+yarn build
+```
+
+### ユニットテスト実行
+
+```sh
+yarn test
+```
+
+### ローカル環境での実行
+
+```sh
+yarn dev
+```
+
+[こちら](https://crxjs.dev/vite-plugin/getting-started/vue/dev-basics) を参考に Chrome をディベロッパーモードにして拡張機能を動かすことができます。
