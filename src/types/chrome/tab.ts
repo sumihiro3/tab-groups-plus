@@ -1,5 +1,3 @@
-import { BrowserTabGroup } from '.';
-
 type Tab = chrome.tabs.Tab;
 
 /**

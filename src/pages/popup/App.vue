@@ -60,20 +60,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import {
-  // highlightTabGroup,
-  getTabGroups,
-  getStoredTabGroups,
-  // restoreTabGroup,
-  // saveTabGroup,
-  // closeTabGroup,
-} from '../../composables/chrome';
+import { getTabGroups, getStoredTabGroups } from '../../composables/chrome';
 import { BrowserTabGroup, StoredBrowserTabGroup, Snackbar } from '../../types';
 import SnackbarView from '../../components/Snackbar.vue';
 import TabGroupList from '../../components/tab/GroupList.vue';
-import { watch } from 'vue';
 
 const { tm } = useI18n({ useScope: 'global' });
 
@@ -258,89 +250,6 @@ const onChangedListItem = () => {
   refreshAllTabGroups();
   setFocusToQuery();
 };
-
-/**
- * 選択されたタブグループのアイテムにフォーカスを当てる
- * @param index タブグループのインデックス
- */
-// const setFocusToSelectedTabGroupItem = (index: number) => {
-//   console.debug(`setFocusToSelectedTabGroupItem called! [index: ${index}]`);
-//   selectedTabGroupIndex.value = index;
-//   const id = `tab-group-${index}`;
-//   window.location.hash = `#${id}`;
-//   setFocusToQuery();
-// };
-
-/**
- * タブグループを開くために選択された時のイベントハンドラー
- * @param index タブグループのインデックス
- */
-// const onTabGroupSelectToOpen = async (index: number) => {
-//   console.debug(`onTabGroupSelectToOpen called! [index: ${index}]`);
-//   if (index < 0) {
-//     return;
-//   }
-//   // 選択中のタブグループを取得
-//   const selectedTabGroup = filteredTabGroups.value[index];
-//   if (selectedTabGroup instanceof StoredBrowserTabGroup) {
-//     // ストレージに保存されているタブグループの場合
-//     // 保存状態からブラウザーにタブグループを復元する
-//     console.debug(
-//       `StoredBrowserTabGroup selected! [title: ${selectedTabGroup.title}]`,
-//     );
-//     const restored = await restoreTabGroup(selectedTabGroup);
-//     if (restored) {
-//       await highlightTabGroup(restored);
-//     }
-//   } else {
-//     // 選択されたグループのタブをハイライトする
-//     await highlightSelectedTabGroup(index);
-//   }
-//   // ポップアップを閉じる
-//   window.close();
-// };
-
-// /**
-//  * タブグループを保存するために選択された時のイベントハンドラー
-//  * @param index タブグループのインデックス
-//  */
-// const onTabGroupSelectToSave = async (index: number) => {
-//   console.debug(`onTabGroupSelectToSave called! [index: ${index}]`);
-//   if (index < 0) {
-//     return;
-//   }
-//   // 選択中のタブグループを取得
-//   const selectedTabGroup = filteredTabGroups.value[index];
-//   if (selectedTabGroup instanceof StoredBrowserTabGroup) {
-//     // ストレージに保存されているタブグループの場合は何もしない
-//     return;
-//   }
-//   try {
-//     // タブグループを保存する
-//     await saveTabGroup(selectedTabGroup);
-//     // タブグループを閉じる
-//     await closeTabGroup(selectedTabGroup);
-//     // タブグループの一覧を更新する
-//     refreshAllTabGroups();
-//     setFocusToQuery();
-//     // 完了のスナックバーを表示する
-//     showSnackbar.value = {
-//       show: true,
-//       timeout: 3000,
-//       color: 'success',
-//       message: tm('tabGroups.saved'),
-//     };
-//   } catch (error) {
-//     console.error(error);
-//     // エラーのスナックバーを表示する
-//     showSnackbar.value = {
-//       show: true,
-//       timeout: 3000,
-//       color: 'error',
-//       message: tm('tabGroups.save_failed'),
-//     };
-//   }
-// };
 
 /**
  * 保存されたタブグループが削除された際のイベントハンドラー

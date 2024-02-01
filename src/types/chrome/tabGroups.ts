@@ -215,11 +215,6 @@ export class BrowserTabGroup {
     if (filteredTabs.length === 0 && containsInTabGroupTitle === -1) {
       // タブグループタイトル、タブタイトルの両方に指定の文字列が含まれていない場合は null を返す
       return null;
-    } else if (filteredTabs.length > 0) {
-      // タブが検索結果に含まれている場合は、表示位置を更新する
-      // filteredTabs.forEach((tab, index) => {
-      //   tab.setDisplayIndex(index);
-      // });
     }
     // タブグループのコピーを作成する
     let tabGroup: BrowserTabGroup;
@@ -266,9 +261,8 @@ export class StoredBrowserTabGroup extends BrowserTabGroup {
     });
     if (tabGroupDto.tabs) {
       const tabs: BrowserTab[] = [];
-      for (const [index, tabDto] of tabGroupDto.tabs!.entries()) {
+      for (const tabDto of tabGroupDto.tabs) {
         const tab = BrowserTab.fromDto(tabDto);
-        // tab.setDisplayIndex(index);
         tabs.push(tab);
       }
       tabGroup.setTabs(tabs);
