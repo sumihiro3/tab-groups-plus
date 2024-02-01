@@ -21,9 +21,8 @@ export const getTabGroups = async (): Promise<BrowserTabGroup[]> => {
   console.debug('getTabGroups called!');
   const tabGroups = await chrome.tabGroups.query({});
   const result = [];
-  for (const [index, group] of tabGroups.entries()) {
+  for (const group of tabGroups) {
     const g = new BrowserTabGroup(group);
-    // g.setDisplayIndex(index);
     const tabs = await getTabsInTabGroup(g);
     g.setTabs(tabs);
     result.push(g);
@@ -42,9 +41,8 @@ export const getTabsInTabGroup = async (
   const tabs = await chrome.tabs.query({ groupId: tabGroup.id });
   console.debug(`got tabs: ${JSON.stringify(tabs)}`);
   const result: BrowserTab[] = [];
-  for (const [index, tab] of tabs.entries()) {
+  for (const tab of tabs) {
     const t = new BrowserTab(tab);
-    // t.setDisplayIndex(index);
     result.push(t);
   }
   return result;
@@ -216,7 +214,7 @@ export const getStoredTabGroups = async (): Promise<BrowserTabGroup[]> => {
   const tabGroups: BrowserTabGroup[] = [];
   const metadataRecords: BrowserTabGroupMetadataRecord[] =
     tabGroupMetadata.getRecords();
-  for (const [index, metadataRecord] of metadataRecords.entries()) {
+  for (const metadataRecord of metadataRecords) {
     const tabGroup = await getTabGroupValueFromSyncStorage(
       metadataRecord.title!,
       metadataRecord.count,
@@ -280,7 +278,10 @@ export const restoreTabGroup = async (
       // タブグループをストレージから削除する
       await removeTabGroup(tabGroup);
     }
-    return new BrowserTabGroup(group);
+    const restoredGroup = new BrowserTabGroup(group);
+    const restoredTabs = await getTabsInTabGroup(restoredGroup);
+    restoredGroup.setTabs(restoredTabs);
+    return restoredGroup;
   } catch (error) {
     console.error(error);
     throw new TabGroupsSaveError(`タブグループの復元に失敗しました。`);

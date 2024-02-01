@@ -30,6 +30,7 @@
           :tabGroups="filteredTabGroups"
           :expandTabGroupList="expandTabGroupList"
           @onChangedActiveListItem="onChangedActiveListItem"
+          @onChangedListItem="onChangedListItem"
         />
         <!-- max-height="400" -->
         <v-layout v-else height="100dvh">
@@ -242,10 +243,19 @@ const setFocusToQuery = () => {
 
 /**
  * TabGroupList でアクティブになったアイテムが更新された時のイベントハンドラー
- * @param item アクティブになったアイテム
  */
 const onChangedActiveListItem = () => {
   console.debug(`onChangedActiveListItem called!`);
+  setFocusToQuery();
+};
+
+/**
+ * TabGroupList 内でアイテムが更新された時のイベントハンドラー
+ */
+const onChangedListItem = () => {
+  console.debug(`onChangedListItem called!`);
+  // タブグループの一覧を更新する
+  refreshAllTabGroups();
   setFocusToQuery();
 };
 
@@ -349,28 +359,6 @@ const onChangedActiveListItem = () => {
 //     color: 'success',
 //     message: tm('tabGroups.deleted'),
 //   };
-// };
-
-// /**
-//  * 指定のタブグループをハイライトする
-//  * @param index タブグループのインデックス
-//  */
-// const highlightSelectedTabGroup = async (index: number) => {
-//   console.debug(`highlightTabGroup called! [index: ${index}]`);
-//   if (index < 0) {
-//     return;
-//   }
-//   try {
-//     // 選択中のタブグループを取得
-//     const selectedTabGroup = filteredTabGroups.value[index];
-//     if (!selectedTabGroup) {
-//       return;
-//     }
-//     // 指定タブグループのタブをハイライト状態にする
-//     await highlightTabGroup(selectedTabGroup);
-//   } catch (error) {
-//     console.error(`Error at highlightTabGroup: ${error}`);
-//   }
 // };
 
 /**

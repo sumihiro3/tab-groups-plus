@@ -1,4 +1,6 @@
 <template>
+  <!-- Snackbar -->
+  <SnackbarView :snackbar="showSnackbar" />
   <v-list
     :lines="false"
     :opened="props.expandTabGroupList"
@@ -38,13 +40,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { BrowserTab, BrowserTabGroup } from '../../types';
-import { onMounted } from 'vue';
+import { ref, onMounted, onBeforeMount, watch, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import {
+  BrowserTab,
+  BrowserTabGroup,
+  StoredBrowserTabGroup,
+  Snackbar,
+} from '../../types';
 import TabGroupListItem from '../../components/tab/GroupListItem.vue';
 import TabListItem from '../../components/tab/ListItem.vue';
-import { onBeforeMount } from 'vue';
-import { watch } from 'vue';
+import SnackbarView from '../../components/Snackbar.vue';
+import {
+  closeTabGroup,
+  highlightTab,
+  highlightTabGroup,
+  restoreTabGroup,
+  saveTabGroup,
+} from '../../composables/chrome';
 
 const props = defineProps({
   /** リストへ表示するタブグループ */
@@ -56,12 +69,26 @@ const props = defineProps({
 const emit = defineEmits<{
   /**
    * リスト中でアクティブになったアイテムが変更された時のイベント
-   * @param listItem タブグループ
    */
   (event: 'onChangedActiveListItem'): void;
+
+  /**
+   * リスト内のアイテム（タブグループまたはタブ）に変更があった時のイベント
+   */
+  (event: 'onChangedListItem'): void;
 }>();
 
+const { tm } = useI18n({ useScope: 'global' });
+
+/**
+ * リストに表示するタブグループ一覧
+ */
 const currentTabGroups = ref<BrowserTabGroup[]>(props.tabGroups!);
+
+/**
+ * スナックバー表示用オブジェクト
+ */
+const showSnackbar = ref<Snackbar | undefined>();
 
 /**
  * リストに表示されるアイテム一覧
@@ -113,6 +140,14 @@ watch(
 );
 
 /**
+ * リストで選択されているアイテムを取得する
+ * @returns リストで選択されているアイテム（タブグループまたはタブ）
+ */
+const selectedListItem = computed((): BrowserTabGroup | BrowserTab => {
+  return listItems.value[activeListItemIndex.value];
+});
+
+/**
  * キーが押された時のイベントハンドラー
  * @param e キーイベント
  */
@@ -122,6 +157,7 @@ const keyDownEventHandler = (e: KeyboardEvent) => {
     return;
   }
   if (e.shiftKey && e.key === 'Enter') {
+    onShiftEnterKeyPressed();
     // タブグループが選択されていた場合、Shift + Enter でタブグループを保存する
     // onTabGroupSelectToSave(selectedTabGroupIndex.value);
   } else if (e.key === 'ArrowDown') {
@@ -168,8 +204,27 @@ const onDownKeyPressed = () => {
  */
 const onEnterKeyPressed = async () => {
   console.debug('onEnterKeyPressed called!');
-  // 選択されたグループのタブをハイライトする
-  // await onTabGroupSelectToOpen(selectedTabGroupIndex.value);
+  const item = selectedListItem.value;
+  if (item instanceof BrowserTabGroup) {
+    // タブグループが選択されている場合
+    await onSelectedTabGroupToOpen(item);
+  } else if (item instanceof BrowserTab) {
+    // タブが選択されている場合
+    await onSelectedTabToOpen(activeTabGroup.value!, item);
+  }
+};
+
+/**
+ * Shift + Enter キーが押された時の処理
+ */
+const onShiftEnterKeyPressed = () => {
+  console.debug('onShiftEnterKeyPressed called!');
+  const item = selectedListItem.value;
+  // 選択されたアイテムがタブグループである場合のみ処理する
+  if (item instanceof BrowserTabGroup) {
+    // タブグループを保存する
+    onSelectedTabGroupToSave(item);
+  }
 };
 
 /**
@@ -236,7 +291,9 @@ const setActiveToSelectedListGroupItem = (index: number) => {
     elementId = getTabGroupListItemElementId(activeTabGroup);
   }
   activeListItemElementId.value = elementId;
-  console.debug(`activeListItemElementId: ${activeListItemElementId.value}`);
+  console.debug(
+    `Active list item changed [elementId: ${activeListItemElementId.value}]`,
+  );
   // アクティブになった要素をフォーカスする
   window.location.hash = `#${elementId}`;
   // 親コンポーネントへアクティブになったアイテムが更新されたことを通知する
@@ -268,6 +325,20 @@ const onSelectedTabGroupToOpen = async (tabGroup: BrowserTabGroup) => {
   console.debug(
     `onSelectedTabGroupToOpen called! [tabGroup: ${tabGroup.title}]`,
   );
+  if (tabGroup instanceof StoredBrowserTabGroup) {
+    // ストレージに保存されているタブグループの場合
+    // 保存状態からブラウザーにタブグループを復元する
+    console.debug(`StoredBrowserTabGroup selected! [title: ${tabGroup.title}]`);
+    const restored = await restoreTabGroup(tabGroup);
+    if (restored) {
+      await highlightTabGroup(restored);
+    }
+  } else {
+    // 選択されたグループのタブをハイライトする
+    await highlightTabGroup(tabGroup);
+  }
+  // ポップアップを閉じる
+  window.close();
 };
 
 /**
@@ -278,6 +349,30 @@ const onSelectedTabGroupToSave = async (tabGroup: BrowserTabGroup) => {
   console.debug(
     `onSelectedTabGroupToSave called! [tabGroup: ${tabGroup.title}]`,
   );
+  try {
+    // タブグループを保存する
+    await saveTabGroup(tabGroup);
+    // タブグループを閉じる
+    await closeTabGroup(tabGroup);
+    // 完了のスナックバーを表示する
+    showSnackbar.value = {
+      show: true,
+      timeout: 3000,
+      color: 'success',
+      message: tm('tabGroups.saved'),
+    };
+    // 親コンポーネントへアイテムが更新されたことを通知する
+    emit('onChangedListItem');
+  } catch (error) {
+    console.error(error);
+    // エラーのスナックバーを表示する
+    showSnackbar.value = {
+      show: true,
+      timeout: 3000,
+      color: 'error',
+      message: tm('tabGroups.save_failed'),
+    };
+  }
 };
 
 /**
@@ -302,5 +397,27 @@ const onSelectedTabToOpen = async (
   console.debug(
     `onSelectedTabToOpen called! [tabGroup: ${tabGroup.title}, tab: ${tab.title}]`,
   );
+  if (tabGroup instanceof StoredBrowserTabGroup) {
+    // ストレージに保存されているタブグループの場合
+    // 保存状態からブラウザーにタブグループを復元する
+    console.debug(`StoredBrowserTabGroup selected! [title: ${tabGroup.title}]`);
+    const restored = await restoreTabGroup(tabGroup);
+    // await sleep(500);
+    if (restored && restored.tabs && restored.tabs.length > 0) {
+      console.debug(`restored tabs: ${restored.tabs.length}`);
+      // 復元したタブグループから、選択されたタブを取得する
+      const selectedTab = restored.tabs!.find((t) => t.url === tab.url);
+      console.debug(`selected tab: ${selectedTab}`);
+      // タブをハイライトする
+      if (selectedTab) {
+        await highlightTab(selectedTab);
+      }
+    }
+  } else {
+    // 選択されたタブをハイライトする
+    await highlightTab(tab);
+  }
+  // ポップアップを閉じる
+  window.close();
 };
 </script>

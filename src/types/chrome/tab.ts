@@ -110,7 +110,11 @@ export class BrowserTab {
     this.pinned = tab.pinned;
     this.discarded = tab.discarded;
     this.title = tab.title;
-    this.url = tab.url;
+    if (tab.status === 'loading') {
+      this.url = tab.pendingUrl;
+    } else {
+      this.url = tab.url;
+    }
     this.favIconUrl = tab.favIconUrl;
     this.status = tab.status;
     this.incognito = tab.incognito;
