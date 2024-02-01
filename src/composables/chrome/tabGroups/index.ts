@@ -8,6 +8,7 @@ import {
 import {
   BrowserTab,
   BrowserTabGroup,
+  BrowserTabGroupMetadataRecord,
   StoredBrowserTabGroup,
 } from '../../../types';
 import { TabGroupsSaveError } from '../../../types/errors';
@@ -19,7 +20,14 @@ import { getExtensionOptions } from '../../options';
 export const getTabGroups = async (): Promise<BrowserTabGroup[]> => {
   console.debug('getTabGroups called!');
   const tabGroups = await chrome.tabGroups.query({});
-  const result = tabGroups.map((tabGroup) => new BrowserTabGroup(tabGroup));
+  const result = [];
+  for (const [index, group] of tabGroups.entries()) {
+    const g = new BrowserTabGroup(group);
+    // g.setDisplayIndex(index);
+    const tabs = await getTabsInTabGroup(g);
+    g.setTabs(tabs);
+    result.push(g);
+  }
   return result;
 };
 
@@ -33,7 +41,12 @@ export const getTabsInTabGroup = async (
   console.debug('getTabsInTabGroup called!');
   const tabs = await chrome.tabs.query({ groupId: tabGroup.id });
   console.debug(`got tabs: ${JSON.stringify(tabs)}`);
-  const result = tabs.map((tab) => new BrowserTab(tab));
+  const result: BrowserTab[] = [];
+  for (const [index, tab] of tabs.entries()) {
+    const t = new BrowserTab(tab);
+    // t.setDisplayIndex(index);
+    result.push(t);
+  }
   return result;
 };
 
@@ -201,11 +214,14 @@ export const getStoredTabGroups = async (): Promise<BrowserTabGroup[]> => {
   const tabGroupMetadata = await getTabGroupMetadataFromSyncStorage();
   // 保存されているタブグループを取得する
   const tabGroups: BrowserTabGroup[] = [];
-  for (const metadataRecord of tabGroupMetadata.getRecords()) {
+  const metadataRecords: BrowserTabGroupMetadataRecord[] =
+    tabGroupMetadata.getRecords();
+  for (const [index, metadataRecord] of metadataRecords.entries()) {
     const tabGroup = await getTabGroupValueFromSyncStorage(
-      metadataRecord.title,
+      metadataRecord.title!,
       metadataRecord.count,
     );
+    // tabGroup?.setDisplayIndex(index);
     if (tabGroup) {
       tabGroups.push(tabGroup);
     }

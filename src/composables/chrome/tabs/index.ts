@@ -30,3 +30,16 @@ export const closeTab = async (tab: BrowserTab): Promise<void> => {
   console.debug(`closeTab called! [tab: ${JSON.stringify(tab)}]`);
   await chrome.tabs.remove(tab.id!);
 };
+
+/**
+ * タブグループに含まれていないタブの一覧を取得する
+ * @returns タブの一覧
+ */
+export const getTabsNotInGroup = async (): Promise<BrowserTab[]> => {
+  console.debug('getTabsNotInGroup called!');
+  const tabs = await chrome.tabs.query({
+    // タブグループに含まれていないタブのみ取得する
+    groupId: chrome.tabGroups.TAB_GROUP_ID_NONE,
+  });
+  return tabs.map((tab) => new BrowserTab(tab));
+};

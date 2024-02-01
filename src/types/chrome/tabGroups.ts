@@ -89,6 +89,21 @@ export class BrowserTabGroupMetadata {
 }
 
 /**
+ * タブグループに属していないタブをまとめる用途で利用されるタブグループグループのID
+ */
+const TAB_GROUP_ID_NONE = -1;
+
+/**
+ * 保存されたタブグループを表すタブグループのID
+ */
+const SAVED_TAB_GROUP_ID = 0;
+
+/**
+ * ブラウザーでは開かれていないタブグループの windowId
+ */
+const WINDOW_ID_NONE = -1;
+
+/**
  * タブグループを表すクラス
  * @see https://developer.chrome.com/docs/extensions/reference/tabGroups/#type-Tab
  */
@@ -96,32 +111,37 @@ export class BrowserTabGroup {
   /**
    * グループの ID。グループ ID はブラウザ セッション内で一意です。
    */
-  id: number;
+  readonly id: number;
 
   /**
    * グループのタイトル。
    */
-  title?: string;
+  readonly title?: string;
 
   /**
    * グループの色。
    */
-  color: ColorEnum;
+  readonly color: ColorEnum;
 
   /**
    * グループが閉じているかどうか。折りたたまれたグループは、タブが非表示になっているグループです。
    */
-  collapsed: boolean;
+  readonly collapsed: boolean;
 
   /**
    * グループを含むウィンドウの ID。
    */
-  windowId: number;
+  readonly windowId: number;
 
   /**
    * グループに含まれるタブの配列
    */
   tabs?: BrowserTab[];
+
+  /**
+   * タブグループリストでの表示位置（リスト中のインデックス）
+   */
+  displayIndex?: number;
 
   /**
    * コンストラクター
@@ -144,17 +164,79 @@ export class BrowserTabGroup {
   }
 
   /**
+   * リストの表示位置を設定する
+   */
+  setDisplayIndex(index: number) {
+    if (index < 0) {
+      throw new Error('displayIndex は 0 以上である必要があります');
+    }
+    this.displayIndex = index;
+  }
+
+  /**
    * DTO からインスタンスを生成する
    */
   static fromDto(tabGroupDto: BrowserTabGroupDto): BrowserTabGroup {
     const tabGroup = new BrowserTabGroup({
-      id: 0,
+      id: SAVED_TAB_GROUP_ID,
       collapsed: false,
       color: tabGroupDto.color,
       title: tabGroupDto.title,
-      windowId: 0,
+      windowId: WINDOW_ID_NONE,
     });
-    tabGroup.setTabs(tabGroupDto.tabs.map((tab) => BrowserTab.fromDto(tab)));
+    tabGroup.tabs = tabGroupDto.tabs.map((tab) => BrowserTab.fromDto(tab));
+    return tabGroup;
+  }
+
+  /**
+   * タブグループに属するタブのタイトルに指定の文字列が含まれているかどうかを判定する
+   * 指定の文字列が含まれているタブを持ったタブグループを返す
+   * 含まれていない場合は、null を返す
+   * @param query 検索文字列
+   * @returns 指定の文字列がタイトルに含まれているタブを持ったタブグループオブジェクト
+   */
+  contains(query: string): BrowserTabGroup | null {
+    console.debug(`[${this.title}] contains called! [query: ${query}]`);
+    if (!this.tabs) {
+      return null;
+    }
+    const q = query.toLowerCase();
+    // タブグループのタイトルに指定の文字列が含まれているかどうか
+    // タブグループに属していないタブグループの場合は常に含まれていないと判定する
+    const containsInTabGroupTitle =
+      this.id === TAB_GROUP_ID_NONE ? -1 : this.title?.toLowerCase().indexOf(q);
+    console.debug(
+      `[${this.title}] containsInTabGroupTitle: ${containsInTabGroupTitle}`,
+    );
+    // タブグループに属するタブのうち、指定の文字列が含まれているタブを取得する
+    const filteredTabs = this.tabs!.filter((tab) => {
+      return tab.title?.toLowerCase().indexOf(q) !== -1;
+    });
+    if (filteredTabs.length === 0 && containsInTabGroupTitle === -1) {
+      // タブグループタイトル、タブタイトルの両方に指定の文字列が含まれていない場合は null を返す
+      return null;
+    } else if (filteredTabs.length > 0) {
+      // タブが検索結果に含まれている場合は、表示位置を更新する
+      // filteredTabs.forEach((tab, index) => {
+      //   tab.setDisplayIndex(index);
+      // });
+    }
+    // タブグループのコピーを作成する
+    let tabGroup: BrowserTabGroup;
+    const tabObject = {
+      id: this.id,
+      collapsed: this.collapsed,
+      color: this.color,
+      title: this.title,
+      windowId: this.windowId,
+    };
+    if (this instanceof StoredBrowserTabGroup) {
+      tabGroup = new StoredBrowserTabGroup(tabObject);
+    } else {
+      tabGroup = new BrowserTabGroup(tabObject);
+    }
+    // タブグループに属するタブを設定する
+    tabGroup.tabs = filteredTabs;
     return tabGroup;
   }
 }
@@ -182,7 +264,15 @@ export class StoredBrowserTabGroup extends BrowserTabGroup {
       title: tabGroupDto.title,
       windowId: 0,
     });
-    tabGroup.setTabs(tabGroupDto.tabs.map((tab) => BrowserTab.fromDto(tab)));
+    if (tabGroupDto.tabs) {
+      const tabs: BrowserTab[] = [];
+      for (const [index, tabDto] of tabGroupDto.tabs!.entries()) {
+        const tab = BrowserTab.fromDto(tabDto);
+        // tab.setDisplayIndex(index);
+        tabs.push(tab);
+      }
+      tabGroup.setTabs(tabs);
+    }
     return tabGroup;
   }
 }

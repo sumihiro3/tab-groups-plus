@@ -1,58 +1,86 @@
 <script setup lang="ts">
-import { ref, computed, onUpdated, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { computed } from 'vue';
+// import { useI18n } from 'vue-i18n';
 import { BrowserTabGroup, StoredBrowserTabGroup } from '../../types';
-import { removeTabGroup } from '../../composables/chrome';
+import { ref } from 'vue';
+import { watch } from 'vue';
 
-const { tm } = useI18n({ useScope: 'global' });
+// const { tm } = useI18n({ useScope: 'global' });
 
 /**
  * コンポーネントのプロパティ
  */
 const props = defineProps({
   tabGroup: Object as () => BrowserTabGroup,
-  index: Number,
-  active: Boolean,
+  active: Boolean as () => boolean,
 });
+
+const currentTabGroup = ref<BrowserTabGroup>(props.tabGroup!);
+const currentTabActive = ref<boolean>(props.active!);
 
 /** 親コンポーネントへの Emit */
 const emit = defineEmits<{
   /**
-   * 開くためにタブグループ選択された時のイベント
-   * @param index タブグループのインデックス
+   * 開くためにタブグループが選択された時のイベント
+   * @param tabGroup タブグループ
    */
-  (event: 'selectToOpen', index: number): void;
+  (event: 'selectToOpenTabGroup', tabGroup: BrowserTabGroup): void;
 
   /**
-   * 保存するためにタブグループ選択された時のイベント
+   * 保存するためにタブグループが選択された時のイベント
+   * @param tabGroup タブグループ
    */
-  (event: 'selectToSave', index: number): void;
+  (event: 'selectToSaveTabGroup', tabGroup: BrowserTabGroup): void;
 
   /**
-   * 保存されたタブグループが削除された時のイベント
+   * 削除のためにタブグループが選択された時のイベント
+   * @param tabGroup タブグループ
    */
-  (event: 'deleted'): void;
+  (event: 'selectToDeleteTabGroup', tabGroup: BrowserTabGroup): void;
 }>();
 
 /**
- * タブグループのサブタイトル
+ * プロパティ [tabGroup] の変更を監視する
  */
-const subTitle = ref<string>('');
+watch(
+  () => props.tabGroup,
+  () => {
+    console.debug(`watch [props.tabGroup] called!`);
+    currentTabGroup.value = props.tabGroup!;
+  },
+);
 
-onMounted(async () => {
-  console.debug(`onMounted [group: ${props.tabGroup}]`);
-  await generateSubTitle();
-});
+/**
+ * プロパティ [active] の変更を監視する
+ */
+watch(
+  () => props.active,
+  () => {
+    console.debug(`watch [props.active] called!`);
+    currentTabActive.value = props.active!;
+  },
+);
 
-onUpdated(async () => {
-  console.debug(`onUpdated [group: ${props.tabGroup}]`);
-  await generateSubTitle();
-});
 /**
  * ストレージに保存されているタブグループかどうか
  */
 const isStoredTabGroup = computed(() => {
-  return props.tabGroup instanceof StoredBrowserTabGroup;
+  return currentTabGroup.value instanceof StoredBrowserTabGroup;
+});
+
+/**
+ * タブグループの背景色
+ */
+const tabGroupColor = computed(() => {
+  const tabGroup = currentTabGroup.value;
+  const prefix = 'background-color:';
+  let className = '';
+  if (!tabGroup.color) {
+    className = `${prefix} #ffffff`;
+  } else {
+    className = `${prefix} ${tabGroup.color}`;
+  }
+  return className;
 });
 
 /**
@@ -66,167 +94,94 @@ const tabGroupIcon = computed(() => {
   }
 });
 
-/**
- * タブグループのサブタイトルを生成する
- */
-const generateSubTitle = async () => {
-  console.debug(`generateSubTitle [group: ${props.tabGroup}]`);
-  if (!props.tabGroup) {
-    return;
-  }
-  // リストのサブタイトルを設定する
-  if (props.tabGroup instanceof StoredBrowserTabGroup) {
-    // 保存されているタブグループの場合
-    // - 保存状態であることを表示する
-    // - タブの数を表示する
-    subTitle.value = `${tm('tabGroups.stored')}: ${tm('tabs.count_prefix')} ${
-      props.tabGroup.tabs!.length
-    } ${tm('tabs.count_suffix')}`;
-  } else {
-    // ブラウザーで開かれているタブグループの場合、API でタブを取得する
-    const tabs = await chrome.tabs.query({ groupId: props.tabGroup.id });
-    // - タブの数を表示する
-    subTitle.value = `${tm('tabs.count_prefix')} ${tabs.length} ${tm(
-      'tabs.count_suffix',
-    )}`;
-  }
-};
+// /**
+//  * タブグループを保存して閉じる
+//  * @param tabGroup 保存するタブグループ
+//  */
+// const saveAndCloseTabGroup = async (tabGroup: BrowserTabGroup) => {
+//   console.log(`saveAndClose [group: ${tabGroup.id}]`);
+//   if (!tabGroup) {
+//     console.error(`タブグループが不正です: ${tabGroup}`);
+//     return;
+//   }
+//   emit('selectToSave', props.index!);
+// };
 
-/**
- * タブグループを保存して閉じる
- * @param tabGroup 保存するタブグループ
- */
-const saveAndCloseTabGroup = async (tabGroup: BrowserTabGroup) => {
-  console.log(`saveAndClose [group: ${tabGroup.id}]`);
-  if (!tabGroup) {
-    console.error(`タブグループが不正です: ${tabGroup}`);
-    return;
-  }
-  emit('selectToSave', props.index!);
-};
-
-/**
- * 保存されたタブグループを削除する
- * @param tabGroup 削除するタブグループ
- */
-const deleteTabGroup = async (tabGroup: StoredBrowserTabGroup) => {
-  console.log(`deleteTabGroup [group: ${tabGroup.id}]`);
-  if (!tabGroup) {
-    console.error(`タブグループが不正です: ${tabGroup}`);
-    return;
-  }
-  try {
-    // タブグループを削除する
-    await removeTabGroup(tabGroup);
-    console.log(`TabGroup deleted! [group: ${JSON.stringify(tabGroup)}]`);
-    emit('deleted');
-  } catch (error) {
-    console.error(error);
-  }
-};
+// /**
+//  * 保存されたタブグループを削除する
+//  * @param tabGroup 削除するタブグループ
+//  */
+// const deleteTabGroup = async (tabGroup: StoredBrowserTabGroup) => {
+//   console.log(`deleteTabGroup [group: ${tabGroup.id}]`);
+//   if (!tabGroup) {
+//     console.error(`タブグループが不正です: ${tabGroup}`);
+//     return;
+//   }
+//   try {
+//     // タブグループを削除する
+//     await removeTabGroup(tabGroup);
+//     console.log(`TabGroup deleted! [group: ${JSON.stringify(tabGroup)}]`);
+//     emit('deleted');
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
 </script>
 
 <template>
-  <v-list-item
-    :value="props.tabGroup"
-    color="primary"
-    rounded="xl"
+  <v-list-group
+    v-if="currentTabGroup"
+    :value="currentTabGroup.title"
     :active="props.active"
+    :fluid="true"
+    :style="tabGroupColor"
+    class="tab-group-list-item"
   >
-    <template v-slot:prepend>
-      <v-icon
-        :icon="tabGroupIcon"
-        :color="props.tabGroup!.color"
-        size="large"
-        @click="emit('selectToOpen', props.index!)"
-      />
-    </template>
-    <template v-slot:append>
-      <v-chip v-show="active" color="primary" size="small" flat class="ml-2"
-        >Enter</v-chip
-      >
-      <!-- タブグループごとのサブメニュ -->
-      <v-menu v-if="isStoredTabGroup">
-        <!-- ストレージに保存されているタブグループの場合のメニュ -->
-        <template v-slot:activator="{ props }">
-          <v-btn
-            v-bind="props"
-            icon="mdi-dots-vertical"
-            density="compact"
-            size="small"
-            flat
-            class="ml-2"
+    <template v-slot:activator="{ props }">
+      <v-list-item v-bind="props" rounded="xl">
+        <template v-slot:default v-if="currentTabGroup">
+          <div
+            class="text-left"
+            @click="emit('selectToOpenTabGroup', tabGroup!)"
           >
-          </v-btn>
+            <!-- 保存されたタブグループの場合、それを表すアイコンを表示する -->
+            <v-icon
+              v-if="isStoredTabGroup"
+              :icon="tabGroupIcon"
+              :color="currentTabGroup.color"
+              size="large"
+            />
+            <span class="text-body-2">
+              <!-- i:{{ tabGroup!.displayIndex }} -->
+              <!--  -->
+              <!-- a:{{ currentTabActive }} -->
+              <!--  -->
+              [{{ tabGroup!.tabs!.length }}]&nbsp;
+            </span>
+            <span
+              class="text-subtitle-1"
+              :class="{
+                'font-weight-black': currentTabActive,
+                'font-weight-medium': !currentTabActive,
+              }"
+            >
+              {{ tabGroup!.title }}
+            </span>
+          </div>
         </template>
-        <v-list>
-          <v-list-item @click="emit('selectToOpen', props.index!)">
-            <template v-slot:prepend>
-              <v-icon icon="mdi-restore" />
-            </template>
-            <v-list-item-title>{{ tm('tabGroups.restore') }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="deleteTabGroup(props.tabGroup!)">
-            <template v-slot:prepend>
-              <v-icon icon="mdi-delete" />
-            </template>
-            <v-list-item-title>{{ tm('tabGroups.delete') }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="!props">
-            <template v-slot:prepend>
-              <v-icon icon="mdi-close" />
-            </template>
-            <v-list-item-title>{{ tm('cancel') }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-      <v-menu v-else>
-        <!-- ブラウザーで開かれているタブグループの場合のメニュ -->
-        <template v-slot:activator="{ props }">
-          <v-btn
-            v-bind="props"
-            icon="mdi-dots-vertical"
-            density="compact"
-            size="small"
-            flat
-            class="ml-2"
-          >
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item @click="emit('selectToOpen', props.index!)">
-            <template v-slot:prepend>
-              <v-icon icon="mdi-open-in-app" />
-            </template>
-            <v-list-item-title>{{ tm('tabGroups.open') }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="saveAndCloseTabGroup(props.tabGroup!)">
-            <template v-slot:prepend>
-              <v-icon icon="mdi-content-save" />
-            </template>
-            <v-list-item-title>{{
-              tm('tabGroups.save_and_close')
-            }}</v-list-item-title>
-          </v-list-item>
-          <v-list-item @click="!props">
-            <template v-slot:prepend>
-              <v-icon icon="mdi-close" />
-            </template>
-            <v-list-item-title>{{ tm('cancel') }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+        <v-list-item-title
+          class="text-left"
+          @click="emit('selectToOpenTabGroup', tabGroup!)"
+        >
+        </v-list-item-title>
+      </v-list-item>
     </template>
-
-    <v-list-item-title
-      class="text-left text-subtitle-1 font-weight-bold"
-      v-text="props.tabGroup!.title"
-      @click="emit('selectToOpen', props.index!)"
-    />
-    <v-list-item-subtitle
-      @click="emit('selectToOpen', props.index!)"
-      v-text="subTitle"
-      class="text-left text-body-2"
-    />
-  </v-list-item>
+    <slot></slot>
+  </v-list-group>
 </template>
+
+<style scoped>
+.tab-group-list-item {
+  opacity: 0.9;
+}
+</style>

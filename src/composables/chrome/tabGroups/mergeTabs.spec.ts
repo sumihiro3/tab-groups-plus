@@ -6,7 +6,7 @@ import { BrowserTab } from '../../../types';
  */
 const createTabs = (): BrowserTab[] => {
   const tabs = [
-    {
+    new BrowserTab({
       id: 1,
       index: 0,
       windowId: 1,
@@ -18,8 +18,10 @@ const createTabs = (): BrowserTab[] => {
       pinned: false,
       discarded: false,
       incognito: false,
-    },
-    {
+      selected: true,
+      autoDiscardable: true,
+    }),
+    new BrowserTab({
       id: 2,
       index: 1,
       windowId: 1,
@@ -31,8 +33,10 @@ const createTabs = (): BrowserTab[] => {
       pinned: false,
       discarded: false,
       incognito: false,
-    },
-    {
+      selected: true,
+      autoDiscardable: true,
+    }),
+    new BrowserTab({
       id: 3,
       index: 2,
       windowId: 1,
@@ -44,7 +48,9 @@ const createTabs = (): BrowserTab[] => {
       pinned: false,
       discarded: false,
       incognito: false,
-    },
+      selected: true,
+      autoDiscardable: true,
+    }),
   ];
   return tabs;
 };
@@ -54,7 +60,7 @@ describe('mergeTabs', () => {
     // setup
     const tabList1 = createTabs();
     const tabList2 = [
-      {
+      new BrowserTab({
         id: 4,
         index: 2,
         windowId: 2,
@@ -66,8 +72,10 @@ describe('mergeTabs', () => {
         pinned: false,
         discarded: false,
         incognito: false,
-      },
-      {
+        selected: true,
+        autoDiscardable: true,
+      }),
+      new BrowserTab({
         id: 1,
         index: 0,
         windowId: 1,
@@ -79,7 +87,9 @@ describe('mergeTabs', () => {
         pinned: false,
         discarded: false,
         incognito: false,
-      },
+        selected: true,
+        autoDiscardable: true,
+      }),
     ];
     // execute
     const result = tabGroups.mergeTabs(tabList1, tabList2);
@@ -92,7 +102,7 @@ describe('mergeTabs', () => {
     // setup
     const tabList1 = createTabs();
     const tabList2 = [
-      {
+      new BrowserTab({
         id: 4,
         index: 2,
         windowId: 2,
@@ -104,8 +114,10 @@ describe('mergeTabs', () => {
         pinned: false,
         discarded: false,
         incognito: false,
-      },
-      {
+        selected: true,
+        autoDiscardable: true,
+      }),
+      new BrowserTab({
         id: 1,
         index: 0,
         windowId: 1,
@@ -117,7 +129,9 @@ describe('mergeTabs', () => {
         pinned: false,
         discarded: false,
         incognito: false,
-      },
+        selected: true,
+        autoDiscardable: true,
+      }),
     ];
     // execute
     const result = tabGroups.mergeTabs(tabList1, tabList2);
