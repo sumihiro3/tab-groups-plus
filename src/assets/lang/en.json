@@ -8,7 +8,7 @@
     "close": "Close"
   },
   "tabGroups": {
-    "input_query": "Enter and search tab group",
+    "input_query": "Enter and search tab group or tab",
     "no_matches": "No matches found",
     "un_grouped": "Un grouped",
     "search": "Search",

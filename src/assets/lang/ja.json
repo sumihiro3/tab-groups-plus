@@ -9,7 +9,7 @@
   },
   "tabGroups": {
     "input_query": "タブグループ・タブを絞り込む",
-    "no_matches": "一致するタブグループはありません",
+    "no_matches": "一致するタブグループ・タブはありません",
     "un_grouped": "未分類",
     "search": "タブグループの検索",
     "open": "開く",
