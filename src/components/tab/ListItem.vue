@@ -99,7 +99,8 @@ const isUnGroupedTabGroup = computed(() => {
 
 <style scoped>
 .tab-list-item {
+  color: #2d2d2d;
   background-color: #f4f4f4;
-  opacity: 0.9;
+  opacity: 0.8;
 }
 </style>
