@@ -1,3 +1,86 @@
+<template>
+  <v-list-group
+    v-if="currentTabGroup"
+    :value="currentTabGroup.title"
+    :active="props.active"
+    :fluid="true"
+    :style="tabGroupColor"
+    class="tab-group-list-item"
+  >
+    <template v-slot:activator="{ props }">
+      <v-list-item v-bind="props" rounded="xl">
+        <template v-slot:default v-if="currentTabGroup">
+          <div class="text-left">
+            <!-- 保存されたタブグループの場合、それを表すアイコンを表示する -->
+            <v-icon
+              v-if="isStoredTabGroup"
+              :icon="tabGroupIcon"
+              :color="currentTabGroup.color"
+              size="large"
+            />
+            <span class="text-body-2">
+              <!-- i:{{ tabGroup!.displayIndex }} -->
+              <!--  -->
+              <!-- a:{{ currentTabActive }} -->
+              <!--  -->
+              [{{ tabGroup!.tabs!.length }}]&nbsp;
+            </span>
+            <span
+              @click="emit('selectToOpenTabGroup', tabGroup!)"
+              class="text-subtitle-1"
+              :class="{
+                'font-weight-black': currentTabActive,
+                'font-weight-medium': !currentTabActive,
+              }"
+            >
+              {{ tabGroup!.title }}
+            </span>
+          </div>
+        </template>
+        <!-- ブラウザーで開いているタブグループ用のボタン群 -->
+        <template v-slot:append v-if="isOpenedTabGroup">
+          <!-- タブグループを保存して閉じる -->
+          <TooltipButton
+            :tooltip="tm('tabGroups.save_and_close')"
+            icon="mdi-content-save"
+            color="teal"
+            class="mb-1"
+            @click="emit('selectToSaveTabGroup', tabGroup!)"
+          />
+          <!-- 開いているタブグループを閉じる -->
+          <TooltipButton
+            :tooltip="tm('tabGroups.close')"
+            icon="mdi-close"
+            color="teal"
+            class="ml-1 mb-1"
+            @click="emit('selectToCloseTabGroup', tabGroup!)"
+          />
+        </template>
+        <!-- 保存されているタブグループ用のボタン群 -->
+        <template v-slot:append v-else-if="isStoredTabGroup">
+          <!-- 保存されたタブグループを復元する -->
+          <TooltipButton
+            :tooltip="tm('tabGroups.restore')"
+            icon="mdi-restore"
+            color="teal"
+            class="mb-1"
+            @click="emit('selectToOpenTabGroup', tabGroup!)"
+          />
+          <!-- 保存されたタブグループを削除する -->
+          <TooltipButton
+            icon="mdi-trash-can"
+            :tooltip="tm('tabGroups.delete')"
+            color="teal"
+            class="ml-1 mb-1"
+            @click="emit('selectToDeleteTabGroup', tabGroup!)"
+          />
+        </template>
+      </v-list-item>
+    </template>
+    <slot></slot>
+  </v-list-group>
+</template>
+
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -110,89 +193,6 @@ const tabGroupIcon = computed(() => {
   }
 });
 </script>
-
-<template>
-  <v-list-group
-    v-if="currentTabGroup"
-    :value="currentTabGroup.title"
-    :active="props.active"
-    :fluid="true"
-    :style="tabGroupColor"
-    class="tab-group-list-item"
-  >
-    <template v-slot:activator="{ props }">
-      <v-list-item v-bind="props" rounded="xl">
-        <template v-slot:default v-if="currentTabGroup">
-          <div class="text-left">
-            <!-- 保存されたタブグループの場合、それを表すアイコンを表示する -->
-            <v-icon
-              v-if="isStoredTabGroup"
-              :icon="tabGroupIcon"
-              :color="currentTabGroup.color"
-              size="large"
-            />
-            <span class="text-body-2">
-              <!-- i:{{ tabGroup!.displayIndex }} -->
-              <!--  -->
-              <!-- a:{{ currentTabActive }} -->
-              <!--  -->
-              [{{ tabGroup!.tabs!.length }}]&nbsp;
-            </span>
-            <span
-              @click="emit('selectToOpenTabGroup', tabGroup!)"
-              class="text-subtitle-1"
-              :class="{
-                'font-weight-black': currentTabActive,
-                'font-weight-medium': !currentTabActive,
-              }"
-            >
-              {{ tabGroup!.title }}
-            </span>
-          </div>
-        </template>
-        <!-- ブラウザーで開いているタブグループ用のボタン群 -->
-        <template v-slot:append v-if="isOpenedTabGroup">
-          <!-- タブグループを保存して閉じる -->
-          <TooltipButton
-            :tooltip="tm('tabGroups.save_and_close')"
-            icon="mdi-content-save"
-            color="teal"
-            class="mb-1"
-            @click="emit('selectToSaveTabGroup', tabGroup!)"
-          />
-          <!-- 開いているタブグループを閉じる -->
-          <TooltipButton
-            :tooltip="tm('tabGroups.close')"
-            icon="mdi-close"
-            color="teal"
-            class="ml-1 mb-1"
-            @click="emit('selectToCloseTabGroup', tabGroup!)"
-          />
-        </template>
-        <!-- 保存されているタブグループ用のボタン群 -->
-        <template v-slot:append v-else-if="isStoredTabGroup">
-          <!-- 保存されたタブグループを復元する -->
-          <TooltipButton
-            :tooltip="tm('tabGroups.restore')"
-            icon="mdi-restore"
-            color="teal"
-            class="mb-1"
-            @click="emit('selectToOpenTabGroup', tabGroup!)"
-          />
-          <!-- 保存されたタブグループを削除する -->
-          <TooltipButton
-            icon="mdi-trash-can"
-            :tooltip="tm('tabGroups.delete')"
-            color="teal"
-            class="ml-1 mb-1"
-            @click="emit('selectToDeleteTabGroup', tabGroup!)"
-          />
-        </template>
-      </v-list-item>
-    </template>
-    <slot></slot>
-  </v-list-group>
-</template>
 
 <style scoped>
 .tab-group-list-item {

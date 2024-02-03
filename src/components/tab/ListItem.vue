@@ -1,3 +1,44 @@
+<template>
+  <v-list-item
+    :value="props.tab"
+    :active="props.active"
+    @click="emit('selectTabToOpen', props.tabGroup!, props.tab!)"
+    density="compact"
+    class="tab-list-item"
+  >
+    <template v-slot:prepend>
+      <!-- タブの favicon -->
+      <v-avatar
+        :image="props.tab!.favIconUrl"
+        :size="faviconSize"
+        :rounded="false"
+      />
+    </template>
+    <!-- タブのタイトル -->
+    <v-list-item-title class="text-left text-body-2">
+      <!-- i: {{ props.tab!.displayIndex }} -->
+      <span
+        :class="{
+          'font-weight-bold': props.active,
+          'font-weight-medium': !props.active,
+        }"
+      >
+        {{ props.tab!.title }}
+      </span>
+    </v-list-item-title>
+    <template v-slot:append v-if="isOpenedTabGroup">
+      <!-- 開いているタブを閉じる -->
+      <TooltipButton
+        :tooltip="tm('tabs.close')"
+        icon="mdi-close"
+        color="grey-lighten-2"
+        class="mb-1"
+        @click="emit('selectTabToDelete', props.tabGroup!, props.tab!)"
+      />
+    </template>
+  </v-list-item>
+</template>
+
 <script setup lang="ts">
 import { computed } from 'vue';
 import { isOpenedBrowserTabGroup } from '../../composables/chrome';
@@ -49,47 +90,6 @@ const isOpenedTabGroup = computed(() => {
   return isOpenedBrowserTabGroup(props.tabGroup!);
 });
 </script>
-
-<template>
-  <v-list-item
-    :value="props.tab"
-    :active="props.active"
-    @click="emit('selectTabToOpen', props.tabGroup!, props.tab!)"
-    density="compact"
-    class="tab-list-item"
-  >
-    <template v-slot:prepend>
-      <!-- タブの favicon -->
-      <v-avatar
-        :image="props.tab!.favIconUrl"
-        :size="faviconSize"
-        :rounded="false"
-      />
-    </template>
-    <!-- タブのタイトル -->
-    <v-list-item-title class="text-left text-body-2">
-      <!-- i: {{ props.tab!.displayIndex }} -->
-      <span
-        :class="{
-          'font-weight-bold': props.active,
-          'font-weight-medium': !props.active,
-        }"
-      >
-        {{ props.tab!.title }}
-      </span>
-    </v-list-item-title>
-    <template v-slot:append v-if="isOpenedTabGroup">
-      <!-- 開いているタブを閉じる -->
-      <TooltipButton
-        :tooltip="tm('tabs.close')"
-        icon="mdi-close"
-        color="grey-lighten-2"
-        class="mb-1"
-        @click="emit('selectTabToDelete', props.tabGroup!, props.tab!)"
-      />
-    </template>
-  </v-list-item>
-</template>
 
 <style scoped>
 .tab-list-item {
