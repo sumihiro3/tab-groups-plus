@@ -4,7 +4,7 @@
     :value="currentTabGroup.title"
     :active="props.active"
     :fluid="true"
-    :style="tabGroupColor"
+    :class="tabGroupColor"
     class="tab-group-list-item"
   >
     <template v-slot:activator="{ props }">
@@ -189,12 +189,11 @@ const isUngroupedTabGroup = computed(() => {
  */
 const tabGroupColor = computed(() => {
   const tabGroup = currentTabGroup.value;
-  const prefix = 'background-color:';
   let className = '';
   if (!tabGroup.color) {
-    className = `${prefix} #ffffff`;
+    className = `tab-group-bg-default`;
   } else {
-    className = `${prefix} ${tabGroup.color}`;
+    className = `tab-group-bg-${tabGroup.color}`;
   }
   return className;
 });
@@ -213,6 +212,78 @@ const tabGroupIcon = computed(() => {
 
 <style scoped>
 .tab-group-list-item {
-  opacity: 0.9;
+  color: #ffffff;
+}
+
+.tab-group-bg-default {
+  color: #2d2d2d;
+  background-color: #ffffff;
+}
+.tab-group-bg-grey {
+  background-color: #5f6368;
+}
+.tab-group-bg-blue {
+  background-color: #1a73e8;
+}
+.tab-group-bg-red {
+  background-color: #d93025;
+}
+.tab-group-bg-yellow {
+  color: #2d2d2d;
+  background-color: #f9ab00;
+}
+.tab-group-bg-green {
+  background-color: #188038;
+}
+.tab-group-bg-pink {
+  background-color: #d01884;
+}
+.tab-group-bg-purple {
+  background-color: #a142f4;
+}
+.tab-group-bg-cyan {
+  background-color: #007b83;
+}
+.tab-group-bg-orange {
+  color: #2d2d2d;
+  background-color: #fa903e;
+}
+
+/* ダークモード用定義 */
+@media (prefers-color-scheme: dark) {
+  .tab-group-list-item {
+    color: #202125;
+  }
+
+  .tab-group-bg-default {
+    background-color: #ffffff;
+  }
+  .tab-group-bg-grey {
+    background-color: #dadce0;
+  }
+  .tab-group-bg-blue {
+    background-color: #8ab4f8;
+  }
+  .tab-group-bg-red {
+    background-color: #f28b82;
+  }
+  .tab-group-bg-yellow {
+    background-color: #fdd663;
+  }
+  .tab-group-bg-green {
+    background-color: #81c995;
+  }
+  .tab-group-bg-pink {
+    background-color: #ff8bcb;
+  }
+  .tab-group-bg-purple {
+    background-color: #c58af9;
+  }
+  .tab-group-bg-cyan {
+    background-color: #78d9ec;
+  }
+  .tab-group-bg-orange {
+    background-color: #fcad70;
+  }
 }
 </style>
