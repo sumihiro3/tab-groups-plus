@@ -401,7 +401,7 @@ const onSelectedTabGroupToSave = async (tabGroup: BrowserTabGroup) => {
     // 親コンポーネントへアイテムが更新されたことを通知する
     emit('onChangedListItem');
   } catch (error) {
-    console.error(error);
+    console.error(`タブグループの保存に失敗しました: ${error}`);
     // エラーのスナックバーを表示する
     showErrorSnackbar(tm('tabGroups.save_failed'));
   }
