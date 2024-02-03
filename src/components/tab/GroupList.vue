@@ -133,8 +133,17 @@ onMounted(() => {
 watch(
   () => props.tabGroups,
   () => {
-    console.debug(`watch [props.tabGroups] called!`);
+    console.debug(
+      `watch [props.tabGroups] called!: [length: ${props.tabGroups!.length}]`,
+    );
     currentTabGroups.value = props.tabGroups!;
+    if (currentTabGroups.value.length < 1) {
+      console.debug(`Tab groups is empty!`);
+      // タブグループがない場合はアクティブにするアイテムをリセットする
+      activeListItemIndex.value = 0;
+      activeTabGroup.value = undefined;
+      activeTab.value = undefined;
+    }
     updateDisplayIndexOfListItems();
     // 最初のアイテム（タブグループ）をアクティブにする
     setActiveToSelectedListGroupItem(0);
@@ -159,9 +168,8 @@ const keyDownEventHandler = (e: KeyboardEvent) => {
     return;
   }
   if (e.shiftKey && e.key === 'Enter') {
-    onShiftEnterKeyPressed();
     // タブグループが選択されていた場合、Shift + Enter でタブグループを保存する
-    // onTabGroupSelectToSave(selectedTabGroupIndex.value);
+    onShiftEnterKeyPressed();
   } else if (e.key === 'ArrowDown') {
     onDownKeyPressed();
   } else if (e.key === 'ArrowUp') {
@@ -206,6 +214,9 @@ const onDownKeyPressed = () => {
  */
 const onEnterKeyPressed = async () => {
   console.debug('onEnterKeyPressed called!');
+  if (props.tabGroups!.length < 1) {
+    return;
+  }
   const item = selectedListItem.value;
   if (item instanceof BrowserTabGroup) {
     // タブグループが選択されている場合
