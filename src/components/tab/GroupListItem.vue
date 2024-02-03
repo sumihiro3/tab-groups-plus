@@ -39,15 +39,23 @@
         </template>
         <!-- ブラウザーで開いているタブグループ用のボタン群 -->
         <template v-slot:append v-if="isOpenedTabGroup">
-          <!-- タブグループを保存して閉じる -->
+          <!-- タブグループを開く・ハイライトする -->
           <TooltipButton
-            :tooltip="tm('tabGroups.save_and_close')"
-            icon="mdi-content-save"
+            :tooltip="`${tm('tabGroups.open')} (Enter)`"
+            icon="mdi-open-in-app"
             color="teal"
             class="mb-1"
+            @click="emit('selectToOpenTabGroup', tabGroup!)"
+          />
+          <!-- タブグループを保存して閉じる -->
+          <TooltipButton
+            :tooltip="`${tm('tabGroups.save_and_close')} (Shift + Enter)`"
+            icon="mdi-content-save"
+            color="teal"
+            class="ml-1 mb-1"
             @click="emit('selectToSaveTabGroup', tabGroup!)"
           />
-          <!-- 開いているタブグループを閉じる -->
+          <!-- タブグループを閉じる -->
           <TooltipButton
             :tooltip="tm('tabGroups.close')"
             icon="mdi-close"
