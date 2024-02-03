@@ -131,6 +131,19 @@ const expandTabGroupList = ref<string[]>([]);
 onMounted(async () => {
   console.log('onMounted!');
   try {
+    window.addEventListener('DOMContentLoaded', () => {
+      const queryField = document.getElementById('query');
+      /** IME 入力完了時のイベントリスナー */
+      queryField?.addEventListener('compositionend', () => {
+        console.debug('IME input finished!');
+        // IME 入力完了後に filteredTabGroups が更新されるよう
+        // 検索文字列を明示的に再設定する
+        const queryValue = query.value;
+        query.value = '';
+        query.value = queryValue;
+        filteredTabGroups;
+      });
+    });
     // タブグループの一覧を更新する
     await refreshAllTabGroups();
     // 初期表示時に検索文字列の入力欄にフォーカスを当てる
