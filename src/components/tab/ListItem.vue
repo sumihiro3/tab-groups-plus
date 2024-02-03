@@ -1,5 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { isOpenedBrowserTabGroup } from '../../composables/chrome';
 import { BrowserTab, BrowserTabGroup } from '../../types';
+import TooltipButton from '../button/WithTooltip.vue';
+import { useI18n } from 'vue-i18n';
+
+const { tm } = useI18n({ useScope: 'global' });
 
 /**
  * コンポーネントのプロパティ
@@ -31,7 +37,17 @@ const emit = defineEmits<{
   ): void;
 }>();
 
+/**
+ * Favicon のサイズ
+ */
 const faviconSize = 20;
+
+/**
+ * ブラウザーで開かれているタブグループかどうか
+ */
+const isOpenedTabGroup = computed(() => {
+  return isOpenedBrowserTabGroup(props.tabGroup!);
+});
 </script>
 
 <template>
@@ -62,12 +78,14 @@ const faviconSize = 20;
         {{ props.tab!.title }}
       </span>
     </v-list-item-title>
-    <!-- 削除ボタン -->
-    <template v-slot:append>
-      <v-icon
-        @click="emit('selectTabToDelete', props.tabGroup!, props.tab!)"
-        color="grey"
+    <template v-slot:append v-if="isOpenedTabGroup">
+      <!-- 開いているタブを閉じる -->
+      <TooltipButton
+        :tooltip="tm('tabs.close')"
         icon="mdi-close"
+        color="grey-lighten-2"
+        class="mb-1"
+        @click="emit('selectTabToDelete', props.tabGroup!, props.tab!)"
       />
     </template>
   </v-list-item>

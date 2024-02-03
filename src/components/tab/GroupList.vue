@@ -19,6 +19,7 @@
         activeListItemElementId === getTabGroupListItemElementId(tabGroup)
       "
       @selectToOpenTabGroup="onSelectedTabGroupToOpen"
+      @selectToCloseTabGroup="onSelectedTabGroupToClose"
       @selectToSaveTabGroup="onSelectedTabGroupToSave"
       @selectToDeleteTabGroup="onSelectedTabGroupToDelete"
     >
@@ -40,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeMount, watch, computed } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   BrowserTab,
@@ -55,6 +56,9 @@ import {
   closeTabGroup,
   highlightTab,
   highlightTabGroup,
+  isOpenedBrowserTabGroup,
+  isStoredBrowserTabGroup,
+  removeTabGroup,
   restoreTabGroup,
   saveTabGroup,
 } from '../../composables/chrome';
@@ -114,10 +118,6 @@ const activeTab = ref<BrowserTab>();
  * アクティブなリストアイテムのID
  */
 const activeListItemElementId = ref<string>();
-
-onBeforeMount(() => {
-  console.debug(`TabGroupListItem.onBeforeMount called!`);
-});
 
 onMounted(() => {
   console.debug(`TabGroupListItem.onMounted called!`);
@@ -228,6 +228,32 @@ const onShiftEnterKeyPressed = () => {
 };
 
 /**
+ * 成功のスナックバーを表示する
+ * @param message スナックバーに表示するメッセージ
+ */
+const showSuccessSnackbar = (message: string) => {
+  showSnackbar.value = {
+    show: true,
+    timeout: 3000,
+    color: 'success',
+    message,
+  };
+};
+
+/**
+ * エラーのスナックバーを表示する
+ * @param message スナックバーに表示するメッセージ
+ */
+const showErrorSnackbar = (message: string) => {
+  showSnackbar.value = {
+    show: true,
+    timeout: 3000,
+    color: 'error',
+    message,
+  };
+};
+
+/**
  * リストに表示するアイテムの表示位置を更新する
  */
 const updateDisplayIndexOfListItems = () => {
@@ -325,7 +351,7 @@ const onSelectedTabGroupToOpen = async (tabGroup: BrowserTabGroup) => {
   console.debug(
     `onSelectedTabGroupToOpen called! [tabGroup: ${tabGroup.title}]`,
   );
-  if (tabGroup instanceof StoredBrowserTabGroup) {
+  if (isStoredBrowserTabGroup(tabGroup)) {
     // ストレージに保存されているタブグループの場合
     // 保存状態からブラウザーにタブグループを復元する
     console.debug(`StoredBrowserTabGroup selected! [title: ${tabGroup.title}]`);
@@ -336,6 +362,22 @@ const onSelectedTabGroupToOpen = async (tabGroup: BrowserTabGroup) => {
   } else {
     // 選択されたグループのタブをハイライトする
     await highlightTabGroup(tabGroup);
+  }
+  // ポップアップを閉じる
+  window.close();
+};
+
+/**
+ * タブグループを閉じるために選択された時のイベントハンドラー
+ * @param tabGroup タブグループ
+ */
+const onSelectedTabGroupToClose = async (tabGroup: BrowserTabGroup) => {
+  console.debug(
+    `onSelectedTabGroupToClose called! [tabGroup: ${tabGroup.title}]`,
+  );
+  if (isOpenedBrowserTabGroup(tabGroup)) {
+    // 選択されたグループのタブを閉じる
+    await closeTabGroup(tabGroup);
   }
   // ポップアップを閉じる
   window.close();
@@ -355,23 +397,13 @@ const onSelectedTabGroupToSave = async (tabGroup: BrowserTabGroup) => {
     // タブグループを閉じる
     await closeTabGroup(tabGroup);
     // 完了のスナックバーを表示する
-    showSnackbar.value = {
-      show: true,
-      timeout: 3000,
-      color: 'success',
-      message: tm('tabGroups.saved'),
-    };
+    showSuccessSnackbar(tm('tabGroups.saved'));
     // 親コンポーネントへアイテムが更新されたことを通知する
     emit('onChangedListItem');
   } catch (error) {
     console.error(error);
     // エラーのスナックバーを表示する
-    showSnackbar.value = {
-      show: true,
-      timeout: 3000,
-      color: 'error',
-      message: tm('tabGroups.save_failed'),
-    };
+    showErrorSnackbar(tm('tabGroups.save_failed'));
   }
 };
 
@@ -383,6 +415,21 @@ const onSelectedTabGroupToDelete = async (tabGroup: BrowserTabGroup) => {
   console.debug(
     `onSelectedTabGroupToDelete called! [tabGroup: ${tabGroup.title}]`,
   );
+  try {
+    if (isStoredBrowserTabGroup(tabGroup)) {
+      // 保存されたタブグループであれば、ストレージから削除する
+      // ストレージからタブグループを削除する
+      removeTabGroup(tabGroup);
+      // 完了のスナックバーを表示する
+      showSuccessSnackbar(tm('tabGroups.deleted'));
+      // 親コンポーネントへアイテムが更新されたことを通知する
+      emit('onChangedListItem');
+    }
+  } catch (error) {
+    console.error(`タブグループの削除に失敗しました: ${error}`);
+    // エラーのスナックバーを表示する
+    showErrorSnackbar(tm('tabGroups.delete_failed'));
+  }
 };
 
 /**

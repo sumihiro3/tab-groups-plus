@@ -4,16 +4,19 @@
   "close": "Close",
   "tabs": {
     "count_prefix": "",
-    "count_suffix": "tabs"
+    "count_suffix": "tabs",
+    "close": "Close"
   },
   "tabGroups": {
     "input_query": "Enter and search tab group",
     "no_matches": "No matches found",
     "search": "Search",
     "open": "Open",
+    "close": "Close",
     "save_and_close": "Save and close",
     "restore": "Restore",
     "delete": "Delete",
+    "delete_failed": "Failed to delete tab group.",
     "stored": "Stored",
     "saved": "Tab group saved.",
     "save_failed": "Failed to save tab group.",

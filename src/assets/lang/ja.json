@@ -4,16 +4,19 @@
   "close": "閉じる",
   "tabs": {
     "count_prefix": "タブ数:",
-    "count_suffix": ""
+    "count_suffix": "",
+    "close": "閉じる"
   },
   "tabGroups": {
     "input_query": "入力してタブグループを検索",
     "no_matches": "一致するタブグループはありません",
     "search": "タブグループの検索",
     "open": "開く",
+    "close": "閉じる",
     "save_and_close": "保存して閉じる",
     "restore": "復元する",
-    "delete": "削除する",
+    "delete": "タブグループを削除する",
+    "delete_failed": "タブグループの削除に失敗しました",
     "stored": "保存済み",
     "saved": "タブグループを保存しました",
     "save_failed": "タブグループの保存に失敗しました",

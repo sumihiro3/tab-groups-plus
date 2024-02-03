@@ -15,6 +15,38 @@ import { TabGroupsSaveError } from '../../../types/errors';
 import { getExtensionOptions } from '../../options';
 
 /**
+ * 指定のタブグループがブラウザーで開かれているかどうかを判定する
+ * @returns ブラウザーで開かれている場合は true
+ */
+export const isOpenedBrowserTabGroup = (tabGroup: BrowserTabGroup): boolean => {
+  console.debug(
+    `isTabGroupOpened called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+  );
+  let result = false;
+  if (tabGroup instanceof StoredBrowserTabGroup) {
+    result = false;
+  } else {
+    result = true;
+  }
+  return result;
+};
+
+/**
+ * 指定のタブグループが、保存されているタブグループであるかを判定する
+ * @returns 保存されているタブグループである場合は true
+ */
+export const isStoredBrowserTabGroup = (tabGroup: BrowserTabGroup): boolean => {
+  console.debug(
+    `isTabGroupStored called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+  );
+  let result = false;
+  if (tabGroup instanceof StoredBrowserTabGroup) {
+    result = true;
+  }
+  return result;
+};
+
+/**
  * すべてのタブグループを取得する
  */
 export const getTabGroups = async (): Promise<BrowserTabGroup[]> => {
