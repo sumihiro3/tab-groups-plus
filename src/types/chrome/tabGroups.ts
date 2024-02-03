@@ -96,7 +96,7 @@ const TAB_GROUP_ID_NONE = -1;
 /**
  * 保存されたタブグループを表すタブグループのID
  */
-const SAVED_TAB_GROUP_ID = 0;
+const STORED_TAB_GROUP_ID = 0;
 
 /**
  * ブラウザーでは開かれていないタブグループの windowId
@@ -174,21 +174,6 @@ export class BrowserTabGroup {
   }
 
   /**
-   * DTO からインスタンスを生成する
-   */
-  static fromDto(tabGroupDto: BrowserTabGroupDto): BrowserTabGroup {
-    const tabGroup = new BrowserTabGroup({
-      id: SAVED_TAB_GROUP_ID,
-      collapsed: false,
-      color: tabGroupDto.color,
-      title: tabGroupDto.title,
-      windowId: WINDOW_ID_NONE,
-    });
-    tabGroup.tabs = tabGroupDto.tabs.map((tab) => BrowserTab.fromDto(tab));
-    return tabGroup;
-  }
-
-  /**
    * タブグループに属するタブのタイトルに指定の文字列が含まれているかどうかを判定する
    * 指定の文字列が含まれているタブを持ったタブグループを返す
    * 含まれていない場合は、null を返す
@@ -251,13 +236,15 @@ export class StoredBrowserTabGroup extends BrowserTabGroup {
   /**
    * DTO からインスタンスを生成する
    */
-  static fromDto(tabGroupDto: BrowserTabGroupDto): StoredBrowserTabGroup {
+  static fromDto(
+    tabGroupDto: BrowserTabGroupDtoForStore,
+  ): StoredBrowserTabGroup {
     const tabGroup = new StoredBrowserTabGroup({
-      id: 0,
+      id: STORED_TAB_GROUP_ID,
       collapsed: false,
       color: tabGroupDto.color,
       title: tabGroupDto.title,
-      windowId: 0,
+      windowId: WINDOW_ID_NONE,
     });
     if (tabGroupDto.tabs) {
       const tabs: BrowserTab[] = [];
@@ -274,7 +261,7 @@ export class StoredBrowserTabGroup extends BrowserTabGroup {
 /**
  * 保存用のタブグループを表すクラス
  */
-export class BrowserTabGroupDto {
+export class BrowserTabGroupDtoForStore {
   /**
    * グループのタイトル。
    */
@@ -320,13 +307,15 @@ export class BrowserTabGroupDto {
    * @param compressed 圧縮文字列
    * @returns 復元したオブジェクト
    */
-  static async decompress(compressed: string): Promise<BrowserTabGroupDto> {
+  static async decompress(
+    compressed: string,
+  ): Promise<BrowserTabGroupDtoForStore> {
     console.debug(`decompress called!`);
     const decompressed = await decompress(compressed);
     console.log(`解凍文字列: ${decompressed}`);
     const obj = JSON.parse(decompressed);
     console.debug(`解凍オブジェクト: ${JSON.stringify(obj)}`);
-    const dto = obj as BrowserTabGroupDto;
+    const dto = obj as BrowserTabGroupDtoForStore;
     return dto;
   }
 }

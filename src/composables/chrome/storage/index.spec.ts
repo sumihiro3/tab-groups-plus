@@ -1,7 +1,7 @@
 import {
   BrowserTab,
   BrowserTabGroup,
-  BrowserTabGroupDto,
+  BrowserTabGroupDtoForStore,
 } from '../../../types';
 import {
   getBooleanValueFromSyncStorage,
@@ -103,7 +103,7 @@ describe('getTabGroupValueFromSyncStorage', () => {
     // setup mock
     const tabGroup = createTabGroup();
     const tabGroupName = tabGroup.title!;
-    const tabDto = new BrowserTabGroupDto(tabGroup);
+    const tabDto = new BrowserTabGroupDtoForStore(tabGroup);
     const mock = createChromeStorageSyncGetMock();
     mock.mockResolvedValue({
       TAG_GROUP_TabGroup1_0: 'some-compressed-string-1',
