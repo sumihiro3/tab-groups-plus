@@ -252,25 +252,6 @@ const onChangedListItem = () => {
 };
 
 /**
- * 保存されたタブグループが削除された際のイベントハンドラー
- */
-// const onTabGroupDeleted = () => {
-//   console.debug('onTabGroupDeleted called!');
-//   // 検索文字列をクリアする
-//   query.value = '';
-//   // タブグループの一覧を更新する
-//   refreshAllTabGroups();
-//   setFocusToQuery();
-//   // 完了のスナックバーを表示する
-//   showSnackbar.value = {
-//     show: true,
-//     timeout: 3000,
-//     color: 'success',
-//     message: tm('tabGroups.deleted'),
-//   };
-// };
-
-/**
  * オプションページを開く
  */
 const openOptionsPage = () => {
