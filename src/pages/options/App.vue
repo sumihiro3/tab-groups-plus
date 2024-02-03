@@ -55,6 +55,14 @@
                       color="teal"
                       :label="`${tm('options.openInNewWindow')}`"
                     ></v-switch>
+                    <!-- showUnGroupedTabs -->
+                    <v-switch
+                      v-model="options.showUnGroupedTabs"
+                      hide-details
+                      inset
+                      color="teal"
+                      :label="`${tm('options.showUnGroupedTabs')}`"
+                    ></v-switch>
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer />

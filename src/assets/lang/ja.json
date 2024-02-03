@@ -29,6 +29,7 @@
     "reloadOnHighlight": "タブグループのハイライト時にタブを再読み込む",
     "overwriteTabGroup": "同名のタブグループが保存されていた場合に上書きする",
     "openInNewWindow": "タブグループを復元する時は新しいウィンドウに開く",
+    "showUnGroupedTabs": "タブグループに含まれないタブを表示する",
     "saved": "設定を保存しました",
     "save_failed": "設定の保存に失敗しました"
   }

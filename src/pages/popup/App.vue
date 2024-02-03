@@ -75,6 +75,7 @@ import {
 } from '../../types';
 import SnackbarView from '../../components/Snackbar.vue';
 import TabGroupList from '../../components/tab/GroupList.vue';
+import { getExtensionOptions } from '../../composables/options';
 
 const { tm } = useI18n({ useScope: 'global' });
 
@@ -196,12 +197,15 @@ watch(
 const refreshAllTabGroups = async () => {
   console.debug('refreshAllTabGroups called!');
   try {
+    const options = await getExtensionOptions();
     // 検索文字列をクリアする
     query.value = '';
     // ブラウザーで開かれているタブグループの一覧を取得
     openedTabGroups.value = await getTabGroups();
-    // 未分類のタブ群を取得
-    unGroupedTabs.value = await getUnGroupedTabs(tm('tabGroups.un_grouped'));
+    if (options.showUnGroupedTabs) {
+      // 未分類のタブ群を取得
+      unGroupedTabs.value = await getUnGroupedTabs(tm('tabGroups.un_grouped'));
+    }
     // ストレージに保存されているタブグループの一覧を取得
     const storedGroup = await getStoredTabGroups();
     /**
