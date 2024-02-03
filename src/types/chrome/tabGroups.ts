@@ -1,4 +1,5 @@
 import { BrowserTab, BrowserTabDto } from '.';
+import { isUnGroupedBrowserTabGroup } from '../../composables/chrome';
 import { compress, decompress } from '../../composables/compress';
 
 type ColorEnum = chrome.tabGroups.ColorEnum;
@@ -188,19 +189,28 @@ export class BrowserTabGroup {
     const q = query.toLowerCase();
     // タブグループのタイトルに指定の文字列が含まれているかどうか
     // タブグループに属していないタブグループの場合は常に含まれていないと判定する
-    const containsInTabGroupTitle =
-      this.id === UN_GROUPED_TAB_GROUP_ID
-        ? -1
-        : this.title?.toLowerCase().indexOf(q);
-    console.debug(
-      `[${this.title}] containsInTabGroupTitle: ${containsInTabGroupTitle}`,
-    );
+    const containsInTabGroupTitle = isUnGroupedBrowserTabGroup(this)
+      ? -1
+      : this.title!.toLowerCase().indexOf(q);
+    if (containsInTabGroupTitle && containsInTabGroupTitle > -1) {
+      console.log(
+        `タブグループ[${this.title}] のタイトルに、検索文字列[${q}] が含まれています`,
+      );
+    }
     // タブグループに属するタブのうち、指定の文字列が含まれているタブを取得する
     const filteredTabs = this.tabs!.filter((tab) => {
-      return tab.title?.toLowerCase().indexOf(q) !== -1;
+      return tab.title!.toLowerCase().indexOf(q) > -1;
     });
-    if (filteredTabs.length === 0 && containsInTabGroupTitle === -1) {
+    if (filteredTabs.length > 0) {
+      console.log(
+        `タブグループ[${this.title}] に、検索文字列[${q}] が含まれているタブが ${filteredTabs.length} 件見つかりました`,
+      );
+    }
+    if (filteredTabs.length < 1 && containsInTabGroupTitle < 0) {
       // タブグループタイトル、タブタイトルの両方に指定の文字列が含まれていない場合は null を返す
+      console.log(
+        `タブグループ[${this.title}] には、検索文字列[${q}] が含まれていません`,
+      );
       return null;
     }
     // タブグループのコピーを作成する
@@ -316,7 +326,7 @@ export class BrowserTabGroupDtoForStore {
     const decompressed = await decompress(compressed);
     console.log(`解凍文字列: ${decompressed}`);
     const obj = JSON.parse(decompressed);
-    console.debug(`解凍オブジェクト: ${JSON.stringify(obj)}`);
+    console.log(`解凍オブジェクト: ${JSON.stringify(obj)}`);
     const dto = obj as BrowserTabGroupDtoForStore;
     return dto;
   }
