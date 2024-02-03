@@ -213,9 +213,7 @@ export const decompress = async (
 export const removeTabGroup = async (
   tabGroup: BrowserTabGroup,
 ): Promise<void> => {
-  console.debug(
-    `removeTabGroup called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
-  );
+  console.debug(`removeTabGroup called! [tabGroup: ${tabGroup.title!}]`);
   // タブグループのメタデータを取得する
   const tabGroupMetadata = await getTabGroupMetadataFromSyncStorage();
   const record = tabGroupMetadata.getRecord(tabGroup.title!);

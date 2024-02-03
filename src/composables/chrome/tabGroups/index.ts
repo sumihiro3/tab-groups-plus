@@ -21,7 +21,7 @@ import { getExtensionOptions } from '../../options';
  */
 export const isOpenedBrowserTabGroup = (tabGroup: BrowserTabGroup): boolean => {
   console.debug(
-    `isTabGroupOpened called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+    `isTabGroupOpened called! [tabGroup: ${tabGroup.title}, id: ${tabGroup.id}]`,
   );
   let result = false;
   if (tabGroup instanceof StoredBrowserTabGroup) {
@@ -57,9 +57,7 @@ export const isUnGroupedBrowserTabGroup = (
   tabGroup: BrowserTabGroup,
 ): boolean => {
   console.debug(
-    `isUnGroupedBrowserTabGroup called! [tabGroup: ${JSON.stringify(
-      tabGroup,
-    )}]`,
+    `isUnGroupedBrowserTabGroup called! [tabGroup: ${tabGroup.title}, id: ${tabGroup.id}]`,
   );
   let result = false;
   if (tabGroup instanceof UnGroupedTabs) {
@@ -238,7 +236,7 @@ export const closeTabGroup = async (
   tabGroup: BrowserTabGroup,
 ): Promise<void> => {
   console.debug(
-    `closeTabGroup called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+    `closeTabGroup called! [tabGroup: ${tabGroup.title}, id: ${tabGroup.id}]`,
   );
   let tabs = await getTabsInTabGroup(tabGroup);
   // 閉じる対象のタブグループがカレントウィンドウに存在するかどうかを確認する
@@ -265,7 +263,7 @@ export const isTabGroupInCurrentWindow = async (
   tabGroup: BrowserTabGroup,
 ): Promise<boolean> => {
   console.debug(
-    `isTabGroupInCurrentWindow called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+    `isTabGroupInCurrentWindow called! [tabGroup: ${tabGroup.title}, id: ${tabGroup.id}]`,
   );
   const currentWindow = await chrome.windows.getCurrent();
   const tabs = await chrome.tabs.query({

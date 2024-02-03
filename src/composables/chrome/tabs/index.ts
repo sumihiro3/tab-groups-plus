@@ -15,7 +15,7 @@ export const createNewTab = async (): Promise<BrowserTab> => {
  * @param tab タブ
  */
 export const highlightTab = async (tab: BrowserTab): Promise<void> => {
-  console.debug(`highlightTab called! [tab: ${JSON.stringify(tab)}]`);
+  console.debug(`highlightTab called! [tab: ${tab.title!}]`);
   // カレントウインドウとは別で開いているタブであれば、そのウィンドウをアクティブにする
   const currentWindow = await chrome.windows.getCurrent();
   if (currentWindow.id !== tab.windowId) {
@@ -32,6 +32,6 @@ export const highlightTab = async (tab: BrowserTab): Promise<void> => {
  * @param tab タブ
  */
 export const closeTab = async (tab: BrowserTab): Promise<void> => {
-  console.debug(`closeTab called! [tab: ${JSON.stringify(tab)}]`);
+  console.debug(`closeTab called! [tab: ${tab.title!}]`);
   await chrome.tabs.remove(tab.id!);
 };

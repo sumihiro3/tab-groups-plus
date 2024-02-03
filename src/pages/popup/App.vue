@@ -155,9 +155,7 @@ const filteredTabGroups = computed(() => {
     const list: BrowserTabGroup[] = openedTabGroups.value
       .concat(unGrouped)
       .concat(storedTabGroups.value);
-    console.debug(
-      `filteredTabGroups [${list.length}]: ${JSON.stringify(list)}`,
-    );
+    console.debug(`filteredTabGroups [length: ${list.length}]`);
     return list;
   }
   // 入力された文字列がタブグループ名か、タブグループ内のタブ名に含まれているものに絞り込む
