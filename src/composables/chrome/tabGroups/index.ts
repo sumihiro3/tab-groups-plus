@@ -8,10 +8,65 @@ import {
 import {
   BrowserTab,
   BrowserTabGroup,
+  BrowserTabGroupMetadataRecord,
   StoredBrowserTabGroup,
+  UnGroupedTabs,
 } from '../../../types';
 import { TabGroupsSaveError } from '../../../types/errors';
 import { getExtensionOptions } from '../../options';
+
+/**
+ * 指定のタブグループがブラウザーで開かれているかどうかを判定する
+ * @returns ブラウザーで開かれている場合は true
+ */
+export const isOpenedBrowserTabGroup = (tabGroup: BrowserTabGroup): boolean => {
+  console.debug(
+    `isTabGroupOpened called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+  );
+  let result = false;
+  if (tabGroup instanceof StoredBrowserTabGroup) {
+    result = false;
+  } else if (tabGroup instanceof UnGroupedTabs) {
+    result = false;
+  } else {
+    result = true;
+  }
+  return result;
+};
+
+/**
+ * 指定のタブグループが、保存されているタブグループであるかを判定する
+ * @returns 保存されているタブグループである場合は true
+ */
+export const isStoredBrowserTabGroup = (tabGroup: BrowserTabGroup): boolean => {
+  console.debug(
+    `isTabGroupStored called! [tabGroup: ${JSON.stringify(tabGroup)}]`,
+  );
+  let result = false;
+  if (tabGroup instanceof StoredBrowserTabGroup) {
+    result = true;
+  }
+  return result;
+};
+
+/**
+ * 指定のタブグループが、タブグループに属していない TabGroup オブジェクトであるかを判定する
+ * @returns タブグループに属していない TabGroup オブジェクトである場合は true
+ */
+export const isUnGroupedBrowserTabGroup = (
+  tabGroup: BrowserTabGroup,
+): boolean => {
+  console.debug(
+    `isUnGroupedBrowserTabGroup called! [tabGroup: ${JSON.stringify(
+      tabGroup,
+    )}]`,
+  );
+  let result = false;
+  if (tabGroup instanceof UnGroupedTabs) {
+    result = true;
+  }
+  return result;
+};
 
 /**
  * すべてのタブグループを取得する
@@ -19,7 +74,13 @@ import { getExtensionOptions } from '../../options';
 export const getTabGroups = async (): Promise<BrowserTabGroup[]> => {
   console.debug('getTabGroups called!');
   const tabGroups = await chrome.tabGroups.query({});
-  const result = tabGroups.map((tabGroup) => new BrowserTabGroup(tabGroup));
+  const result = [];
+  for (const group of tabGroups) {
+    const g = new BrowserTabGroup(group);
+    const tabs = await getTabsInTabGroup(g);
+    g.setTabs(tabs);
+    result.push(g);
+  }
   return result;
 };
 
@@ -33,7 +94,11 @@ export const getTabsInTabGroup = async (
   console.debug('getTabsInTabGroup called!');
   const tabs = await chrome.tabs.query({ groupId: tabGroup.id });
   console.debug(`got tabs: ${JSON.stringify(tabs)}`);
-  const result = tabs.map((tab) => new BrowserTab(tab));
+  const result: BrowserTab[] = [];
+  for (const tab of tabs) {
+    const t = new BrowserTab(tab);
+    result.push(t);
+  }
   return result;
 };
 
@@ -70,6 +135,24 @@ export const highlightTabGroup = async (
     // オプションで設定されている場合は、対象のタブをリロードする
     await chrome.tabs.reload(targetTab.id);
   }
+};
+
+/**
+ * 未分類のタブ群を取得する
+ */
+export const getUnGroupedTabs = async (
+  title: string = '',
+): Promise<UnGroupedTabs> => {
+  console.debug('getUnGroupedTabs called!');
+  const tabs = await chrome.tabs.query({
+    // タブグループに含まれていないタブのみ取得する
+    groupId: chrome.tabGroups.TAB_GROUP_ID_NONE,
+  });
+  const unGroupedTabs = new UnGroupedTabs(title);
+  if (tabs.length > 0) {
+    unGroupedTabs.setTabs(tabs.map((tab) => new BrowserTab(tab)));
+  }
+  return unGroupedTabs;
 };
 
 /**
@@ -201,11 +284,14 @@ export const getStoredTabGroups = async (): Promise<BrowserTabGroup[]> => {
   const tabGroupMetadata = await getTabGroupMetadataFromSyncStorage();
   // 保存されているタブグループを取得する
   const tabGroups: BrowserTabGroup[] = [];
-  for (const metadataRecord of tabGroupMetadata.getRecords()) {
+  const metadataRecords: BrowserTabGroupMetadataRecord[] =
+    tabGroupMetadata.getRecords();
+  for (const metadataRecord of metadataRecords) {
     const tabGroup = await getTabGroupValueFromSyncStorage(
-      metadataRecord.title,
+      metadataRecord.title!,
       metadataRecord.count,
     );
+    // tabGroup?.setDisplayIndex(index);
     if (tabGroup) {
       tabGroups.push(tabGroup);
     }
@@ -264,7 +350,10 @@ export const restoreTabGroup = async (
       // タブグループをストレージから削除する
       await removeTabGroup(tabGroup);
     }
-    return new BrowserTabGroup(group);
+    const restoredGroup = new BrowserTabGroup(group);
+    const restoredTabs = await getTabsInTabGroup(restoredGroup);
+    restoredGroup.setTabs(restoredTabs);
+    return restoredGroup;
   } catch (error) {
     console.error(error);
     throw new TabGroupsSaveError(`タブグループの復元に失敗しました。`);

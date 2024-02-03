@@ -6,6 +6,7 @@ export const DEFAULT_EXTENSION_OPTIONS: ExtensionOptions = {
   reloadOnHighlight: false,
   overwriteTabGroup: false,
   openInNewWindow: false,
+  showUnGroupedTabs: true,
 };
 
 /**
@@ -33,4 +34,11 @@ export interface ExtensionOptions {
    * タブグループを復元する際に、新しいウィンドウで開くかどうか
    */
   openInNewWindow: boolean;
+
+  /**
+   * タブグループに属していないタブを一覧に表示するかどうか
+   * - true: 表示する
+   * - false: 表示しない
+   */
+  showUnGroupedTabs: boolean;
 }

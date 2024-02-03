@@ -4,16 +4,20 @@
   "close": "閉じる",
   "tabs": {
     "count_prefix": "タブ数:",
-    "count_suffix": ""
+    "count_suffix": "",
+    "close": "閉じる"
   },
   "tabGroups": {
-    "input_query": "入力してタブグループを検索",
+    "input_query": "タブグループ・タブを絞り込む",
     "no_matches": "一致するタブグループはありません",
+    "un_grouped": "未分類",
     "search": "タブグループの検索",
     "open": "開く",
+    "close": "閉じる",
     "save_and_close": "保存して閉じる",
     "restore": "復元する",
-    "delete": "削除する",
+    "delete": "タブグループを削除する",
+    "delete_failed": "タブグループの削除に失敗しました",
     "stored": "保存済み",
     "saved": "タブグループを保存しました",
     "save_failed": "タブグループの保存に失敗しました",
@@ -25,6 +29,7 @@
     "reloadOnHighlight": "タブグループのハイライト時にタブを再読み込む",
     "overwriteTabGroup": "同名のタブグループが保存されていた場合に上書きする",
     "openInNewWindow": "タブグループを復元する時は新しいウィンドウに開く",
+    "showUnGroupedTabs": "タブグループに含まれないタブを表示する",
     "saved": "設定を保存しました",
     "save_failed": "設定の保存に失敗しました"
   }

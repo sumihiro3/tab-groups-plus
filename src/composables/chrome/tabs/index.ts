@@ -16,6 +16,11 @@ export const createNewTab = async (): Promise<BrowserTab> => {
  */
 export const highlightTab = async (tab: BrowserTab): Promise<void> => {
   console.debug(`highlightTab called! [tab: ${JSON.stringify(tab)}]`);
+  // カレントウインドウとは別で開いているタブであれば、そのウィンドウをアクティブにする
+  const currentWindow = await chrome.windows.getCurrent();
+  if (currentWindow.id !== tab.windowId) {
+    await chrome.windows.update(tab.windowId, { focused: true });
+  }
   await chrome.tabs.highlight({
     tabs: tab.index,
     windowId: tab.windowId,

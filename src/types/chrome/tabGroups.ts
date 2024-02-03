@@ -89,6 +89,21 @@ export class BrowserTabGroupMetadata {
 }
 
 /**
+ * タブグループに属していないタブをまとめる用途で利用されるタブグループグループのID
+ */
+const UN_GROUPED_TAB_GROUP_ID = -1;
+
+/**
+ * 保存されたタブグループを表すタブグループのID
+ */
+const STORED_TAB_GROUP_ID = 0;
+
+/**
+ * ブラウザーでは開かれていないタブグループの windowId
+ */
+const WINDOW_ID_NONE = -1;
+
+/**
  * タブグループを表すクラス
  * @see https://developer.chrome.com/docs/extensions/reference/tabGroups/#type-Tab
  */
@@ -96,32 +111,37 @@ export class BrowserTabGroup {
   /**
    * グループの ID。グループ ID はブラウザ セッション内で一意です。
    */
-  id: number;
+  readonly id: number;
 
   /**
    * グループのタイトル。
    */
-  title?: string;
+  readonly title?: string;
 
   /**
    * グループの色。
    */
-  color: ColorEnum;
+  readonly color: ColorEnum;
 
   /**
    * グループが閉じているかどうか。折りたたまれたグループは、タブが非表示になっているグループです。
    */
-  collapsed: boolean;
+  readonly collapsed: boolean;
 
   /**
    * グループを含むウィンドウの ID。
    */
-  windowId: number;
+  readonly windowId: number;
 
   /**
    * グループに含まれるタブの配列
    */
   tabs?: BrowserTab[];
+
+  /**
+   * タブグループリストでの表示位置（リスト中のインデックス）
+   */
+  displayIndex?: number;
 
   /**
    * コンストラクター
@@ -144,17 +164,61 @@ export class BrowserTabGroup {
   }
 
   /**
-   * DTO からインスタンスを生成する
+   * リストの表示位置を設定する
    */
-  static fromDto(tabGroupDto: BrowserTabGroupDto): BrowserTabGroup {
-    const tabGroup = new BrowserTabGroup({
-      id: 0,
-      collapsed: false,
-      color: tabGroupDto.color,
-      title: tabGroupDto.title,
-      windowId: 0,
+  setDisplayIndex(index: number) {
+    if (index < 0) {
+      throw new Error('displayIndex は 0 以上である必要があります');
+    }
+    this.displayIndex = index;
+  }
+
+  /**
+   * タブグループに属するタブのタイトルに指定の文字列が含まれているかどうかを判定する
+   * 指定の文字列が含まれているタブを持ったタブグループを返す
+   * 含まれていない場合は、null を返す
+   * @param query 検索文字列
+   * @returns 指定の文字列がタイトルに含まれているタブを持ったタブグループオブジェクト
+   */
+  contains(query: string): BrowserTabGroup | null {
+    console.debug(`[${this.title}] contains called! [query: ${query}]`);
+    if (!this.tabs) {
+      return null;
+    }
+    const q = query.toLowerCase();
+    // タブグループのタイトルに指定の文字列が含まれているかどうか
+    // タブグループに属していないタブグループの場合は常に含まれていないと判定する
+    const containsInTabGroupTitle =
+      this.id === UN_GROUPED_TAB_GROUP_ID
+        ? -1
+        : this.title?.toLowerCase().indexOf(q);
+    console.debug(
+      `[${this.title}] containsInTabGroupTitle: ${containsInTabGroupTitle}`,
+    );
+    // タブグループに属するタブのうち、指定の文字列が含まれているタブを取得する
+    const filteredTabs = this.tabs!.filter((tab) => {
+      return tab.title?.toLowerCase().indexOf(q) !== -1;
     });
-    tabGroup.setTabs(tabGroupDto.tabs.map((tab) => BrowserTab.fromDto(tab)));
+    if (filteredTabs.length === 0 && containsInTabGroupTitle === -1) {
+      // タブグループタイトル、タブタイトルの両方に指定の文字列が含まれていない場合は null を返す
+      return null;
+    }
+    // タブグループのコピーを作成する
+    let tabGroup: BrowserTabGroup;
+    const tabObject = {
+      id: this.id,
+      collapsed: this.collapsed,
+      color: this.color,
+      title: this.title,
+      windowId: this.windowId,
+    };
+    if (this instanceof StoredBrowserTabGroup) {
+      tabGroup = new StoredBrowserTabGroup(tabObject);
+    } else {
+      tabGroup = new BrowserTabGroup(tabObject);
+    }
+    // タブグループに属するタブを設定する
+    tabGroup.tabs = filteredTabs;
     return tabGroup;
   }
 }
@@ -174,15 +238,24 @@ export class StoredBrowserTabGroup extends BrowserTabGroup {
   /**
    * DTO からインスタンスを生成する
    */
-  static fromDto(tabGroupDto: BrowserTabGroupDto): StoredBrowserTabGroup {
+  static fromDto(
+    tabGroupDto: BrowserTabGroupDtoForStore,
+  ): StoredBrowserTabGroup {
     const tabGroup = new StoredBrowserTabGroup({
-      id: 0,
+      id: STORED_TAB_GROUP_ID,
       collapsed: false,
       color: tabGroupDto.color,
       title: tabGroupDto.title,
-      windowId: 0,
+      windowId: WINDOW_ID_NONE,
     });
-    tabGroup.setTabs(tabGroupDto.tabs.map((tab) => BrowserTab.fromDto(tab)));
+    if (tabGroupDto.tabs) {
+      const tabs: BrowserTab[] = [];
+      for (const tabDto of tabGroupDto.tabs) {
+        const tab = BrowserTab.fromDto(tabDto);
+        tabs.push(tab);
+      }
+      tabGroup.setTabs(tabs);
+    }
     return tabGroup;
   }
 }
@@ -190,7 +263,7 @@ export class StoredBrowserTabGroup extends BrowserTabGroup {
 /**
  * 保存用のタブグループを表すクラス
  */
-export class BrowserTabGroupDto {
+export class BrowserTabGroupDtoForStore {
   /**
    * グループのタイトル。
    */
@@ -236,13 +309,31 @@ export class BrowserTabGroupDto {
    * @param compressed 圧縮文字列
    * @returns 復元したオブジェクト
    */
-  static async decompress(compressed: string): Promise<BrowserTabGroupDto> {
+  static async decompress(
+    compressed: string,
+  ): Promise<BrowserTabGroupDtoForStore> {
     console.debug(`decompress called!`);
     const decompressed = await decompress(compressed);
     console.log(`解凍文字列: ${decompressed}`);
     const obj = JSON.parse(decompressed);
     console.debug(`解凍オブジェクト: ${JSON.stringify(obj)}`);
-    const dto = obj as BrowserTabGroupDto;
+    const dto = obj as BrowserTabGroupDtoForStore;
     return dto;
+  }
+}
+
+/**
+ * タブグループに属していないタブをまとめる用途で利用されるタブグループ
+ */
+export class UnGroupedTabs extends BrowserTabGroup {
+  constructor(title: string = '') {
+    super({
+      id: UN_GROUPED_TAB_GROUP_ID,
+      collapsed: false,
+      color: 'grey',
+      title,
+      windowId: WINDOW_ID_NONE,
+    });
+    this.tabs = [];
   }
 }

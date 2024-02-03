@@ -1,6 +1,6 @@
 import {
   BrowserTabGroup,
-  BrowserTabGroupDto,
+  BrowserTabGroupDtoForStore,
   BrowserTabGroupMetadata,
   BrowserTabGroupMetadataRecord,
   StoredBrowserTabGroup,
@@ -105,7 +105,7 @@ export const saveTabGroupValueToSyncStorage = async (
 ): Promise<number> => {
   console.debug(`setTabGroupValueToSyncStorage called! [group: ${tabGroup}]`);
   try {
-    const dto = new BrowserTabGroupDto(tabGroup);
+    const dto = new BrowserTabGroupDtoForStore(tabGroup);
     // タブグループ内容を sync ストレージに収まるサイズに分割して保存する
     // - 文字列にして圧縮する
     const compressedString = await dto.compress();
@@ -198,11 +198,11 @@ export const getTabGroupValueFromSyncStorage = async (
  */
 export const decompress = async (
   compressedStringList: string[],
-): Promise<BrowserTabGroupDto> => {
+): Promise<BrowserTabGroupDtoForStore> => {
   console.debug(`decompress called!`);
   // 圧縮文字列を結合する
   const compressedString = compressedStringList.join('');
-  const dto = await BrowserTabGroupDto.decompress(compressedString);
+  const dto = await BrowserTabGroupDtoForStore.decompress(compressedString);
   return dto;
 };
 

@@ -1,16 +1,3 @@
-<script setup lang="ts">
-import { Snackbar } from '../types';
-import { useI18n } from 'vue-i18n';
-
-const { tm } = useI18n({ useScope: 'global' });
-/**
- * コンポーネントのプロパティ
- */
-const props = defineProps({
-  snackbar: Object as () => Snackbar,
-});
-</script>
-
 <template>
   <div v-if="props.snackbar">
     <v-snackbar
@@ -32,3 +19,16 @@ const props = defineProps({
     </v-snackbar>
   </div>
 </template>
+
+<script setup lang="ts">
+import { Snackbar } from '../types';
+import { useI18n } from 'vue-i18n';
+
+const { tm } = useI18n({ useScope: 'global' });
+/**
+ * コンポーネントのプロパティ
+ */
+const props = defineProps({
+  snackbar: Object as () => Snackbar,
+});
+</script>

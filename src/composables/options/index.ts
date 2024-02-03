@@ -23,6 +23,8 @@ export const getExtensionOptions = async (): Promise<ExtensionOptions> => {
       overwriteTabGroup:
         await getBooleanValueFromSyncStorage('overwriteTabGroup'),
       openInNewWindow: await getBooleanValueFromSyncStorage('openInNewWindow'),
+      showUnGroupedTabs:
+        await getBooleanValueFromSyncStorage('showUnGroupedTabs'),
     };
     return options;
   } catch (error) {
@@ -63,6 +65,11 @@ export const setExtensionOptions = async (
     await setBooleanValueToSyncStorage(
       'openInNewWindow',
       options.openInNewWindow,
+    );
+    // showUnGroupedTabs
+    await setBooleanValueToSyncStorage(
+      'showUnGroupedTabs',
+      options.showUnGroupedTabs,
     );
   } catch (error) {
     console.error(error);

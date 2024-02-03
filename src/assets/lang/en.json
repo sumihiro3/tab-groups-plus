@@ -4,16 +4,20 @@
   "close": "Close",
   "tabs": {
     "count_prefix": "",
-    "count_suffix": "tabs"
+    "count_suffix": "tabs",
+    "close": "Close"
   },
   "tabGroups": {
     "input_query": "Enter and search tab group",
     "no_matches": "No matches found",
+    "un_grouped": "Un grouped",
     "search": "Search",
     "open": "Open",
+    "close": "Close",
     "save_and_close": "Save and close",
     "restore": "Restore",
     "delete": "Delete",
+    "delete_failed": "Failed to delete tab group.",
     "stored": "Stored",
     "saved": "Tab group saved.",
     "save_failed": "Failed to save tab group.",
@@ -25,6 +29,7 @@
     "reloadOnHighlight": "Reload tab when a tab group highlighting",
     "overwriteTabGroup": "Overwrites a tab group with the same name if it has been saved",
     "openInNewWindow": "Open in a new window when restoring a saved tab group",
+    "showUnGroupedTabs": "Display tabs not included in tab groups",
     "saved": "Options saved.",
     "save_failed": "Failed to save options."
   }

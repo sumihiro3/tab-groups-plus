@@ -13,7 +13,7 @@ import { TabGroupsSaveError } from '../../../types/errors';
  */
 const createTabs = (): BrowserTab[] => {
   const tabs = [
-    {
+    new BrowserTab({
       id: 1,
       index: 0,
       windowId: 1,
@@ -25,8 +25,10 @@ const createTabs = (): BrowserTab[] => {
       pinned: false,
       discarded: false,
       incognito: false,
-    },
-    {
+      selected: true,
+      autoDiscardable: true,
+    }),
+    new BrowserTab({
       id: 2,
       index: 1,
       windowId: 1,
@@ -38,8 +40,10 @@ const createTabs = (): BrowserTab[] => {
       pinned: false,
       discarded: false,
       incognito: false,
-    },
-    {
+      selected: true,
+      autoDiscardable: true,
+    }),
+    new BrowserTab({
       id: 3,
       index: 2,
       windowId: 1,
@@ -51,7 +55,9 @@ const createTabs = (): BrowserTab[] => {
       pinned: false,
       discarded: false,
       incognito: false,
-    },
+      selected: true,
+      autoDiscardable: true,
+    }),
   ];
   return tabs;
 };
@@ -61,7 +67,7 @@ const createTabs = (): BrowserTab[] => {
  */
 const createMergedTabs = (): BrowserTab[] => {
   const tabs = [
-    {
+    new BrowserTab({
       id: 1,
       index: 0,
       windowId: 1,
@@ -73,8 +79,10 @@ const createMergedTabs = (): BrowserTab[] => {
       pinned: false,
       discarded: false,
       incognito: false,
-    },
-    {
+      selected: true,
+      autoDiscardable: true,
+    }),
+    new BrowserTab({
       id: 2,
       index: 1,
       windowId: 1,
@@ -86,8 +94,10 @@ const createMergedTabs = (): BrowserTab[] => {
       pinned: false,
       discarded: false,
       incognito: false,
-    },
-    {
+      selected: true,
+      autoDiscardable: true,
+    }),
+    new BrowserTab({
       id: 3,
       index: 2,
       windowId: 1,
@@ -99,8 +109,10 @@ const createMergedTabs = (): BrowserTab[] => {
       pinned: false,
       discarded: false,
       incognito: false,
-    },
-    {
+      selected: true,
+      autoDiscardable: true,
+    }),
+    new BrowserTab({
       id: 4,
       index: 2,
       windowId: 3,
@@ -112,7 +124,9 @@ const createMergedTabs = (): BrowserTab[] => {
       pinned: false,
       discarded: false,
       incognito: false,
-    },
+      selected: true,
+      autoDiscardable: true,
+    }),
   ];
   return tabs;
 };
@@ -211,6 +225,7 @@ describe('saveTabGroup', () => {
       reloadOnHighlight: false,
       overwriteTabGroup: true, // 上書き保存
       openInNewWindow: false,
+      showUnGroupedTabs: true,
     };
     mockGetExtensionOptions.mockResolvedValue(extensionOptions);
     // タブのマージ
@@ -288,6 +303,7 @@ describe('saveTabGroup', () => {
       reloadOnHighlight: false,
       overwriteTabGroup: false, // マージして保存
       openInNewWindow: false,
+      showUnGroupedTabs: true,
     };
     mockGetExtensionOptions.mockResolvedValue(extensionOptions);
     // 保存されているタブグループの内容を取得する

@@ -86,6 +86,16 @@ export class BrowserTab {
   groupId: number;
 
   /**
+   * タブが属するタブグループのアイテムリストでの表示位置（リスト中のインデックス）
+   */
+  tabGroupDisplayIndex?: number;
+
+  /**
+   * タブのアイテムリストでの表示位置（リスト中のインデックス）
+   */
+  displayIndex?: number;
+
+  /**
    * コンストラクター
    * @param tab タブ
    */
@@ -98,12 +108,37 @@ export class BrowserTab {
     this.pinned = tab.pinned;
     this.discarded = tab.discarded;
     this.title = tab.title;
-    this.url = tab.url;
+    if (tab.status === 'loading') {
+      this.url = tab.pendingUrl;
+    } else {
+      this.url = tab.url;
+    }
     this.favIconUrl = tab.favIconUrl;
     this.status = tab.status;
     this.incognito = tab.incognito;
     this.openerTabId = tab.openerTabId;
     this.groupId = tab.groupId;
+  }
+
+  /**
+   * リストでの表示位置を設定する
+   */
+  setDisplayIndex(index: number) {
+    if (index < 0) {
+      throw new Error('displayIndex は 0 以上である必要があります');
+    }
+    this.displayIndex = index;
+  }
+
+  /**
+   * タブグループを設定する
+   * @param group タブグループ
+   */
+  setGroupDisplayIndex(index: number) {
+    if (index < 0) {
+      throw new Error('tabGroupDisplayIndex は 0 以上である必要があります');
+    }
+    this.tabGroupDisplayIndex = index;
   }
 
   /**
