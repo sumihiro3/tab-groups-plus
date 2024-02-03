@@ -10,6 +10,7 @@
   "tabGroups": {
     "input_query": "Enter and search tab group",
     "no_matches": "No matches found",
+    "un_grouped": "Un grouped",
     "search": "Search",
     "open": "Open",
     "close": "Close",

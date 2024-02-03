@@ -1,9 +1,8 @@
 <template>
   <v-tooltip location="bottom">
-    <template v-slot:activator="{ isActive, props }">
+    <template v-slot:activator="{ props }">
       <v-btn
         v-bind="props"
-        v-on="isActive"
         :color="p.color"
         :class="p.class"
         @click="emit('click')"
@@ -20,8 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue';
-
 const p = defineProps({
   tooltip: String,
   icon: String,

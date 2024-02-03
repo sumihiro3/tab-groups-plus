@@ -75,6 +75,7 @@
             @click="emit('selectToDeleteTabGroup', tabGroup!)"
           />
         </template>
+        <template v-slot:append v-if="isUngroupedTabGroup"> </template>
       </v-list-item>
     </template>
     <slot></slot>
@@ -89,6 +90,7 @@ import TooltipButton from '../button/WithTooltip.vue';
 import {
   isStoredBrowserTabGroup,
   isOpenedBrowserTabGroup,
+  isUnGroupedBrowserTabGroup,
 } from '../../composables/chrome';
 
 const { tm } = useI18n({ useScope: 'global' });
@@ -165,6 +167,13 @@ const isOpenedTabGroup = computed(() => {
  */
 const isStoredTabGroup = computed(() => {
   return isStoredBrowserTabGroup(currentTabGroup.value);
+});
+
+/**
+ * 未分類のタブ群であるかどうか
+ */
+const isUngroupedTabGroup = computed(() => {
+  return isUnGroupedBrowserTabGroup(currentTabGroup.value);
 });
 
 /**

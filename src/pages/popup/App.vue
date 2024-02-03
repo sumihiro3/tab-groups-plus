@@ -62,8 +62,17 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getTabGroups, getStoredTabGroups } from '../../composables/chrome';
-import { BrowserTabGroup, StoredBrowserTabGroup, Snackbar } from '../../types';
+import {
+  getTabGroups,
+  getUnGroupedTabs,
+  getStoredTabGroups,
+} from '../../composables/chrome';
+import {
+  BrowserTabGroup,
+  StoredBrowserTabGroup,
+  Snackbar,
+  UnGroupedTabs,
+} from '../../types';
 import SnackbarView from '../../components/Snackbar.vue';
 import TabGroupList from '../../components/tab/GroupList.vue';
 
@@ -78,6 +87,11 @@ const showSnackbar = ref<Snackbar | undefined>();
  * ブラウザーで開かれているタブグループの一覧
  */
 const openedTabGroups = ref<BrowserTabGroup[]>([]);
+
+/**
+ * 未分類のタブ群
+ */
+const unGroupedTabs = ref<UnGroupedTabs>();
 
 /**
  * ストレージに保存されているタブグループの一覧
@@ -133,16 +147,29 @@ onMounted(async () => {
 const filteredTabGroups = computed(() => {
   console.debug(`filteredTabGroups called!: ${query.value}`);
   if (!query.value) {
-    // refreshAllTabGroups();
-    return openedTabGroups.value.concat(storedTabGroups.value);
+    const unGrouped =
+      unGroupedTabs.value && unGroupedTabs.value.tabs!.length > 0
+        ? [unGroupedTabs.value]
+        : [];
+    const list: BrowserTabGroup[] = openedTabGroups.value
+      .concat(unGrouped)
+      .concat(storedTabGroups.value);
+    console.debug(
+      `filteredTabGroups [${list.length}]: ${JSON.stringify(list)}`,
+    );
+    return list;
   }
   // 入力された文字列がタブグループ名か、タブグループ内のタブ名に含まれているものに絞り込む
   // ブラウザーで開かれているタブグループから抽出する
   const filteredInOpened = containsQueryInTabGroups(openedTabGroups.value);
+  // 未分類のタブ群から抽出する
+  const filteredInUnGrouped = containsQueryInTabGroups([unGroupedTabs.value!]);
   // 保存されているタブグループから抽出する
   const filteredInStored = containsQueryInTabGroups(storedTabGroups.value);
   // フィルタリング後の配列を結合する
-  const filtered = filteredInOpened.concat(filteredInStored);
+  const filtered = filteredInOpened
+    .concat(filteredInUnGrouped)
+    .concat(filteredInStored);
   // 現在のインデックスがフィルタリング後の配列の範囲外になっている場合は、0にする
   if (selectedTabGroupIndex.value >= filteredInOpened.length) {
     selectedTabGroupIndex.value = 0;
@@ -173,6 +200,8 @@ const refreshAllTabGroups = async () => {
     query.value = '';
     // ブラウザーで開かれているタブグループの一覧を取得
     openedTabGroups.value = await getTabGroups();
+    // 未分類のタブ群を取得
+    unGroupedTabs.value = await getUnGroupedTabs(tm('tabGroups.un_grouped'));
     // ストレージに保存されているタブグループの一覧を取得
     const storedGroup = await getStoredTabGroups();
     /**

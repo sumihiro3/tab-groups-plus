@@ -10,6 +10,7 @@ import {
   BrowserTabGroup,
   BrowserTabGroupMetadataRecord,
   StoredBrowserTabGroup,
+  UnGroupedTabs,
 } from '../../../types';
 import { TabGroupsSaveError } from '../../../types/errors';
 import { getExtensionOptions } from '../../options';
@@ -24,6 +25,8 @@ export const isOpenedBrowserTabGroup = (tabGroup: BrowserTabGroup): boolean => {
   );
   let result = false;
   if (tabGroup instanceof StoredBrowserTabGroup) {
+    result = false;
+  } else if (tabGroup instanceof UnGroupedTabs) {
     result = false;
   } else {
     result = true;
@@ -41,6 +44,25 @@ export const isStoredBrowserTabGroup = (tabGroup: BrowserTabGroup): boolean => {
   );
   let result = false;
   if (tabGroup instanceof StoredBrowserTabGroup) {
+    result = true;
+  }
+  return result;
+};
+
+/**
+ * 指定のタブグループが、タブグループに属していない TabGroup オブジェクトであるかを判定する
+ * @returns タブグループに属していない TabGroup オブジェクトである場合は true
+ */
+export const isUnGroupedBrowserTabGroup = (
+  tabGroup: BrowserTabGroup,
+): boolean => {
+  console.debug(
+    `isUnGroupedBrowserTabGroup called! [tabGroup: ${JSON.stringify(
+      tabGroup,
+    )}]`,
+  );
+  let result = false;
+  if (tabGroup instanceof UnGroupedTabs) {
     result = true;
   }
   return result;
@@ -113,6 +135,24 @@ export const highlightTabGroup = async (
     // オプションで設定されている場合は、対象のタブをリロードする
     await chrome.tabs.reload(targetTab.id);
   }
+};
+
+/**
+ * 未分類のタブ群を取得する
+ */
+export const getUnGroupedTabs = async (
+  title: string = '',
+): Promise<UnGroupedTabs> => {
+  console.debug('getUnGroupedTabs called!');
+  const tabs = await chrome.tabs.query({
+    // タブグループに含まれていないタブのみ取得する
+    groupId: chrome.tabGroups.TAB_GROUP_ID_NONE,
+  });
+  const unGroupedTabs = new UnGroupedTabs(title);
+  if (tabs.length > 0) {
+    unGroupedTabs.setTabs(tabs.map((tab) => new BrowserTab(tab)));
+  }
+  return unGroupedTabs;
 };
 
 /**

@@ -34,7 +34,7 @@
           activeListItemElementId === getTabListItemElementId(tabGroup, tab)
         "
         @selectTabToOpen="onSelectedTabToOpen"
-        @selectTabToDelete="onSelectedTabToOpen"
+        @selectTabToClose="onSelectedTabToClose"
       />
     </TabGroupListItem>
   </v-list>
@@ -61,6 +61,8 @@ import {
   removeTabGroup,
   restoreTabGroup,
   saveTabGroup,
+  closeTab,
+  isUnGroupedBrowserTabGroup,
 } from '../../composables/chrome';
 
 const props = defineProps({
@@ -359,12 +361,14 @@ const onSelectedTabGroupToOpen = async (tabGroup: BrowserTabGroup) => {
     if (restored) {
       await highlightTabGroup(restored);
     }
-  } else {
+    // ポップアップを閉じる
+    window.close();
+  } else if (isOpenedBrowserTabGroup(tabGroup)) {
     // 選択されたグループのタブをハイライトする
     await highlightTabGroup(tabGroup);
+    // ポップアップを閉じる
+    window.close();
   }
-  // ポップアップを閉じる
-  window.close();
 };
 
 /**
@@ -392,14 +396,17 @@ const onSelectedTabGroupToSave = async (tabGroup: BrowserTabGroup) => {
     `onSelectedTabGroupToSave called! [tabGroup: ${tabGroup.title}]`,
   );
   try {
-    // タブグループを保存する
-    await saveTabGroup(tabGroup);
-    // タブグループを閉じる
-    await closeTabGroup(tabGroup);
-    // 完了のスナックバーを表示する
-    showSuccessSnackbar(tm('tabGroups.saved'));
-    // 親コンポーネントへアイテムが更新されたことを通知する
-    emit('onChangedListItem');
+    if (isOpenedBrowserTabGroup(tabGroup)) {
+      // 開かれているタブグループであれば、その状態を保存する
+      // タブグループを保存する
+      await saveTabGroup(tabGroup);
+      // タブグループを閉じる
+      await closeTabGroup(tabGroup);
+      // 完了のスナックバーを表示する
+      showSuccessSnackbar(tm('tabGroups.saved'));
+      // 親コンポーネントへアイテムが更新されたことを通知する
+      emit('onChangedListItem');
+    }
   } catch (error) {
     console.error(`タブグループの保存に失敗しました: ${error}`);
     // エラーのスナックバーを表示する
@@ -466,5 +473,28 @@ const onSelectedTabToOpen = async (
   }
   // ポップアップを閉じる
   window.close();
+};
+
+/**
+ * タブを閉じるために選択された時のイベントハンドラー
+ * @param tabGroup タブグループ
+ * @param tab タブ
+ */
+const onSelectedTabToClose = async (
+  tabGroup: BrowserTabGroup,
+  tab: BrowserTab,
+) => {
+  console.debug(
+    `onSelectedTabToClose called! [tabGroup: ${tabGroup.title}, tab: ${tab.title}]`,
+  );
+  if (
+    isOpenedBrowserTabGroup(tabGroup) ||
+    isUnGroupedBrowserTabGroup(tabGroup)
+  ) {
+    // 選択されたタブを閉じる
+    await closeTab(tab);
+    // ポップアップを閉じる
+    window.close();
+  }
 };
 </script>

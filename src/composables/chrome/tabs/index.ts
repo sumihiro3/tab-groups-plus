@@ -16,6 +16,11 @@ export const createNewTab = async (): Promise<BrowserTab> => {
  */
 export const highlightTab = async (tab: BrowserTab): Promise<void> => {
   console.debug(`highlightTab called! [tab: ${JSON.stringify(tab)}]`);
+  // カレントウインドウとは別で開いているタブであれば、そのウィンドウをアクティブにする
+  const currentWindow = await chrome.windows.getCurrent();
+  if (currentWindow.id !== tab.windowId) {
+    await chrome.windows.update(tab.windowId, { focused: true });
+  }
   await chrome.tabs.highlight({
     tabs: tab.index,
     windowId: tab.windowId,
@@ -29,17 +34,4 @@ export const highlightTab = async (tab: BrowserTab): Promise<void> => {
 export const closeTab = async (tab: BrowserTab): Promise<void> => {
   console.debug(`closeTab called! [tab: ${JSON.stringify(tab)}]`);
   await chrome.tabs.remove(tab.id!);
-};
-
-/**
- * タブグループに含まれていないタブの一覧を取得する
- * @returns タブの一覧
- */
-export const getTabsNotInGroup = async (): Promise<BrowserTab[]> => {
-  console.debug('getTabsNotInGroup called!');
-  const tabs = await chrome.tabs.query({
-    // タブグループに含まれていないタブのみ取得する
-    groupId: chrome.tabGroups.TAB_GROUP_ID_NONE,
-  });
-  return tabs.map((tab) => new BrowserTab(tab));
 };

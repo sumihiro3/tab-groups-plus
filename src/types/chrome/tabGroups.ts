@@ -91,7 +91,7 @@ export class BrowserTabGroupMetadata {
 /**
  * タブグループに属していないタブをまとめる用途で利用されるタブグループグループのID
  */
-const TAB_GROUP_ID_NONE = -1;
+const UN_GROUPED_TAB_GROUP_ID = -1;
 
 /**
  * 保存されたタブグループを表すタブグループのID
@@ -189,7 +189,9 @@ export class BrowserTabGroup {
     // タブグループのタイトルに指定の文字列が含まれているかどうか
     // タブグループに属していないタブグループの場合は常に含まれていないと判定する
     const containsInTabGroupTitle =
-      this.id === TAB_GROUP_ID_NONE ? -1 : this.title?.toLowerCase().indexOf(q);
+      this.id === UN_GROUPED_TAB_GROUP_ID
+        ? -1
+        : this.title?.toLowerCase().indexOf(q);
     console.debug(
       `[${this.title}] containsInTabGroupTitle: ${containsInTabGroupTitle}`,
     );
@@ -317,5 +319,21 @@ export class BrowserTabGroupDtoForStore {
     console.debug(`解凍オブジェクト: ${JSON.stringify(obj)}`);
     const dto = obj as BrowserTabGroupDtoForStore;
     return dto;
+  }
+}
+
+/**
+ * タブグループに属していないタブをまとめる用途で利用されるタブグループ
+ */
+export class UnGroupedTabs extends BrowserTabGroup {
+  constructor(title: string = '') {
+    super({
+      id: UN_GROUPED_TAB_GROUP_ID,
+      collapsed: false,
+      color: 'grey',
+      title,
+      windowId: WINDOW_ID_NONE,
+    });
+    this.tabs = [];
   }
 }

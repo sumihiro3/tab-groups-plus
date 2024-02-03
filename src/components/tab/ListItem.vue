@@ -26,14 +26,14 @@
         {{ props.tab!.title }}
       </span>
     </v-list-item-title>
-    <template v-slot:append v-if="isOpenedTabGroup">
+    <template v-slot:append v-if="isOpenedTabGroup || isUnGroupedTabGroup">
       <!-- 開いているタブを閉じる -->
       <TooltipButton
         :tooltip="tm('tabs.close')"
         icon="mdi-close"
         color="grey-lighten-2"
         class="mb-1"
-        @click="emit('selectTabToDelete', props.tabGroup!, props.tab!)"
+        @click="emit('selectTabToClose', props.tabGroup!, props.tab!)"
       />
     </template>
   </v-list-item>
@@ -41,7 +41,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { isOpenedBrowserTabGroup } from '../../composables/chrome';
+import {
+  isOpenedBrowserTabGroup,
+  isUnGroupedBrowserTabGroup,
+} from '../../composables/chrome';
 import { BrowserTab, BrowserTabGroup } from '../../types';
 import TooltipButton from '../button/WithTooltip.vue';
 import { useI18n } from 'vue-i18n';
@@ -67,15 +70,11 @@ const emit = defineEmits<{
   (event: 'selectTabToOpen', tabGroup: BrowserTabGroup, tab: BrowserTab): void;
 
   /**
-   * 削除のためにタブが選択された時のイベント
+   * 閉じるためにタブが選択された時のイベント
    * @param tabGroup タブグループ
    * @param tab タブ
    */
-  (
-    event: 'selectTabToDelete',
-    tabGroup: BrowserTabGroup,
-    tab: BrowserTab,
-  ): void;
+  (event: 'selectTabToClose', tabGroup: BrowserTabGroup, tab: BrowserTab): void;
 }>();
 
 /**
@@ -88,6 +87,13 @@ const faviconSize = 20;
  */
 const isOpenedTabGroup = computed(() => {
   return isOpenedBrowserTabGroup(props.tabGroup!);
+});
+
+/**
+ * 未分類のタブグループかどうか
+ */
+const isUnGroupedTabGroup = computed(() => {
+  return isUnGroupedBrowserTabGroup(props.tabGroup!);
 });
 </script>
 

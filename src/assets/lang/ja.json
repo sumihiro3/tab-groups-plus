@@ -8,8 +8,9 @@
     "close": "閉じる"
   },
   "tabGroups": {
-    "input_query": "入力してタブグループを検索",
+    "input_query": "タブグループ・タブを絞り込む",
     "no_matches": "一致するタブグループはありません",
+    "un_grouped": "未分類",
     "search": "タブグループの検索",
     "open": "開く",
     "close": "閉じる",
