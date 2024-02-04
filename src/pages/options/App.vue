@@ -20,7 +20,9 @@
               <v-col cols="12" md="8" lg="4">
                 <v-card class="mx-auto">
                   <v-card-item>
-                    <v-card-title>{{ tm('options.title') }}</v-card-title>
+                    <v-card-title>{{
+                      getI18nMessage('options_title')
+                    }}</v-card-title>
                   </v-card-item>
                   <v-card-text>
                     <!-- removeSavedTabGroupWhenRestore -->
@@ -29,7 +31,7 @@
                       hide-details
                       inset
                       color="teal"
-                      :label="`${tm('options.removeSavedTabGroupWhenRestore')}`"
+                      :label="`${getI18nMessage('options_removeSavedTabGroupWhenRestore')}`"
                     ></v-switch>
                     <!-- reloadOnHighlight -->
                     <v-switch
@@ -37,7 +39,7 @@
                       hide-details
                       inset
                       color="teal"
-                      :label="`${tm('options.reloadOnHighlight')}`"
+                      :label="`${getI18nMessage('options_reloadOnHighlight')}`"
                     ></v-switch>
                     <!-- reloadOnHighlight -->
                     <v-switch
@@ -45,7 +47,7 @@
                       hide-details
                       inset
                       color="teal"
-                      :label="`${tm('options.overwriteTabGroup')}`"
+                      :label="`${getI18nMessage('options_overwriteTabGroup')}`"
                     ></v-switch>
                     <!-- openInNewWindow -->
                     <v-switch
@@ -53,7 +55,7 @@
                       hide-details
                       inset
                       color="teal"
-                      :label="`${tm('options.openInNewWindow')}`"
+                      :label="`${getI18nMessage('options_openInNewWindow')}`"
                     ></v-switch>
                     <!-- showUnGroupedTabs -->
                     <v-switch
@@ -61,7 +63,7 @@
                       hide-details
                       inset
                       color="teal"
-                      :label="`${tm('options.showUnGroupedTabs')}`"
+                      :label="`${getI18nMessage('options_showUnGroupedTabs')}`"
                     ></v-switch>
                   </v-card-text>
                   <v-card-actions>
@@ -75,7 +77,7 @@
                       size="large"
                       class="pa-2"
                       :disabled="!isOptionsChanged"
-                      >{{ tm('save') }}</v-btn
+                      >{{ getI18nMessage('save') }}</v-btn
                     >
                     <v-spacer />
                   </v-card-actions>
@@ -92,7 +94,6 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
 import {
   getExtensionOptions,
   setExtensionOptions,
@@ -103,8 +104,7 @@ import {
   Snackbar,
 } from '../../types';
 import SnackbarView from '../../components/Snackbar.vue';
-
-const { tm } = useI18n({ useScope: 'global' });
+import { getI18nMessage } from '../../composables/chrome/i18n';
 
 /**
  * スナックバー表示用オブジェクト
@@ -165,7 +165,7 @@ const saveOptions = async () => {
       show: true,
       timeout: 3000,
       color: 'success',
-      message: tm('options.saved'),
+      message: getI18nMessage('options_saved'),
     };
   } catch (error) {
     console.error(error);
@@ -174,7 +174,7 @@ const saveOptions = async () => {
       show: true,
       timeout: 3000,
       color: 'error',
-      message: tm('options.save_failed'),
+      message: getI18nMessage('options_save_failed'),
     };
   }
 };

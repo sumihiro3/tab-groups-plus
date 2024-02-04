@@ -7,7 +7,7 @@
         <v-text-field
           id="query"
           v-model="query"
-          :placeholder="tm('tabGroups.input_query')"
+          :placeholder="getI18nMessage('tabGroups_input_query')"
           hide-details
           single-line
         >
@@ -35,7 +35,7 @@
         <!-- max-height="400" -->
         <v-layout v-else height="100dvh">
           <v-chip variant="text" class="mt-4 text-subtitle-1 font-weight-bold">
-            {{ tm('tabGroups.no_matches') }}
+            {{ getI18nMessage('tabGroups_no_matches') }}
           </v-chip>
         </v-layout>
       </v-container>
@@ -45,13 +45,13 @@
           <div class="bg-teal d-flex w-100 align-center px-4">
             <strong>TagGroups Plus</strong>
             <v-spacer></v-spacer>
-            <v-btn
-              @click="openOptionsPage"
-              class="mx-4"
+            <ButtonWithTooltip
               icon="mdi-cog"
-              variant="plain"
-              size="small"
-            ></v-btn>
+              :tooltip="getI18nMessage('options_open')"
+              color="teal"
+              class="mx-2 my-1"
+              @click="openOptionsPage"
+            />
           </div>
         </v-footer>
       </v-container>
@@ -61,7 +61,6 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
 import {
   getTabGroups,
   getUnGroupedTabs,
@@ -75,9 +74,9 @@ import {
 } from '../../types';
 import SnackbarView from '../../components/Snackbar.vue';
 import TabGroupList from '../../components/tab/GroupList.vue';
+import ButtonWithTooltip from '../../components/button/WithTooltip.vue';
 import { getExtensionOptions } from '../../composables/options';
-
-const { tm } = useI18n({ useScope: 'global' });
+import { getI18nMessage } from '../../composables/chrome/i18n';
 
 /**
  * スナックバー表示用オブジェクト
@@ -215,7 +214,9 @@ const refreshAllTabGroups = async () => {
     openedTabGroups.value = await getTabGroups();
     if (options.showUnGroupedTabs) {
       // 未分類のタブ群を取得
-      unGroupedTabs.value = await getUnGroupedTabs(tm('tabGroups.un_grouped'));
+      unGroupedTabs.value = await getUnGroupedTabs(
+        getI18nMessage('tabGroups_un_grouped'),
+      );
     }
     // ストレージに保存されているタブグループの一覧を取得
     const storedGroup = await getStoredTabGroups();
