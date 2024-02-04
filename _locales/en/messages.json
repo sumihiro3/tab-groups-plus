@@ -10,5 +10,137 @@
   },
   "shortcut_key_description": {
     "message": "Shortcut key to open tab group list"
+  },
+  "cancel": {
+    "message": "Cancel",
+    "description": "キャンセルボタンのラベル"
+  },
+  "save": {
+    "message": "Save",
+    "description": "保存ボタンのラベル"
+  },
+  "close": {
+    "message": "Close",
+    "description": "閉じるボタンのラベル"
+  },
+  "tabs_close": {
+    "message": "Close",
+    "description": "タブを閉じるボタンのラベル"
+  },
+  "tabGroups_input_query": {
+    "message": "Search tab groups or tabs",
+    "description": "タブグループの検索ボックスのプレースホルダー"
+  },
+  "tabGroups_no_matches": {
+    "message": "No matches found",
+    "description": "一致するタブグループ・タブがないときのメッセージ"
+  },
+  "tabGroups_un_grouped": {
+    "message": "Un grouped",
+    "description": "グループに分類されていないタブ群のタブグループ名"
+  },
+  "tabGroups_search": {
+    "message": "Search",
+    "description": "タブグループの検索ボタンのツールチップ"
+  },
+  "tabGroups_open": {
+    "message": "Open",
+    "description": "タブグループを開くボタンのツールチップ"
+  },
+  "tabGroups_close": {
+    "message": "Close",
+    "description": "タブグループを閉じるボタンのツールチップ"
+  },
+  "tabGroups_save_and_close": {
+    "message": "Save and close",
+    "description": "タブグループを保存するボタンのツールチップ"
+  },
+  "tabGroups_restore": {
+    "message": "Restore",
+    "description": "タブグループを復元するボタンのツールチップ"
+  },
+  "tabGroups_delete": {
+    "message": "Delete",
+    "description": "タブグループを削除するボタンのツールチップ"
+  },
+  "tabGroups_deleted": {
+    "message": "Tab group [$name$] deleted.",
+    "description": "タブグループ削除成功時のメッセージ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "タブグループ名"
+      }
+    }
+  },
+  "tabGroups_delete_failed": {
+    "message": "Failed to delete tab group [$name$].",
+    "description": "タブグループ削除に失敗したときのメッセージ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "タブグループ名"
+      }
+    }
+  },
+  "tabGroups_stored": {
+    "message": "Stored",
+    "description": "保存済みタブグループ用のラベル"
+  },
+  "tabGroups_saved": {
+    "message": "Tab group [$name$] saved.",
+    "description": "タブグループ保存成功時のメッセージ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "タブグループ名"
+      }
+    }
+  },
+  "tabGroups_save_failed": {
+    "message": "Failed to save tab group [$name$] .",
+    "description": "タブグループ保存失敗時のメッセージ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "タブグループ名"
+      }
+    }
+  },
+  "options_title": {
+    "message": "Extension options",
+    "description": "オプションページのタイトル"
+  },
+  "options_open": {
+    "message": "Open the Extension Options screen.",
+    "description": "設定画面を開くボタンのラベル"
+  },
+  "options_saved": {
+    "message": "Options saved.",
+    "description": "設定を保存したときのメッセージ"
+  },
+  "options_save_failed": {
+    "message": "Failed to save options.",
+    "description": "設定保存に失敗したときのメッセージ"
+  },
+  "options_removeSavedTabGroupWhenRestore": {
+    "message": "Delete saved tab groups on restore",
+    "description": "復元時に保存済みのタブグループを削除する設定の説明"
+  },
+  "options_reloadOnHighlight": {
+    "message": "Reload tab when a tab group highlighting",
+    "description": "タブグループのハイライト時にタブを再読み込む設定の説明"
+  },
+  "options_overwriteTabGroup": {
+    "message": "Overwrites a tab group with the same name if it has been saved",
+    "description": "同名のタブグループが保存されていた場合に上書きする設定の説明"
+  },
+  "options_openInNewWindow": {
+    "message": "Open in a new window when restoring a saved tab group",
+    "description": "タブグループを復元する時は新しいウィンドウに開く設定の説明"
+  },
+  "options_showUnGroupedTabs": {
+    "message": "Display tabs not included in tab groups",
+    "description": "タブグループに含まれないタブを表示する設定の説明"
   }
 }

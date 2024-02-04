@@ -14,5 +14,137 @@
   "shortcut_key_description": {
     "message": "タブグループ一覧を開くショートカットキー",
     "description": "ショートカットキーの説明"
+  },
+  "cancel": {
+    "message": "キャンセル",
+    "description": "キャンセルボタンのラベル"
+  },
+  "save": {
+    "message": "保存",
+    "description": "保存ボタンのラベル"
+  },
+  "close": {
+    "message": "閉じる",
+    "description": "閉じるボタンのラベル"
+  },
+  "tabs_close": {
+    "message": "閉じる",
+    "description": "タブを閉じるボタンのラベル"
+  },
+  "tabGroups_input_query": {
+    "message": "検索",
+    "description": "タブグループの検索ボックスのプレースホルダー"
+  },
+  "tabGroups_no_matches": {
+    "message": "一致するタブグループ・タブはありません",
+    "description": "一致するタブグループ・タブがないときのメッセージ"
+  },
+  "tabGroups_un_grouped": {
+    "message": "未分類",
+    "description": "グループに分類されていないタブ群のタブグループ名"
+  },
+  "tabGroups_search": {
+    "message": "タブグループの検索",
+    "description": "タブグループの検索ボタンのツールチップ"
+  },
+  "tabGroups_open": {
+    "message": "開く",
+    "description": "タブグループを開くボタンのツールチップ"
+  },
+  "tabGroups_close": {
+    "message": "閉じる",
+    "description": "タブグループを閉じるボタンのツールチップ"
+  },
+  "tabGroups_save_and_close": {
+    "message": "保存して閉じる",
+    "description": "タブグループを保存するボタンのツールチップ"
+  },
+  "tabGroups_restore": {
+    "message": "復元する",
+    "description": "タブグループを復元するボタンのツールチップ"
+  },
+  "tabGroups_delete": {
+    "message": "タブグループを削除する",
+    "description": "タブグループを削除するボタンのツールチップ"
+  },
+  "tabGroups_deleted": {
+    "message": "タブグループ [$name$] を削除しました",
+    "description": "タブグループ削除成功時のメッセージ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "タブグループ名"
+      }
+    }
+  },
+  "tabGroups_delete_failed": {
+    "message": "タブグループ [$name$] の削除に失敗しました",
+    "description": "タブグループ削除に失敗したときのメッセージ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "タブグループ名"
+      }
+    }
+  },
+  "tabGroups_stored": {
+    "message": "保存済み",
+    "description": "保存済みタブグループ用のラベル"
+  },
+  "tabGroups_saved": {
+    "message": "タブグループ [$name$] を保存しました",
+    "description": "タブグループ保存成功時のメッセージ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "タブグループ名"
+      }
+    }
+  },
+  "tabGroups_save_failed": {
+    "message": "タブグループ [$name$] の保存に失敗しました",
+    "description": "タブグループ保存失敗時のメッセージ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "タブグループ名"
+      }
+    }
+  },
+  "options_title": {
+    "message": "拡張機能設定",
+    "description": "オプションページのタイトル"
+  },
+  "options_open": {
+    "message": "拡張機能設定画面を開く",
+    "description": "設定画面を開くボタンのラベル"
+  },
+  "options_saved": {
+    "message": "設定を設定を保存しました",
+    "description": "設定を保存したときのメッセージ"
+  },
+  "options_save_failed": {
+    "message": "設定の保存に失敗しました",
+    "description": "設定保存に失敗したときのメッセージ"
+  },
+  "options_removeSavedTabGroupWhenRestore": {
+    "message": "復元時に保存済みのタブグループを削除する",
+    "description": "復元時に保存済みのタブグループを削除する設定の説明"
+  },
+  "options_reloadOnHighlight": {
+    "message": "タブグループのハイライト時にタブを再読み込む",
+    "description": "タブグループのハイライト時にタブを再読み込む設定の説明"
+  },
+  "options_overwriteTabGroup": {
+    "message": "同名のタブグループが保存されていた場合に上書きする",
+    "description": "同名のタブグループが保存されていた場合に上書きする設定の説明"
+  },
+  "options_openInNewWindow": {
+    "message": "タブグループを復元する時は新しいウィンドウに開く",
+    "description": "タブグループを復元する時は新しいウィンドウに開く設定の説明"
+  },
+  "options_showUnGroupedTabs": {
+    "message": "タブグループに含まれないタブを表示する",
+    "description": "タブグループに含まれないタブを表示する設定の説明"
   }
 }
