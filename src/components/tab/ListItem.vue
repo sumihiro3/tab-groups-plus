@@ -29,7 +29,7 @@
     <template v-slot:append v-if="isOpenedTabGroup || isUnGroupedTabGroup">
       <!-- 開いているタブを閉じる -->
       <TooltipButton
-        :tooltip="tm('tabs.close')"
+        :tooltip="getI18nMessage('tabs_close')"
         icon="mdi-close"
         color="grey-lighten-2"
         class="mb-1"
@@ -41,15 +41,13 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import TooltipButton from '../button/WithTooltip.vue';
+import { BrowserTab, BrowserTabGroup } from '../../types';
 import {
   isOpenedBrowserTabGroup,
   isUnGroupedBrowserTabGroup,
 } from '../../composables/chrome';
-import { BrowserTab, BrowserTabGroup } from '../../types';
-import TooltipButton from '../button/WithTooltip.vue';
-import { useI18n } from 'vue-i18n';
-
-const { tm } = useI18n({ useScope: 'global' });
+import { getI18nMessage } from '../../composables/chrome/i18n';
 
 /**
  * コンポーネントのプロパティ

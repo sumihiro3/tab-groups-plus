@@ -42,7 +42,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 import {
   BrowserTab,
   BrowserTabGroup,
@@ -64,6 +63,7 @@ import {
   closeTab,
   isUnGroupedBrowserTabGroup,
 } from '../../composables/chrome';
+import { getI18nMessage } from '../../composables/chrome/i18n';
 
 const props = defineProps({
   /** リストへ表示するタブグループ */
@@ -83,8 +83,6 @@ const emit = defineEmits<{
    */
   (event: 'onChangedListItem'): void;
 }>();
-
-const { tm } = useI18n({ useScope: 'global' });
 
 /**
  * リストに表示するタブグループ一覧
@@ -414,14 +412,16 @@ const onSelectedTabGroupToSave = async (tabGroup: BrowserTabGroup) => {
       // タブグループを閉じる
       await closeTabGroup(tabGroup);
       // 完了のスナックバーを表示する
-      showSuccessSnackbar(tm('tabGroups.saved'));
+      showSuccessSnackbar(getI18nMessage('tabGroups_saved', [tabGroup.title!]));
       // 親コンポーネントへアイテムが更新されたことを通知する
       emit('onChangedListItem');
     }
   } catch (error) {
     console.error(`タブグループの保存に失敗しました: ${error}`);
     // エラーのスナックバーを表示する
-    showErrorSnackbar(tm('tabGroups.save_failed'));
+    showErrorSnackbar(
+      getI18nMessage('tabGroups_save_failed', [tabGroup.title!]),
+    );
   }
 };
 
@@ -439,14 +439,19 @@ const onSelectedTabGroupToDelete = async (tabGroup: BrowserTabGroup) => {
       // ストレージからタブグループを削除する
       removeTabGroup(tabGroup);
       // 完了のスナックバーを表示する
-      showSuccessSnackbar(tm('tabGroups.deleted'));
+      showSuccessSnackbar(
+        getI18nMessage('tabGroups_deleted', [tabGroup.title!]),
+      );
       // 親コンポーネントへアイテムが更新されたことを通知する
       emit('onChangedListItem');
     }
   } catch (error) {
-    console.error(`タブグループの削除に失敗しました: ${error}`);
+    const errorMessage = getI18nMessage('tabGroups_delete_failed', [
+      tabGroup.title!,
+    ]);
+    console.error(`${errorMessage}: ${error}`);
     // エラーのスナックバーを表示する
-    showErrorSnackbar(tm('tabGroups.delete_failed'));
+    showErrorSnackbar(errorMessage);
   }
 };
 

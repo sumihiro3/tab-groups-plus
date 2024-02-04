@@ -41,7 +41,7 @@
         <template v-slot:append v-if="isOpenedTabGroup">
           <!-- タブグループを開く・ハイライトする -->
           <TooltipButton
-            :tooltip="`${tm('tabGroups.open')} (Enter)`"
+            :tooltip="`${getI18nMessage('tabGroups_open')} (Enter)`"
             icon="mdi-open-in-app"
             color="teal"
             class="mb-1"
@@ -49,7 +49,7 @@
           />
           <!-- タブグループを保存して閉じる -->
           <TooltipButton
-            :tooltip="`${tm('tabGroups.save_and_close')} (Shift + Enter)`"
+            :tooltip="`${getI18nMessage('tabGroups_save_and_close')} (Shift + Enter)`"
             icon="mdi-content-save"
             color="teal"
             class="ml-1 mb-1"
@@ -57,7 +57,7 @@
           />
           <!-- タブグループを閉じる -->
           <TooltipButton
-            :tooltip="tm('tabGroups.close')"
+            :tooltip="getI18nMessage('tabGroups_close')"
             icon="mdi-close"
             color="teal"
             class="ml-1 mb-1"
@@ -68,7 +68,7 @@
         <template v-slot:append v-else-if="isStoredTabGroup">
           <!-- 保存されたタブグループを復元する -->
           <TooltipButton
-            :tooltip="tm('tabGroups.restore')"
+            :tooltip="getI18nMessage('tabGroups_restore')"
             icon="mdi-restore"
             color="teal"
             class="mb-1"
@@ -77,7 +77,7 @@
           <!-- 保存されたタブグループを削除する -->
           <TooltipButton
             icon="mdi-trash-can"
-            :tooltip="tm('tabGroups.delete')"
+            :tooltip="getI18nMessage('tabGroups_delete')"
             color="teal"
             class="ml-1 mb-1"
             @click="emit('selectToDeleteTabGroup', tabGroup!)"
@@ -92,7 +92,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
 import { BrowserTabGroup } from '../../types';
 import TooltipButton from '../button/WithTooltip.vue';
 import {
@@ -100,8 +99,7 @@ import {
   isOpenedBrowserTabGroup,
   isUnGroupedBrowserTabGroup,
 } from '../../composables/chrome';
-
-const { tm } = useI18n({ useScope: 'global' });
+import { getI18nMessage } from '../../composables/chrome/i18n';
 
 /**
  * コンポーネントのプロパティ

@@ -13,7 +13,7 @@
           variant="text"
           @click="props.snackbar === undefined"
         >
-          {{ tm('close') }}
+          {{ getI18nMessage('close') }}
         </v-btn>
       </template>
     </v-snackbar>
@@ -22,9 +22,10 @@
 
 <script setup lang="ts">
 import { Snackbar } from '../types';
-import { useI18n } from 'vue-i18n';
+// import { useI18n } from 'vue-i18n';
+import { getI18nMessage } from '../composables/chrome/i18n';
 
-const { tm } = useI18n({ useScope: 'global' });
+// const { tm } = useI18n({ useScope: 'global' });
 /**
  * コンポーネントのプロパティ
  */
