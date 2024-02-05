@@ -32,6 +32,7 @@
         :tooltip="getI18nMessage('tabs_close')"
         icon="mdi-close"
         color="grey-lighten-2"
+        elevation="0"
         class="mb-1"
         @click="emit('selectTabToClose', props.tabGroup!, props.tab!)"
       />

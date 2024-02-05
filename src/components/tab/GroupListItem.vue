@@ -43,7 +43,8 @@
           <TooltipButton
             :tooltip="`${getI18nMessage('tabGroups_open')} (Enter)`"
             icon="mdi-open-in-app"
-            color="teal"
+            color="rgba(0, 0, 0, 0.0)"
+            iconColor="teal"
             class="mb-1"
             @click="emit('selectToOpenTabGroup', tabGroup!)"
           />
@@ -51,7 +52,8 @@
           <TooltipButton
             :tooltip="`${getI18nMessage('tabGroups_save_and_close')} (Shift + Enter)`"
             icon="mdi-content-save"
-            color="teal"
+            color="rgba(0, 0, 0, 0.0)"
+            iconColor="teal"
             class="ml-1 mb-1"
             @click="emit('selectToSaveTabGroup', tabGroup!)"
           />
@@ -59,7 +61,8 @@
           <TooltipButton
             :tooltip="getI18nMessage('tabGroups_close')"
             icon="mdi-close"
-            color="teal"
+            color="rgba(0, 0, 0, 0.0)"
+            iconColor="teal"
             class="ml-1 mb-1"
             @click="emit('selectToCloseTabGroup', tabGroup!)"
           />
@@ -70,7 +73,8 @@
           <TooltipButton
             :tooltip="getI18nMessage('tabGroups_restore')"
             icon="mdi-restore"
-            color="teal"
+            color="rgba(0, 0, 0, 0.0)"
+            iconColor="teal"
             class="mb-1"
             @click="emit('selectToOpenTabGroup', tabGroup!)"
           />
@@ -78,7 +82,8 @@
           <TooltipButton
             icon="mdi-trash-can"
             :tooltip="getI18nMessage('tabGroups_delete')"
-            color="teal"
+            color="rgba(0, 0, 0, 0.0)"
+            iconColor="teal"
             class="ml-1 mb-1"
             @click="emit('selectToDeleteTabGroup', tabGroup!)"
           />
