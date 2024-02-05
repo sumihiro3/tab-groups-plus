@@ -1,15 +1,20 @@
 <template>
   <v-app>
     <!-- Header -->
-    <v-app-bar density="compact">
+    <v-app-bar density="comfortable">
       <v-app-bar-title>
         <!-- Tab or Tab group query text field -->
         <v-text-field
           id="query"
           v-model="query"
+          :label="getI18nMessage('tabGroups_search')"
           :placeholder="getI18nMessage('tabGroups_input_query')"
-          hide-details
-          single-line
+          variant="outlined"
+          density="compact"
+          prepend-inner-icon="mdi-magnify"
+          clearable
+          color="teal"
+          class="pt-8 my-2"
         >
           <template v-slot:append>
             <!-- Logo -->
@@ -49,6 +54,7 @@
               icon="mdi-cog"
               :tooltip="getI18nMessage('options_open')"
               color="teal"
+              iconColor="white"
               class="mx-2 my-1"
               @click="openOptionsPage"
             />

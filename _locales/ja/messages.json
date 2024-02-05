@@ -32,7 +32,7 @@
     "description": "タブを閉じるボタンのラベル"
   },
   "tabGroups_input_query": {
-    "message": "検索",
+    "message": "キーワードを入力",
     "description": "タブグループの検索ボックスのプレースホルダー"
   },
   "tabGroups_no_matches": {
@@ -44,7 +44,7 @@
     "description": "グループに分類されていないタブ群のタブグループ名"
   },
   "tabGroups_search": {
-    "message": "タブグループの検索",
+    "message": "タブグループ・タブの検索",
     "description": "タブグループの検索ボタンのツールチップ"
   },
   "tabGroups_open": {
