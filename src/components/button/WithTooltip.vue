@@ -6,12 +6,13 @@
         :color="p.color"
         :class="p.class"
         @click="emit('click')"
-        size="small"
+        :size="p.size"
+        :elevation="p.elevation"
         icon
         flat
         density="compact"
       >
-        <v-icon>{{ p.icon }}</v-icon>
+        <v-icon :color="p.iconColor">{{ p.icon }}</v-icon>
       </v-btn>
     </template>
     <span>{{ p.tooltip }}</span>
@@ -19,11 +20,26 @@
 </template>
 
 <script setup lang="ts">
-const p = defineProps({
-  tooltip: String,
-  icon: String,
-  color: String,
-  class: String,
+/** コンポーネントのプロパティ */
+export interface Props {
+  tooltip: string;
+  icon: string;
+  size?: string;
+  color?: string;
+  iconColor?: string;
+  class?: string;
+  elevation?: number;
+}
+
+/** プロパティとデフォルト値 */
+const p = withDefaults(defineProps<Props>(), {
+  tooltip: '',
+  icon: '',
+  size: 'small',
+  color: 'teal',
+  iconColor: 'white',
+  class: '',
+  elevation: 1,
 });
 
 const emit = defineEmits<{
