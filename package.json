@@ -1,13 +1,20 @@
 {
   "name": "tab-groups-plus",
   "private": true,
-  "version": "0.0.7",
+  "version": "0.0.8",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "test": "jest"
+    "test": "jest",
+    "version-major": "npm version major",
+    "version-minor": "npm version minor",
+    "version-preminor": "npm version preminor --preid=beta",
+    "version-patch": "npm version patch",
+    "version-prepatch": "npm version prepatch --preid=beta",
+    "version-prerelease": "npm version prerelease",
+    "postversion": "git push && git push --tags"
   },
   "dependencies": {
     "vue": "^3.3.11",
