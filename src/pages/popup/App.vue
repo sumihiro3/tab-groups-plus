@@ -266,6 +266,11 @@ const containsQueryInTabGroups = (tabGroups: BrowserTabGroup[]) => {
   }
   const filtered = [];
   for (const g of tabGroups) {
+    if (!g || !g.title) {
+      console.debug(`tabGroup is invalid!: ${JSON.stringify(g)}`);
+      continue;
+    }
+    console.debug(`Search [${query.value}] in [${g.title}]`);
     const contains = g.contains(query.value);
     console.debug(`contains [${contains}] in [${g.title}]`);
     if (contains) {
