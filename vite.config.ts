@@ -25,7 +25,7 @@ export default ({ mode }) => {
     },
     esbuild: {
       // https://esbuild.github.io/api/#drop
-      drop: isProduction ? ['console', 'debugger'] : undefined,
+      // drop: isProduction ? ['console', 'debugger'] : undefined,
     },
   });
 };
