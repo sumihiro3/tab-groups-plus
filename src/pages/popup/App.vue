@@ -78,12 +78,13 @@ import {
   Snackbar,
   UnGroupedTabs,
   ExtensionOptions,
+  DEFAULT_EXTENSION_OPTIONS,
 } from '../../types';
 import SnackbarView from '../../components/Snackbar.vue';
 import TabGroupList from '../../components/tab/GroupList.vue';
 import ButtonWithTooltip from '../../components/button/WithTooltip.vue';
-// import { getExtensionOptions } from '../../composables/options';
 import { getI18nMessage } from '../../composables/chrome/i18n';
+import { getExtensionOptions } from '../../composables/options';
 
 /**
  * スナックバー表示用オブジェクト
@@ -115,7 +116,7 @@ const selectedTabGroupIndex = ref<number>(0);
  */
 const query = ref<string>('');
 
-const options = ref<ExtensionOptions>();
+const options = ref<ExtensionOptions>(DEFAULT_EXTENSION_OPTIONS);
 
 /**
  * オプションページのURL
@@ -153,7 +154,7 @@ onMounted(async () => {
       });
     });
     // ExtensionOptions を取得する
-    // options.value = await getExtensionOptions();
+    options.value = await getExtensionOptions();
     // タブグループの一覧を更新する
     await refreshAllTabGroups();
     // 初期表示時に検索文字列の入力欄にフォーカスを当てる
