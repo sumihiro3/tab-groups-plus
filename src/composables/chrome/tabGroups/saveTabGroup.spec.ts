@@ -226,6 +226,7 @@ describe('saveTabGroup', () => {
       overwriteTabGroup: true, // 上書き保存
       openInNewWindow: false,
       showUnGroupedTabs: true,
+      searchIncludeTabUrl: false,
     };
     mockGetExtensionOptions.mockResolvedValue(extensionOptions);
     // タブのマージ
@@ -304,6 +305,7 @@ describe('saveTabGroup', () => {
       overwriteTabGroup: false, // マージして保存
       openInNewWindow: false,
       showUnGroupedTabs: true,
+      searchIncludeTabUrl: false,
     };
     mockGetExtensionOptions.mockResolvedValue(extensionOptions);
     // 保存されているタブグループの内容を取得する

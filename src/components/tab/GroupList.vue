@@ -11,8 +11,8 @@
   >
     <!-- Tab groups -->
     <TabGroupListItem
-      v-for="tabGroup in currentTabGroups"
-      :key="tabGroup.displayIndex"
+      v-for="(tabGroup, i) in currentTabGroups"
+      :key="i"
       :id="getTabGroupListItemElementId(tabGroup)"
       :tabGroup="tabGroup"
       :active="

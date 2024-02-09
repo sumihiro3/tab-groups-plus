@@ -8,6 +8,7 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test": "jest",
+    "archive": "TODAY=$(date \"+%Y-%m-%d_%H-%M-%S\"); yarn build && zip -r ./publish/tab-groups-plus-${npm_package_version}_${TODAY}.zip ./dist",
     "version-major": "npm version major",
     "version-minor": "npm version minor",
     "version-preminor": "npm version preminor --preid=beta",

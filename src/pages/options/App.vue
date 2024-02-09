@@ -65,6 +65,14 @@
                       color="teal"
                       :label="`${getI18nMessage('options_showUnGroupedTabs')}`"
                     ></v-switch>
+                    <!-- searchIncludeTabUrl -->
+                    <v-switch
+                      v-model="options.searchIncludeTabUrl"
+                      hide-details
+                      inset
+                      color="teal"
+                      :label="`${getI18nMessage('options_searchIncludeTabUrl')}`"
+                    ></v-switch>
                   </v-card-text>
                   <v-card-actions>
                     <v-spacer />

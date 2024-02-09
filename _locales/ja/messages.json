@@ -146,5 +146,9 @@
   "options_showUnGroupedTabs": {
     "message": "タブグループに含まれないタブを表示する",
     "description": "タブグループに含まれないタブを表示する設定の説明"
+  },
+  "options_searchIncludeTabUrl": {
+    "message": "タブの URL も検索対象にする",
+    "description": "タブの URL も検索対象にする設定の説明"
   }
 }

@@ -175,21 +175,32 @@ export class BrowserTabGroup {
   }
 
   /**
+   * グループが未分類のタブグループかどうかを判定する
+   * @returns 未分類のタブグループの場合は true
+   */
+  isUnGrouped(): boolean {
+    return isUnGroupedBrowserTabGroup(this);
+  }
+
+  /**
    * タブグループに属するタブのタイトルに指定の文字列が含まれているかどうかを判定する
    * 指定の文字列が含まれているタブを持ったタブグループを返す
    * 含まれていない場合は、null を返す
    * @param query 検索文字列
+   * @param includeUrl URL も検索対象に含めるかどうか
    * @returns 指定の文字列がタイトルに含まれているタブを持ったタブグループオブジェクト
    */
-  contains(query: string): BrowserTabGroup | null {
-    console.debug(`[${this.title}] contains called! [query: ${query}]`);
+  contains(query: string, includeUrl: boolean = false): BrowserTabGroup | null {
+    console.debug(
+      `[${this.title}] contains called! [query: ${query}] [includeUrl: ${includeUrl}]`,
+    );
     if (!this.tabs) {
       return null;
     }
     const q = query.toLowerCase();
     // タブグループのタイトルに指定の文字列が含まれているかどうか
     // タブグループに属していないタブグループの場合は常に含まれていないと判定する
-    const containsInTabGroupTitle = isUnGroupedBrowserTabGroup(this)
+    const containsInTabGroupTitle = this.isUnGrouped()
       ? -1
       : this.title!.toLowerCase().indexOf(q);
     if (containsInTabGroupTitle && containsInTabGroupTitle > -1) {
@@ -197,9 +208,15 @@ export class BrowserTabGroup {
         `タブグループ[${this.title}] のタイトルに、検索文字列[${q}] が含まれています`,
       );
     }
-    // タブグループに属するタブのうち、指定の文字列が含まれているタブを取得する
+    // タブグループに属するタブのうち、タイトルに指定の文字列が含まれているタブを取得する
     const filteredTabs = this.tabs!.filter((tab) => {
-      return tab.title!.toLowerCase().indexOf(q) > -1;
+      let result = false;
+      result = tab.title!.toLowerCase().indexOf(q) > -1;
+      if (!result && includeUrl) {
+        // タブの URL に指定の文字列が含まれているかどうか
+        result = tab.url!.toLowerCase().indexOf(q) > -1;
+      }
+      return result;
     });
     if (filteredTabs.length > 0) {
       console.log(
