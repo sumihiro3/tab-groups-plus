@@ -30,7 +30,7 @@
       <!-- 開いているタブを閉じる -->
       <TooltipButton
         :tooltip="getI18nMessage('tabs_close')"
-        icon="mdi-close"
+        :icon="mdiClose"
         color="grey-lighten-2"
         :elevation="0"
         class="mb-1"
@@ -42,6 +42,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { mdiClose } from '@mdi/js';
 import TooltipButton from '../button/WithTooltip.vue';
 import { BrowserTab, BrowserTabGroup } from '../../types';
 import {

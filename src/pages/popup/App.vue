@@ -11,7 +11,7 @@
           :placeholder="getI18nMessage('tabGroups_input_query')"
           variant="outlined"
           density="compact"
-          prepend-inner-icon="mdi-magnify"
+          :prepend-inner-icon="mdiMagnify"
           clearable
           color="teal"
           class="pt-8 my-2"
@@ -51,7 +51,7 @@
             <strong>TagGroups Plus</strong>
             <v-spacer></v-spacer>
             <ButtonWithTooltip
-              icon="mdi-cog"
+              :icon="mdiCog"
               :tooltip="getI18nMessage('options_open')"
               color="teal"
               iconColor="white"
@@ -67,6 +67,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed, watch } from 'vue';
+import { mdiMagnify, mdiCog } from '@mdi/js';
 import {
   getTabGroups,
   getUnGroupedTabs,
