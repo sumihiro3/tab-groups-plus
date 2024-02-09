@@ -25,6 +25,9 @@ export const getExtensionOptions = async (): Promise<ExtensionOptions> => {
       openInNewWindow: await getBooleanValueFromSyncStorage('openInNewWindow'),
       showUnGroupedTabs:
         await getBooleanValueFromSyncStorage('showUnGroupedTabs'),
+      searchIncludeTabUrl: await getBooleanValueFromSyncStorage(
+        'searchIncludeTabUrl',
+      ),
     };
     return options;
   } catch (error) {
@@ -70,6 +73,11 @@ export const setExtensionOptions = async (
     await setBooleanValueToSyncStorage(
       'showUnGroupedTabs',
       options.showUnGroupedTabs,
+    );
+    // searchIncludeTabUrl
+    await setBooleanValueToSyncStorage(
+      'searchIncludeTabUrl',
+      options.searchIncludeTabUrl,
     );
   } catch (error) {
     console.error(error);

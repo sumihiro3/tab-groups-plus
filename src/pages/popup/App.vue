@@ -77,11 +77,12 @@ import {
   StoredBrowserTabGroup,
   Snackbar,
   UnGroupedTabs,
+  ExtensionOptions,
 } from '../../types';
 import SnackbarView from '../../components/Snackbar.vue';
 import TabGroupList from '../../components/tab/GroupList.vue';
 import ButtonWithTooltip from '../../components/button/WithTooltip.vue';
-import { getExtensionOptions } from '../../composables/options';
+// import { getExtensionOptions } from '../../composables/options';
 import { getI18nMessage } from '../../composables/chrome/i18n';
 
 /**
@@ -113,6 +114,8 @@ const selectedTabGroupIndex = ref<number>(0);
  * タブグループの検索用文字列
  */
 const query = ref<string>('');
+
+const options = ref<ExtensionOptions>();
 
 /**
  * オプションページのURL
@@ -149,6 +152,8 @@ onMounted(async () => {
         filteredTabGroups;
       });
     });
+    // ExtensionOptions を取得する
+    // options.value = await getExtensionOptions();
     // タブグループの一覧を更新する
     await refreshAllTabGroups();
     // 初期表示時に検索文字列の入力欄にフォーカスを当てる
@@ -213,12 +218,11 @@ watch(
 const refreshAllTabGroups = async () => {
   console.debug('refreshAllTabGroups called!');
   try {
-    const options = await getExtensionOptions();
     // 検索文字列をクリアする
     query.value = '';
     // ブラウザーで開かれているタブグループの一覧を取得
     openedTabGroups.value = await getTabGroups();
-    if (options.showUnGroupedTabs) {
+    if (options.value!.showUnGroupedTabs) {
       // 未分類のタブ群を取得
       unGroupedTabs.value = await getUnGroupedTabs(
         getI18nMessage('tabGroups_un_grouped'),
@@ -246,10 +250,11 @@ const refreshAllTabGroups = async () => {
 /**
  * リストグループで展開するタブグループの一覧を更新する
  */
-const refreshExpandTabGroupList = () => {
+const refreshExpandTabGroupList = async () => {
   console.debug('refreshExpandTabGroupList called!');
   expandTabGroupList.value = [];
-  for (const g of filteredTabGroups.value) {
+  const filtered = await filteredTabGroups.value;
+  for (const g of filtered) {
     expandTabGroupList.value.push(g.title!);
   }
 };
@@ -271,7 +276,10 @@ const containsQueryInTabGroups = (tabGroups: BrowserTabGroup[]) => {
       continue;
     }
     console.debug(`Search [${query.value}] in [${g.title}]`);
-    const contains = g.contains(query.value);
+    const searchIncludeTabUrl = options.value
+      ? options.value!.searchIncludeTabUrl
+      : true;
+    const contains = g.contains(query.value, searchIncludeTabUrl);
     console.debug(`contains [${contains}] in [${g.title}]`);
     if (contains) {
       filtered.push(contains);

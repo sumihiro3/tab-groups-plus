@@ -7,6 +7,7 @@ export const DEFAULT_EXTENSION_OPTIONS: ExtensionOptions = {
   overwriteTabGroup: false,
   openInNewWindow: false,
   showUnGroupedTabs: true,
+  searchIncludeTabUrl: false,
 };
 
 /**
@@ -41,4 +42,11 @@ export interface ExtensionOptions {
    * - false: 表示しない
    */
   showUnGroupedTabs: boolean;
+
+  /**
+   * タブグループの検索時に、タブの URL も検索対象に含めるかどうか
+   * - true: URL も検索対象に含める
+   * - false: URL は検索対象に含めない
+   */
+  searchIncludeTabUrl: boolean;
 }
