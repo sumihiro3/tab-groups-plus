@@ -4,7 +4,7 @@
     "description": "拡張機能名"
   },
   "extension_description": {
-    "message": "TabGroups Plus は、目的のタブグループを素早く開いたり、タブグループで開いているタブを保存しておける拡張機能です。",
+    "message": "TabGroups Plus は、目的のタブグループやタブを一覧表示や絞り込み検索で素早く開いたり、タブグループで開いているタブを保存しておけるなど、タブやタブグループをたくさん作っておきたい人向けの拡張機能です。",
     "description": "拡張機能の説明"
   },
   "popup_page_title": {
