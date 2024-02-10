@@ -81,7 +81,7 @@
                       @click="saveOptions"
                       color="teal"
                       variant="tonal"
-                      prepend-icon="mdi-floppy"
+                      :prepend-icon="mdiFloppy"
                       size="large"
                       class="pa-2"
                       :disabled="!isOptionsChanged"
@@ -102,6 +102,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
+import { mdiFloppy } from '@mdi/js';
 import {
   getExtensionOptions,
   setExtensionOptions,
