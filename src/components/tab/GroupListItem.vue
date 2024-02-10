@@ -42,7 +42,7 @@
           <!-- タブグループを開く・ハイライトする -->
           <TooltipButton
             :tooltip="`${getI18nMessage('tabGroups_open')} (Enter)`"
-            icon="mdi-open-in-app"
+            :icon="mdiOpenInApp"
             color="rgba(0, 0, 0, 0.0)"
             iconColor="teal"
             class="mb-1"
@@ -51,7 +51,7 @@
           <!-- タブグループを保存して閉じる -->
           <TooltipButton
             :tooltip="`${getI18nMessage('tabGroups_save_and_close')} (Shift + Enter)`"
-            icon="mdi-content-save"
+            :icon="mdiContentSave"
             color="rgba(0, 0, 0, 0.0)"
             iconColor="teal"
             class="ml-1 mb-1"
@@ -60,7 +60,7 @@
           <!-- タブグループを閉じる -->
           <TooltipButton
             :tooltip="getI18nMessage('tabGroups_close')"
-            icon="mdi-close"
+            :icon="mdiClose"
             color="rgba(0, 0, 0, 0.0)"
             iconColor="teal"
             class="ml-1 mb-1"
@@ -72,7 +72,7 @@
           <!-- 保存されたタブグループを復元する -->
           <TooltipButton
             :tooltip="getI18nMessage('tabGroups_restore')"
-            icon="mdi-restore"
+            :icon="mdiRestore"
             color="rgba(0, 0, 0, 0.0)"
             iconColor="teal"
             class="mb-1"
@@ -80,8 +80,8 @@
           />
           <!-- 保存されたタブグループを削除する -->
           <TooltipButton
-            icon="mdi-trash-can"
             :tooltip="getI18nMessage('tabGroups_delete')"
+            :icon="mdiTrashCan"
             color="rgba(0, 0, 0, 0.0)"
             iconColor="teal"
             class="ml-1 mb-1"
@@ -105,6 +105,16 @@ import {
   isUnGroupedBrowserTabGroup,
 } from '../../composables/chrome';
 import { getI18nMessage } from '../../composables/chrome/i18n';
+import {
+  mdiContentSave,
+  mdiCircle,
+  // @ts-ignore 6133 何故か 'mdiRestore' is declared but its value is never read. が出るので無視するように追加
+  mdiRestore,
+  // @ts-ignore 6133 何故か 'mdiTrashCan' is declared but its value is never read. が出るので無視するように追加
+  mdiTrashCan,
+  mdiOpenInApp,
+  mdiClose,
+} from '@mdi/js';
 
 /**
  * コンポーネントのプロパティ
@@ -206,9 +216,9 @@ const tabGroupColor = computed(() => {
  */
 const tabGroupIcon = computed(() => {
   if (isStoredTabGroup.value) {
-    return 'mdi-content-save';
+    return mdiContentSave;
   } else {
-    return 'mdi-circle';
+    return mdiCircle;
   }
 });
 </script>
