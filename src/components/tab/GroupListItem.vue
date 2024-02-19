@@ -88,7 +88,9 @@
             @click="emit('selectToDeleteTabGroup', tabGroup!)"
           />
         </template>
-        <template v-slot:append v-if="isUngroupedTabGroup"> </template>
+        <template v-slot:append v-else-if="isUngroupedTabGroup">
+          <!-- 未分類の場合、ショートカットボタンは表示しない -->
+        </template>
       </v-list-item>
     </template>
     <slot></slot>
@@ -193,6 +195,7 @@ const isStoredTabGroup = computed(() => {
 /**
  * 未分類のタブ群であるかどうか
  */
+// @ts-ignore 6133 何故か ''isUngroupedTabGroup' が宣言されていますが、その値が読み取られることはありません。 が出るので無視するように追加
 const isUngroupedTabGroup = computed(() => {
   return isUnGroupedBrowserTabGroup(currentTabGroup.value);
 });
