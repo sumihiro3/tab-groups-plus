@@ -26,7 +26,7 @@
     "vuetify": "^3.4.10"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "^2.0.0-beta.21",
+    "@crxjs/vite-plugin": "^2.0.0-beta.23",
     "@mdi/js": "^7.4.47",
     "@types/chrome": "^0.0.256",
     "@types/jest": "^29.5.11",
@@ -45,5 +45,5 @@
     "vite-plugin-vuetify": "^2.0.1",
     "vue-tsc": "^1.8.25"
   },
-  "packageManager": "yarn@1.22.9"
+  "packageManager": "yarn@1.22.19"
 }
