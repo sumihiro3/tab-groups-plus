@@ -16,10 +16,7 @@
     "version-prepatch": "npm version prepatch --preid=beta",
     "version-prerelease": "npm version prerelease",
     "preversion": "yarn test",
-    "version": "yarn sync-version",
-    "postversion": "git push && git push --tags",
-    "sync-version": "ts-node --esm ./scripts/sync-version.ts",
-    "postsync-version": "git add ./manifest.json && git commit -m \"update version\""
+    "postversion": "git push && git push --tags"
   },
   "dependencies": {
     "vue": "^3.3.11",
