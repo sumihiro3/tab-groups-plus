@@ -16,17 +16,14 @@
     "version-prepatch": "npm version prepatch --preid=beta",
     "version-prerelease": "npm version prerelease",
     "preversion": "yarn test",
-    "version": "yarn sync-version",
-    "postversion": "git push && git push --tags",
-    "sync-version": "ts-node --esm ./scripts/sync-version.ts",
-    "postsync-version": "git add ./manifest.json && git commit -m \"update version\""
+    "postversion": "git push && git push --tags"
   },
   "dependencies": {
     "vue": "^3.3.11",
     "vuetify": "^3.4.10"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "^2.0.0-beta.21",
+    "@crxjs/vite-plugin": "^2.0.0-beta.23",
     "@mdi/js": "^7.4.47",
     "@types/chrome": "^0.0.256",
     "@types/jest": "^29.5.11",
@@ -45,5 +42,5 @@
     "vite-plugin-vuetify": "^2.0.1",
     "vue-tsc": "^1.8.25"
   },
-  "packageManager": "yarn@1.22.9"
+  "packageManager": "yarn@1.22.19"
 }
