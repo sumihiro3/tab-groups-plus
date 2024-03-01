@@ -8,7 +8,7 @@
     class="tab-group-list-item"
   >
     <template v-slot:activator="{ props }">
-      <v-list-item v-bind="props" rounded="xl">
+      <v-list-item v-bind="props" elevation="1">
         <template v-slot:default v-if="currentTabGroup">
           <div class="text-left">
             <!-- 保存されたタブグループの場合、それを表すアイコンを表示する -->
